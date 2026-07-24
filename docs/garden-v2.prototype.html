@@ -1,0 +1,344 @@
+<!--
+  REFERENCE ONLY — do not ship, do not import.
+
+  Source of truth for the visual design: exported from Claude Design
+  project 2fc06d09-918c-47bc-aca7-701a4e9b85db, file "Garden v2.dc.html".
+
+  This is a Claude Design prototype format (<x-dc>, sc-if, sc-for, inline styles,
+  React-state routing). It is kept in the repo so the production port can be
+  diffed against exact token values, copy, easing curves and hover choreography.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#e8e2d5}
+  a{color:#b0573f;text-decoration:none}
+  a:hover{color:#8f4227}
+  ::selection{background:#b0573f;color:#f4efe6}
+  @keyframes fadeup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @keyframes wipein{from{opacity:0;transform:translateY(30px) scale(.985)}to{opacity:1;transform:none}}
+  /* nav underline wipe */
+  .navlink{position:relative}
+  .navlink::after{content:"";position:absolute;left:0;bottom:-5px;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .navlink:hover::after{transform:scaleX(1);transform-origin:left}
+  /* home entry cards */
+  .entry{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+  .entry:hover{transform:translateY(-6px)}
+  .entry-rule{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .entry:hover .entry-rule{transform:scaleX(1)!important}
+  .entry-title{transition:color .35s ease}
+  .entry:hover .entry-title{color:var(--acc)}
+  .pip{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+  .entry:hover .pip{transform:scale(1.4)}
+  /* home plot index rows */
+  .idx-row{position:relative;transition:padding-left .4s cubic-bezier(.2,.7,.2,1)}
+  .idx-row:hover{padding-left:24px}
+  .idx-title{transition:color .35s ease}
+  .idx-row:hover .idx-title{color:var(--acc)}
+  .idx-lead{transition:border-color .35s ease}
+  .idx-row:hover .idx-lead{border-bottom-color:var(--acc)}
+  .idx-arrow{display:inline-block;opacity:0;transform:translateX(-10px);color:var(--acc);transition:opacity .35s ease,transform .4s cubic-bezier(.2,.7,.2,1)}
+  .idx-row:hover .idx-arrow{opacity:1;transform:none}
+  /* plot page entry rows */
+  .eng-row{position:relative;transition:padding-left .4s cubic-bezier(.2,.7,.2,1)}
+  .eng-row::before{content:"";position:absolute;left:0;top:16%;bottom:16%;width:2px;background:var(--acc,#4f6d9e);transform:scaleY(0);transform-origin:top;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+  .eng-row:hover{padding-left:26px}
+  .eng-row:hover::before{transform:scaleY(1)}
+  .eng-num{transition:color .35s ease,transform .4s cubic-bezier(.2,.7,.2,1)}
+  .eng-row:hover .eng-num{color:var(--acc,#4f6d9e)}
+  .eng-title{transition:color .35s ease}
+  .eng-row:hover .eng-title{color:var(--acc,#4f6d9e)}
+  /* dark-mode toggle */
+  .dotbtn .dotpip{transition:transform .55s cubic-bezier(.2,.7,.2,1),background .4s ease}
+  .dotbtn:hover .dotpip{transform:rotate(180deg) scale(1.18)}
+</style>
+</helmet>
+<div style="{{ wrapStyle }}">
+
+  <!-- ============ NAV ============ -->
+  <div style="position:sticky;top:0;z-index:20;background:var(--bg,#e8e2d5);border-bottom:1px solid var(--rule,#cfc7b7);transition:background .5s ease,border-color .5s ease">
+    <div style="margin:0 auto;padding:16px clamp(24px,5vw,120px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px">
+      <a onClick="{{ goHome }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink,#221f1b);white-space:nowrap">Matthew Rizky Hartadi</a>
+      <div style="display:flex;align-items:center;gap:clamp(16px,2.4vw,30px);flex-wrap:wrap">
+        <a class="navlink" onClick="{{ goHome }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ navHome }};transition:color .3s ease" style-hover="{{ navHov }}">The garden</a>
+        <a class="navlink" onClick="{{ goPlot }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ navPlot }};transition:color .3s ease" style-hover="{{ navHov }}">The plots</a>
+        <a class="navlink" onClick="{{ goAbout }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ navAbout }};transition:color .3s ease" style-hover="{{ navHov }}">About</a>
+        <a class="dotbtn" onClick="{{ toggleDark }}" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#8a8377);transition:color .3s ease" style-hover="{{ navHov }}"><span class="dotpip" style="width:10px;height:10px;border-radius:999px;background:{{ dot }};border:1px solid var(--ink,#221f1b)"></span>{{ darkLabel }}</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:clamp(40px,6vw,80px) clamp(24px,6vw,120px) clamp(70px,9vw,120px)">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 32px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim,#4a453d);border-bottom:1px solid var(--hair,#221f1b);padding-bottom:14px">
+      <span style="color:var(--ink,#221f1b)">A place to think out loud</span>
+      <span>A Digital Garden — Est. 2026</span>
+      <span>Brisbane / Jakarta</span>
+    </div>
+
+    <div style="padding:clamp(48px,8vw,96px) 0 clamp(32px,5vw,56px)">
+      <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(56px,10.5vw,168px);line-height:.88;letter-spacing:-.02em;margin:0;max-width:15ch;color:var(--ink,#221f1b);animation:wipein .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:.06s">Field notes from a growing mind.</h1>
+      <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(19px,2vw,26px);line-height:1.45;color:var(--dim,#6a6459);margin:clamp(28px,4vw,44px) 0 0;max-width:34ch;animation:fadeup .8s ease both;animation-delay:.16s">Code, competition, and everything in the space between. Nothing here is finished — that's the point.</p>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint,#8a8377);border-top:1px solid var(--hair,#221f1b);padding-top:14px;margin-top:clamp(32px,4vw,48px)">
+      <span style="color:var(--ink,#221f1b)">Lately in the garden</span>
+      <span>Four latest — all plots</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));align-items:start;gap:clamp(40px,5vw,80px) clamp(48px,6vw,110px);margin-top:clamp(44px,6vw,72px)">
+      <a class="entry" onClick="{{ goNote0 }}" style="--acc:#b0573f;cursor:pointer;color:inherit;margin-top:0;animation:fadeup .7s ease both;animation-delay:.1s">
+        <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px">
+          <span style="font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,56px);line-height:.7;color:var(--num,#d8c9a8)">01</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#b0573f;display:flex;align-items:center;gap:8px"><span class="pip" style="width:9px;height:9px;border-radius:999px;background:conic-gradient(#b0573f 240deg,#d8d1c3 0)"></span>Taekwondo · Budding</span>
+        </div>
+        <div class="entry-title" style="font-family:'Instrument Serif',serif;font-size:clamp(34px,3.4vw,52px);line-height:1;letter-spacing:-.01em;max-width:14ch;color:var(--ink,#221f1b)">What a black belt taught me about debugging</div>
+        <div class="entry-rule" style="height:1px;background:var(--hair,#221f1b);margin:clamp(16px,2vw,22px) 0;transform-origin:left;transform:scaleX(.32)"></div>
+        <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(15px,1.3vw,17px);line-height:1.5;color:var(--dim,#6a6459);margin:0;max-width:40ch">Panic makes you faster and worse. On the mat and in the stack trace, the fix is the same: slow down first.</p>
+      </a>
+
+      <a class="entry" onClick="{{ goPlot }}" style="--acc:#4f6d9e;cursor:pointer;color:inherit;margin-top:clamp(0px,3vw,48px);animation:fadeup .7s ease both;animation-delay:.18s">
+        <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px">
+          <span style="font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,56px);line-height:.7;color:var(--num,#d8c9a8)">02</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4f6d9e;display:flex;align-items:center;gap:8px"><span class="pip" style="width:9px;height:9px;border-radius:999px;background:#4f6d9e"></span>Engineering · Evergreen</span>
+        </div>
+        <div class="entry-title" style="font-family:'Instrument Serif',serif;font-size:clamp(30px,2.8vw,40px);line-height:1.02;letter-spacing:-.01em;max-width:15ch;color:var(--ink,#221f1b)">Cutting RAG query volume by 99.8%</div>
+        <div class="entry-rule" style="height:1px;background:var(--hair,#221f1b);margin:clamp(14px,1.6vw,18px) 0;transform-origin:left;transform:scaleX(.32)"></div>
+        <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(14px,1.2vw,16px);line-height:1.5;color:var(--dim,#6a6459);margin:0;max-width:40ch">The cheapest retrieval is the one you don't run.</p>
+      </a>
+
+      <a class="entry" onClick="{{ goPlot }}" style="--acc:#3f8a8a;cursor:pointer;color:inherit;margin-top:clamp(0px,5vw,110px);animation:fadeup .7s ease both;animation-delay:.26s">
+        <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px">
+          <span style="font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,56px);line-height:.7;color:var(--num,#d8c9a8)">03</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#3f8a8a;display:flex;align-items:center;gap:8px"><span class="pip" style="width:9px;height:9px;border-radius:999px;background:conic-gradient(#3f8a8a 120deg,#d8d1c3 0)"></span>Triathlon · Seedling</span>
+        </div>
+        <div class="entry-title" style="font-family:'Instrument Serif',serif;font-size:clamp(30px,2.8vw,40px);line-height:1.02;letter-spacing:-.01em;max-width:16ch;color:var(--ink,#221f1b)">Race report: my first Olympic-distance tri</div>
+        <div class="entry-rule" style="height:1px;background:var(--hair,#221f1b);margin:clamp(14px,1.6vw,18px) 0;transform-origin:left;transform:scaleX(.32)"></div>
+        <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(14px,1.2vw,16px);line-height:1.5;color:var(--dim,#6a6459);margin:0;max-width:40ch">The swim was chaos, the bike was math, the run was honesty.</p>
+      </a>
+
+      <a class="entry" onClick="{{ goPlot }}" style="--acc:#9a8636;cursor:pointer;color:inherit;margin-top:clamp(0px,4vw,80px);animation:fadeup .7s ease both;animation-delay:.34s">
+        <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px">
+          <span style="font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,56px);line-height:.7;color:var(--num,#d8c9a8)">04</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9a8636;display:flex;align-items:center;gap:8px"><span class="pip" style="width:9px;height:9px;border-radius:999px;background:conic-gradient(#9a8636 240deg,#d8d1c3 0)"></span>Life · Budding</span>
+        </div>
+        <div class="entry-title" style="font-family:'Instrument Serif',serif;font-size:clamp(28px,2.4vw,34px);line-height:1.04;letter-spacing:-.01em;max-width:16ch;color:var(--ink,#221f1b)">Living between Jakarta and Brisbane</div>
+        <div class="entry-rule" style="height:1px;background:var(--hair,#221f1b);margin:clamp(12px,1.4vw,16px) 0;transform-origin:left;transform:scaleX(.32)"></div>
+        <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(14px,1.2vw,16px);line-height:1.5;color:var(--dim,#6a6459);margin:0;max-width:38ch">Always slightly foreign in both. I've stopped calling that a problem.</p>
+      </a>
+    </div>
+
+    <div style="margin-top:clamp(56px,8vw,110px);border-top:1px solid var(--hair,#221f1b);padding-top:26px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink,#221f1b);margin-bottom:8px">The plots</div>
+      <div style="display:flex;flex-direction:column">
+        <a class="idx-row" onClick="{{ goPlot }}" style="--acc:#4f6d9e;cursor:pointer;color:inherit;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:clamp(13px,1.6vw,20px) 0">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint,#8a8377)">§01</span>
+          <span class="idx-title" style="font-family:'Instrument Serif',serif;font-size:clamp(24px,2.4vw,34px);color:var(--ink,#221f1b)">Engineering &amp; AI Lab</span>
+          <span class="idx-lead" style="flex:1;min-width:40px;border-bottom:1px dotted var(--rule,#b9b0a0);transform:translateY(-6px)"></span>
+          <span style="font-family:'Spectral',serif;font-size:clamp(13px,1.1vw,15px);color:var(--faint,#8a8377)">projects, write-ups, lessons</span>
+          <span class="idx-arrow" style="font-family:'JetBrains Mono',monospace;font-size:16px">→</span>
+        </a>
+        <a class="idx-row" onClick="{{ goPlot }}" style="--acc:#b0573f;cursor:pointer;color:inherit;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:clamp(13px,1.6vw,20px) 0">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint,#8a8377)">§02</span>
+          <span class="idx-title" style="font-family:'Instrument Serif',serif;font-size:clamp(24px,2.4vw,34px);color:var(--ink,#221f1b)">Taekwondo</span>
+          <span class="idx-lead" style="flex:1;min-width:40px;border-bottom:1px dotted var(--rule,#b9b0a0);transform:translateY(-6px)"></span>
+          <span style="font-family:'Spectral',serif;font-size:clamp(13px,1.1vw,15px);color:var(--faint,#8a8377)">competing, teaching, pressure</span>
+          <span class="idx-arrow" style="font-family:'JetBrains Mono',monospace;font-size:16px">→</span>
+        </a>
+        <a class="idx-row" onClick="{{ goPlot }}" style="--acc:#3f8a8a;cursor:pointer;color:inherit;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:clamp(13px,1.6vw,20px) 0">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint,#8a8377)">§03</span>
+          <span class="idx-title" style="font-family:'Instrument Serif',serif;font-size:clamp(24px,2.4vw,34px);color:var(--ink,#221f1b)">Triathlon</span>
+          <span class="idx-lead" style="flex:1;min-width:40px;border-bottom:1px dotted var(--rule,#b9b0a0);transform:translateY(-6px)"></span>
+          <span style="font-family:'Spectral',serif;font-size:clamp(13px,1.1vw,15px);color:var(--faint,#8a8377)">training logs, races, endurance</span>
+          <span class="idx-arrow" style="font-family:'JetBrains Mono',monospace;font-size:16px">→</span>
+        </a>
+        <a class="idx-row" onClick="{{ goAbout }}" style="--acc:#9a8636;cursor:pointer;color:inherit;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:clamp(13px,1.6vw,20px) 0">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint,#8a8377)">§04</span>
+          <span class="idx-title" style="font-family:'Instrument Serif',serif;font-size:clamp(24px,2.4vw,34px);color:var(--ink,#221f1b)">Life &amp; Reflections</span>
+          <span class="idx-lead" style="flex:1;min-width:40px;border-bottom:1px dotted var(--rule,#b9b0a0);transform:translateY(-6px)"></span>
+          <span style="font-family:'Spectral',serif;font-size:clamp(13px,1.1vw,15px);color:var(--faint,#8a8377)">grad school, two countries</span>
+          <span class="idx-arrow" style="font-family:'JetBrains Mono',monospace;font-size:16px">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ PLOT ============ -->
+  <sc-if value="{{ isPlot }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:clamp(36px,5vw,64px) clamp(24px,6vw,120px) clamp(70px,9vw,120px)">
+    <a class="navlink" onClick="{{ goHome }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint,#8a8377);display:inline-flex;gap:8px" style-hover="{{ navHov }}">← The garden</a>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px 48px;border-bottom:1px solid var(--hair,#221f1b);padding-bottom:clamp(22px,3vw,34px);margin-top:22px">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#4f6d9e;margin-bottom:16px;animation:fadeup .6s ease both">Plot §01</div>
+        <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(52px,8vw,120px);line-height:.92;letter-spacing:-.02em;margin:0;color:var(--ink,#221f1b);animation:wipein .8s cubic-bezier(.2,.7,.2,1) both">Engineering &amp; AI&nbsp;Lab</h1>
+      </div>
+      <p style="font-family:'Spectral',serif;font-style:italic;font-size:clamp(15px,1.4vw,18px);line-height:1.5;color:var(--dim,#6a6459);margin:0 0 6px;max-width:34ch">Retrieval systems, model plumbing, and the write-ups I wish I'd found first. Where the work gets shown before it's clean.</p>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px 24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#8a8377);margin-top:22px">
+      <span>Six entries</span>
+      <span style="display:flex;gap:18px;flex-wrap:wrap"><span style="color:#3f8a8a">● Seedling</span><span style="color:#b0573f">◐ Budding</span><span style="color:#4f6d9e">◍ Evergreen</span></span>
+    </div>
+
+    <div style="margin-top:12px">
+      <sc-for list="{{ engEntries }}" as="e" hint-placeholder-count="6">
+        <a class="eng-row" onClick="{{ e.open }}" style="--acc:#4f6d9e;cursor:pointer;color:inherit;display:grid;grid-template-columns:clamp(48px,7vw,96px) minmax(0,1fr) minmax(0,auto);align-items:baseline;gap:clamp(16px,2.5vw,32px);padding:clamp(22px,3vw,32px) 0;border-top:1px solid var(--rule,#cfc7b7)">
+          <span class="eng-num" style="font-family:'Instrument Serif',serif;font-size:clamp(38px,4.5vw,60px);line-height:.8;color:var(--num,#c9c0af)">{{ e.n }}</span>
+          <span class="eng-title" style="font-family:'Instrument Serif',serif;font-size:clamp(26px,3vw,42px);line-height:1.04;letter-spacing:-.01em;color:var(--ink,#221f1b)">{{ e.title }}</span>
+          <span style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--faint,#8a8377);line-height:1.7;white-space:nowrap">{{ e.stage }}<br>{{ e.date }}</span>
+        </a>
+      </sc-for>
+      <div style="border-top:1px solid var(--rule,#cfc7b7)"></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ NOTE ============ -->
+  <sc-if value="{{ isNote }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:clamp(36px,5vw,64px) clamp(24px,6vw,120px) clamp(70px,9vw,120px)">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px 24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#8a8377);border-bottom:1px solid var(--hair,#221f1b);padding-bottom:14px">
+      <a onClick="{{ goHome }}" style="cursor:pointer;color:var(--faint,#8a8377)" style-hover="{{ navHov }}">← The garden</a>
+      <span style="color:#b0573f">Taekwondo · Budding ◐</span>
+    </div>
+
+    <div style="max-width:22ch;padding:clamp(40px,6vw,72px) 0 8px">
+      <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(48px,7vw,104px);line-height:.94;letter-spacing:-.02em;margin:0;color:var(--ink,#221f1b);animation:wipein .8s cubic-bezier(.2,.7,.2,1) both">What a black belt taught me about debugging</h1>
+    </div>
+    <div style="display:flex;gap:clamp(16px,2vw,26px);flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#8a8377);padding:20px 0 clamp(28px,4vw,44px);border-bottom:1px solid var(--rule,#cfc7b7)">
+      <span>Planted Jun 2026</span><span>Tended 3×</span><span>~6 min</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(200px,22vw,300px));gap:clamp(32px,5vw,72px);margin-top:clamp(36px,5vw,52px)">
+      <div style="font-family:'Spectral',serif;font-size:clamp(18px,1.5vw,21px);line-height:1.62;color:var(--ink,#221f1b);max-width:70ch">
+        <p style="margin:0 0 26px"><span style="float:left;font-family:'Instrument Serif',serif;font-size:82px;line-height:.72;padding:6px 14px 0 0;color:#b0573f">P</span>anic makes you faster and worse. I learned that on a mat, sparring someone a full belt above me, throwing techniques so quickly that none of them landed. My instructor stopped the round and said one thing: <em>slow is smooth, smooth is fast.</em></p>
+        <p style="margin:0 0 26px">Years later I watched myself do the exact same thing at 2am, staring at a production incident. Reflexive changes. Restart the service. Roll back the deploy. Add a log line, redeploy, refresh, repeat — the debugging equivalent of throwing wild kicks and hoping one connects.</p>
+        <h3 style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#b0573f;margin:40px 0 18px">Read the whole board first</h3>
+        <p style="margin:0 0 26px">In taekwondo you don't react to the hand — you read the hips. The tell is upstream of the strike. Debugging is the same discipline: the exception you see is rarely where the fault is. Resisting the urge to fix the first red line, and instead reading the whole trace, is the entire skill.</p>
+        <p style="margin:0 0 26px">So now I do the boring thing. I reproduce it once, deliberately, before I touch anything. I write down what I expect to be true. Half the time the act of writing it down is the fix.</p>
+        <h3 style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#b0573f;margin:40px 0 18px">The fix is the same</h3>
+        <p style="margin:0">Pressure narrows attention — that's biology, not weakness. The counter isn't to feel calmer; it's to have a slower ritual you fall back into when you don't. On the mat it's your guard and your breathing. In the stack trace it's reproduce, hypothesize, isolate. Same nervous system. Same fix.</p>
+      </div>
+      <div style="border-left:1px solid var(--rule,#cfc7b7);padding-left:22px;align-self:start">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint,#8a8377);margin-bottom:12px">Margin</div>
+        <p style="font-family:'Spectral',serif;font-style:italic;font-size:14px;line-height:1.55;color:var(--dim,#6a6459);margin:0 0 24px">"Slow is smooth, smooth is fast" is a shooting-range aphorism too. It travels well because it's true anywhere speed is a trap.</p>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint,#8a8377);margin-bottom:12px">Grows into</div>
+        <a onClick="{{ goPlot }}" style="cursor:pointer;display:block;font-family:'Instrument Serif',serif;font-size:19px;line-height:1.15;color:var(--ink,#221f1b);margin-bottom:10px" style-hover="{{ rowLab }}">Cutting RAG query volume by 99.8% →</a>
+        <div style="font-family:'Spectral',serif;font-size:13px;color:var(--faint,#8a8377)">The same slow-down instinct, applied to a retrieval budget.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px 24px;margin-top:clamp(40px,6vw,56px);padding-top:20px;border-top:1px solid var(--hair,#221f1b);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint,#8a8377)">
+      <a onClick="{{ goPlot }}" style="cursor:pointer;color:var(--faint,#8a8377)" style-hover="{{ navHov }}">More from Engineering &amp; AI Lab</a>
+      <span style="color:#b0573f">This note is still growing ◐</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ ABOUT ============ -->
+  <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:clamp(36px,5vw,64px) clamp(24px,6vw,120px) clamp(70px,9vw,120px)">
+    <a class="navlink" onClick="{{ goHome }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint,#8a8377);display:inline-flex;gap:8px" style-hover="{{ navHov }}">← The garden</a>
+
+    <div style="padding:clamp(36px,5vw,52px) 0 clamp(32px,4vw,40px);border-bottom:1px solid var(--hair,#221f1b)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#9a8636;margin-bottom:22px;animation:fadeup .6s ease both">The gardener</div>
+      <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(48px,6.5vw,104px);line-height:.96;letter-spacing:-.02em;margin:0;max-width:20ch;color:var(--ink,#221f1b);animation:wipein .8s cubic-bezier(.2,.7,.2,1) both">I build systems, chase finish lines, and write down what the two have in common.</h1>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(240px,26vw,340px));gap:clamp(32px,5vw,72px);margin-top:clamp(36px,5vw,52px)">
+      <div style="font-family:'Spectral',serif;font-size:clamp(17px,1.4vw,20px);line-height:1.6;color:var(--ink,#221f1b);max-width:62ch">
+        <p style="margin:0 0 24px">I'm Matthew — a grad student and engineer working on retrieval and applied AI, splitting life between Jakarta and Brisbane. Most of what I know I learned twice: once in a lab, once somewhere with a heart-rate monitor on.</p>
+        <p style="margin:0 0 24px">This site is a garden, not a blog. Notes go up while they're still wrong. Some stay seedlings forever; a few grow evergreen. I'd rather show the tending than perform the polish.</p>
+        <p style="margin:0">If any of it is useful, or plainly mistaken, tell me — that's the whole point of gardening in public.</p>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint,#8a8377);margin-bottom:14px">Now</div>
+        <div style="font-family:'Spectral',serif;font-size:15px;line-height:1.6;color:var(--dim,#6a6459);margin-bottom:30px">Training for an Olympic-distance triathlon. Reading about retrieval budgets. Teaching Saturday taekwondo.</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint,#8a8377);margin-bottom:14px">Find me</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-family:'JetBrains Mono',monospace;font-size:13px">
+          <a href="#" style="color:#9a8636">GitHub ↗</a>
+          <a href="#" style="color:#9a8636">Are.na ↗</a>
+          <a href="#" style="color:#9a8636">Email ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:0 clamp(24px,6vw,120px) clamp(40px,5vw,60px);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint,#8a8377)">
+    <span>Tended by hand · Brisbane / Jakarta</span>
+    <span>© 2026 M.R.H</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { route:'home', dark:false, note:0 };
+  go(route, extra){
+    this.setState(Object.assign({route}, extra||{}));
+    if (typeof window!=='undefined') window.scrollTo(0,0);
+  }
+  renderVals(){
+    const d = this.state.dark;
+    const theme = d ? {
+      '--bg':'#191510','--panel':'#221d17','--ink':'#ece4d4','--dim':'#a89f8d',
+      '--faint':'#837a68','--rule':'#39332a','--hair':'#4a4336','--num':'#463f30',
+      '--shadow':'0 40px 90px -60px rgba(0,0,0,.75)'
+    } : {
+      '--bg':'#e8e2d5','--panel':'#f4efe6','--ink':'#221f1b','--dim':'#6a6459',
+      '--faint':'#8a8377','--rule':'#cfc7b7','--hair':'#221f1b','--num':'#d8c9a8',
+      '--shadow':'0 40px 90px -60px rgba(40,30,15,.5)'
+    };
+    const r = this.state.route;
+    const active = d ? '#ece4d4' : '#221f1b';
+    const idle = d ? '#837a68' : '#8a8377';
+    const engEntries = [
+      {n:'01', title:'Cutting RAG query volume by 99.8%', stage:'Evergreen', date:'May 2026'},
+      {n:'02', title:'A cache is a bet on the future', stage:'Budding', date:'May 2026'},
+      {n:'03', title:'Evals I actually trust', stage:'Budding', date:'Apr 2026'},
+      {n:'04', title:'When to fine-tune, and when to just ask nicely', stage:'Seedling', date:'Mar 2026'},
+      {n:'05', title:'The observability I wish I had at 2am', stage:'Evergreen', date:'Feb 2026'},
+      {n:'06', title:'Notes on shipping a model no one notices', stage:'Seedling', date:'Jan 2026'},
+    ].map((e,i)=>Object.assign({}, e, {open:()=>this.go('note',{note:i})}));
+
+    return {
+      wrapStyle: Object.assign({minHeight:'100vh', background:'var(--bg)', transition:'background .5s ease'}, theme),
+      isHome:r==='home', isPlot:r==='plot', isNote:r==='note', isAbout:r==='about',
+      dark:d, darkLabel: d?'Light':'Dark', dot: d?'#f4efe6':'#221f1b',
+      toggleDark: ()=>this.setState(s=>({dark:!s.dark})),
+      goHome: ()=>this.go('home'),
+      goPlot: ()=>this.go('plot'),
+      goAbout: ()=>this.go('about'),
+      goNote0: ()=>this.go('note',{note:0}),
+      navHome: r==='home'?active:idle,
+      navPlot: r==='plot'?active:idle,
+      navAbout: r==='about'?active:idle,
+      navHov: {color:'#b0573f'},
+      engEntries,
+      specHover:{transform:'translateY(-6px)'},
+      rowLab:{color:'#4f6d9e', paddingLeft:'20px'},
+      rowTkd:{color:'#b0573f', paddingLeft:'20px'},
+      rowTri:{color:'#3f8a8a', paddingLeft:'20px'},
+      rowLife:{color:'#9a8636', paddingLeft:'20px'},
+    };
+  }
+}
+</script>
+</body>
+</html>
