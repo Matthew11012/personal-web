@@ -24,19 +24,23 @@ type GraphNote = {
 };
 
 /** Inverts the outgoing-link map into a per-note backlink list. Runs once
- * (wrapped in context.cache below), not per document. */
-function buildBacklinkGraph(allNotes: GraphNote[]): Map<string, Backlink[]> {
+ * (wrapped in context.cache below), not per document.
+ *
+ * Returns a plain object, not a Map: context.cache persists results with
+ * JSON.stringify, and a Map serialises to {} — so a warm-cache build would
+ * read back an object and crash on .get(). */
+function buildBacklinkGraph(allNotes: GraphNote[]): Record<string, Backlink[]> {
   const slugs = new Set(allNotes.map((note) => note.slug));
 
-  const backlinks = new Map<string, Backlink[]>();
+  const backlinks: Record<string, Backlink[]> = {};
   for (const note of allNotes) {
     const targets = extractWikilinkTargets(note.content).filter((target) =>
       slugs.has(target),
     );
     for (const target of targets) {
-      const list = backlinks.get(target) ?? [];
+      const list = backlinks[target] ?? [];
       list.push({ slug: note.slug, title: note.title, excerpt: note.excerpt });
-      backlinks.set(target, list);
+      backlinks[target] = list;
     }
   }
   return backlinks;
@@ -55,7 +59,9 @@ const notes = defineCollection({
     plot: z.enum(PLOT_SLUGS),
     stage: z.enum(STAGES),
     planted: z.coerce.date(),
-    tended: z.array(z.coerce.date()).min(1),
+    // Defaults to empty: a freshly planted note has genuinely never been
+    // tended, and requiring an entry would force authors to invent one.
+    tended: z.array(z.coerce.date()).default([]),
     excerpt: z.string(),
     margin: z.string().optional(),
     draft: z.boolean().default(false),
@@ -106,7 +112,7 @@ const notes = defineCollection({
       margin: doc.margin ?? "",
       draft: doc.draft,
       mdx,
-      backlinks: graph.get(slug) ?? [],
+      backlinks: graph[slug] ?? [],
     };
   },
 });

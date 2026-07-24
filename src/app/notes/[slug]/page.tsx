@@ -51,7 +51,7 @@ export default async function NotePage({
         <span>
           Planted <time dateTime={note.plantedIso}>{note.plantedLabel}</time>
         </span>
-        <span>Tended {note.tendedCount}×</span>
+        {note.tendedCount > 0 && <span>Tended {note.tendedCount}×</span>}
         <span>{note.readTime}</span>
       </div>
 
