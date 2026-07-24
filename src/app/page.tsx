@@ -1,12 +1,35 @@
 import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
-import { EntryCard } from "@/components/entry-card";
+import { EntryCard, type HomeEntry } from "@/components/entry-card";
 import { PlotIndexRow } from "@/components/plot-index-row";
-import { HOME_ENTRIES } from "@/lib/placeholder-content";
-import { PLOTS } from "@/lib/plots";
+import { getRecentNotes } from "@/lib/content";
+import { getPlot, PLOTS } from "@/lib/plots";
+
+const TITLE_CLASSES = [
+  "entry-title-1",
+  "entry-title-2",
+  "entry-title-3",
+  "entry-title-4",
+];
+const STAGGER_CLASSES = ["stagger-0", "stagger-1", "stagger-2", "stagger-3"];
 
 export default function HomePage() {
+  const entries: HomeEntry[] = getRecentNotes(4).map((note, i) => {
+    const plot = getPlot(note.plotSlug);
+    return {
+      slug: note.slug,
+      n: String(i + 1).padStart(2, "0"),
+      plotName: plot?.short ?? note.plotSlug,
+      stage: note.stage,
+      accent: plot?.accent ?? "#b0573f",
+      title: note.title,
+      titleClass: TITLE_CLASSES[i % TITLE_CLASSES.length],
+      staggerClass: STAGGER_CLASSES[i % STAGGER_CLASSES.length],
+      excerpt: note.excerpt,
+    };
+  });
+
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(40px,6vw,80px)]">
       <MetaStrip
@@ -41,7 +64,7 @@ export default function HomePage() {
       <StaggerGroup
         className="mt-[clamp(44px,6vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-x-[clamp(48px,6vw,110px)] gap-y-[clamp(40px,5vw,80px)]"
       >
-        {HOME_ENTRIES.map((entry) => (
+        {entries.map((entry) => (
           <EntryCard key={entry.slug} entry={entry} />
         ))}
       </StaggerGroup>

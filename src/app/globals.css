@@ -166,7 +166,7 @@ a:hover {
   line-height: 1.55;
 }
 
-.drop-cap {
+.prose-body > p:first-of-type::first-letter {
   float: left;
   font-family: var(--font-display);
   font-size: 82px;

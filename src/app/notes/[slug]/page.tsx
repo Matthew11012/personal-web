@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MDXContent } from "@content-collections/mdx/react";
 import { Reveal } from "@/components/reveal";
 import { MarginNote } from "@/components/margin-note";
 import { STAGE_LABEL, STAGE_SYMBOL } from "@/components/stage-pip";
-import { getAllNoteSlugs, getNote } from "@/lib/placeholder-content";
+import { createMdxComponents } from "@/components/mdx-components";
+import { getAllNotes, getNote } from "@/lib/content";
 import { getPlot } from "@/lib/plots";
 
 export function generateStaticParams() {
-  return getAllNoteSlugs().map((slug) => ({ slug }));
+  return getAllNotes().map((note) => ({ slug: note.slug }));
 }
 
 export default async function NotePage({
@@ -22,9 +24,7 @@ export default async function NotePage({
 
   const plot = getPlot(note.plotSlug);
   const accent = plot?.accent ?? "#b0573f";
-  const [first, ...rest] = note.body;
-  const firstLetter = first?.type === "p" ? first.text.charAt(0) : "";
-  const firstRest = first?.type === "p" ? first.text.slice(1) : "";
+  const mdxComponents = createMdxComponents(accent);
 
   return (
     <div
@@ -57,28 +57,10 @@ export default async function NotePage({
 
       <div className="mt-[clamp(36px,5vw,52px)] grid grid-cols-1 gap-[clamp(32px,5vw,72px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(200px,22vw,300px))]">
         <article className="prose-body max-w-[70ch] text-ink">
-          <p className="mb-[26px]">
-            {firstLetter && <span className="drop-cap">{firstLetter}</span>}
-            {firstRest}
-          </p>
-          {rest.map((block, i) =>
-            block.type === "h3" ? (
-              <h3
-                key={i}
-                className="label-mono mb-[18px] mt-10 tracking-[0.18em]"
-                style={{ color: accent }}
-              >
-                {block.text}
-              </h3>
-            ) : (
-              <p key={i} className="mb-[26px] last:mb-0">
-                {block.text}
-              </p>
-            ),
-          )}
+          <MDXContent code={note.mdx} components={mdxComponents} />
         </article>
 
-        <MarginNote margin={note.margin} growsInto={note.growsInto} />
+        <MarginNote margin={note.margin} backlinks={note.backlinks} />
       </div>
 
       <div className="label-mono mt-[clamp(40px,6vw,56px)] flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 border-t border-hair pt-5 tracking-[0.12em] text-faint">

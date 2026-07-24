@@ -22,15 +22,10 @@ export interface EntrySummary {
   plotSlug: string;
 }
 
-export interface NoteBlock {
-  type: "p" | "h3";
-  text: string;
-}
-
-export interface GrowsInto {
+export interface Backlink {
   slug: string;
   title: string;
-  blurb: string;
+  excerpt: string;
 }
 
 export interface Note {
@@ -43,7 +38,8 @@ export interface Note {
   tendedCount: number;
   readTime: string; // "~6 min"
   excerpt: string; // italic lede, used on home cards
-  body: NoteBlock[];
+  mdx: string; // compiled MDX (mdx-bundler code string), rendered via <MDXContent>
   margin: string;
-  growsInto?: GrowsInto;
+  draft: boolean;
+  backlinks: Backlink[];
 }

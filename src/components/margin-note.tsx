@@ -1,12 +1,12 @@
 import Link from "next/link";
-import type { GrowsInto } from "@/lib/types";
+import type { Backlink } from "@/lib/types";
 
 export function MarginNote({
   margin,
-  growsInto,
+  backlinks,
 }: {
   margin: string;
-  growsInto?: GrowsInto;
+  backlinks: Backlink[];
 }) {
   return (
     <aside className="self-start border-l border-rule pl-[22px]">
@@ -15,20 +15,24 @@ export function MarginNote({
       </div>
       <p className="margin-copy text-dim">{margin}</p>
 
-      {growsInto && (
+      {backlinks.length > 0 && (
         <>
           <div className="label-mono mb-3 mt-6 text-[10px] tracking-[0.16em] text-faint">
             Grows into
           </div>
-          <Link
-            href={`/notes/${growsInto.slug}`}
-            className="mb-2.5 block font-display text-[19px] leading-[1.15] text-ink hover:text-[#4f6d9e]"
-          >
-            {growsInto.title}
-          </Link>
-          <div className="font-body text-[13px] text-faint">
-            {growsInto.blurb}
-          </div>
+          {backlinks.map((backlink) => (
+            <div key={backlink.slug} className="mb-5 last:mb-0">
+              <Link
+                href={`/notes/${backlink.slug}`}
+                className="mb-2.5 block font-display text-[19px] leading-[1.15] text-ink hover:text-[#4f6d9e]"
+              >
+                {backlink.title} →
+              </Link>
+              <div className="font-body text-[13px] text-faint">
+                {backlink.excerpt}
+              </div>
+            </div>
+          ))}
         </>
       )}
     </aside>

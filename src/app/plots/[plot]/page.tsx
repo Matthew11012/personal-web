@@ -4,7 +4,8 @@ import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryRow } from "@/components/entry-row";
 import { getPlot, PLOTS } from "@/lib/plots";
-import { getPlotEntries } from "@/lib/placeholder-content";
+import { getNotesByPlot } from "@/lib/content";
+import type { EntrySummary } from "@/lib/types";
 
 export function generateStaticParams() {
   return PLOTS.map((plot) => ({ plot: plot.slug }));
@@ -20,7 +21,15 @@ export default async function PlotPage({
 
   if (!plot) notFound();
 
-  const entries = getPlotEntries(plot.slug);
+  const notes = getNotesByPlot(plot.slug);
+  const entries: EntrySummary[] = notes.map((note, i) => ({
+    slug: note.slug,
+    n: String(i + 1).padStart(2, "0"),
+    title: note.title,
+    stage: note.stage,
+    date: note.plantedLabel,
+    plotSlug: note.plotSlug,
+  }));
 
   return (
     <div
@@ -52,7 +61,9 @@ export default async function PlotPage({
       </div>
 
       <div className="label-mono mt-[22px] flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 tracking-[0.14em] text-faint">
-        <span>Six entries</span>
+        <span>
+          {entries.length} {entries.length === 1 ? "entry" : "entries"}
+        </span>
         <span className="flex flex-wrap gap-[18px]">
           <span style={{ color: "#3f8a8a" }}>● Seedling</span>
           <span style={{ color: "#b0573f" }}>◐ Budding</span>

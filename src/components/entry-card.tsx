@@ -9,9 +9,24 @@ import {
   entryRuleVariants,
   entryTitleVariants,
 } from "@/lib/motion";
-import type { HomeEntry } from "@/lib/placeholder-content";
+import type { Stage } from "@/lib/types";
 
 const MotionLink = m.create(Link);
+
+/** View model EntryCard renders — presentational fields (titleClass,
+ * staggerClass, accent, plotName) are derived at page level, not stored in
+ * content. */
+export interface HomeEntry {
+  slug: string;
+  n: string;
+  plotName: string;
+  stage: Stage;
+  accent: string;
+  title: string;
+  titleClass: string;
+  staggerClass: string;
+  excerpt: string;
+}
 
 export function EntryCard({ entry }: { entry: HomeEntry }) {
   return (

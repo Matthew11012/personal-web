@@ -1,0 +1,26 @@
+---
+title: What a black belt taught me about debugging
+plot: taekwondo
+stage: budding
+planted: 2026-06-04
+tended: [2026-06-11, 2026-06-28, 2026-07-15]
+excerpt: Panic makes you faster and worse. On the mat and in the stack trace, the fix is the same slow down first.
+margin: "\"Slow is smooth, smooth is fast\" is a shooting-range aphorism too. It travels well because it's true anywhere speed is a trap."
+draft: false
+---
+
+Panic makes you faster and worse. I learned that on a mat, sparring someone a full belt above me, throwing techniques so quickly that none of them landed. My instructor stopped the round and said one thing: *slow is smooth, smooth is fast.*
+
+Years later I watched myself do the exact same thing at 2am, staring at a production incident. Reflexive changes. Restart the service. Roll back the deploy. Add a log line, redeploy, refresh, repeat — the debugging equivalent of throwing wild kicks and hoping one connects.
+
+### Read the whole board first
+
+In taekwondo you don't react to the hand — you read the hips. The tell is upstream of the strike. Debugging is the same discipline: the exception you see is rarely where the fault is. Resisting the urge to fix the first red line, and instead reading the whole trace, is the entire skill.
+
+So now I do the boring thing. I reproduce it once, deliberately, before I touch anything. I write down what I expect to be true. Half the time the act of writing it down is the fix.
+
+### The fix is the same
+
+Pressure narrows attention — that's biology, not weakness. The counter isn't to feel calmer; it's to have a slower ritual you fall back into when you don't. On the mat it's your guard and your breathing. In the stack trace it's reproduce, hypothesize, isolate. Same nervous system. Same fix.
+
+I found the same instinct paying off later, on a retrieval budget instead of a stack trace — see [[rag-query-volume|Cutting RAG query volume by 99.8%]].
