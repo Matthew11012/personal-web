@@ -1,26 +1,251 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #e8e2d5;
+  --panel: #f4efe6;
+  --ink: #221f1b;
+  --dim: #6a6459;
+  --faint: #8a8377;
+  --rule: #cfc7b7;
+  --hair: #221f1b;
+  --num: #d8c9a8;
+}
+
+.dark {
+  --bg: #191510;
+  --panel: #221d17;
+  --ink: #ece4d4;
+  --dim: #a89f8d;
+  --faint: #837a68;
+  --rule: #39332a;
+  --hair: #4a4336;
+  --num: #463f30;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-rule: var(--rule);
+  --color-hair: var(--hair);
+  --color-num: var(--num);
+
+  --font-display: var(--font-instrument-serif);
+  --font-body: var(--font-spectral);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+a {
+  color: #b0573f;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #8f4227;
+}
+
+::selection {
+  background: #b0573f;
+  color: #f4efe6;
+}
+
+/* ---------------------------------------------------------------- */
+/* Nav underline wipe — kept in pure CSS: single pseudo-element,     */
+/* single-property transition, no orchestration to gain from motion. */
+/* ---------------------------------------------------------------- */
+.navlink {
+  position: relative;
+}
+
+.navlink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.navlink:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ---------------------------------------------------------------- */
+/* Semantic typography classes — encapsulate the repeated clamp()   */
+/* triples so JSX stays legible.                                    */
+/* ---------------------------------------------------------------- */
+
+.display-xl {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(56px, 10.5vw, 168px);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+
+.display-lg {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(52px, 8vw, 120px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.display-note {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 104px);
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+}
+
+.display-about {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 6.5vw, 104px);
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  font-family: var(--font-spectral-italic);
+  font-style: italic;
+  font-size: clamp(19px, 2vw, 26px);
+  line-height: 1.45;
+}
+
+.tagline {
+  font-family: var(--font-spectral-italic);
+  font-style: italic;
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.prose-body {
+  font-family: var(--font-body);
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.62;
+}
+
+.about-body {
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.6;
+}
+
+.margin-copy {
+  font-family: var(--font-spectral-italic);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.drop-cap {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 82px;
+  line-height: 0.72;
+  padding: 6px 14px 0 0;
+  color: var(--acc, #b0573f);
+}
+
+.entry-title-1 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 3.4vw, 52px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.entry-title-2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 2.8vw, 40px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+.entry-title-3 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 2.8vw, 40px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+.entry-title-4 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.4vw, 34px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+}
+
+.entry-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 0.7;
+  color: var(--num);
+}
+
+.idx-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.4vw, 34px);
+}
+
+.eng-num {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 4.5vw, 60px);
+  line-height: 0.8;
+  color: var(--num);
+}
+
+.eng-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 42px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+}
+
+.plot-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* staggered home-grid margin offsets */
+.stagger-0 {
+  margin-top: 0;
+}
+.stagger-1 {
+  margin-top: clamp(0px, 3vw, 48px);
+}
+.stagger-2 {
+  margin-top: clamp(0px, 5vw, 110px);
+}
+.stagger-3 {
+  margin-top: clamp(0px, 4vw, 80px);
 }
