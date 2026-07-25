@@ -1,0 +1,32 @@
+---
+title: Mandareen
+tagline: An AI tutor that had to be fast enough to feel like a conversation
+role: Solo full-stack developer
+period: "2025"
+stack: [Next.js, NestJS, PostgreSQL, Prisma, pgvector, Supabase, OpenAI, S3]
+results:
+  - figure: "99.8%"
+    caption: fewer retrieval queries
+  - figure: "5.3s → 0.37s"
+    caption: end-to-end processing
+links: []
+excerpt: A SaaS language tutor that generates lessons on the fly, built solo from the schema to the deploy pipeline.
+order: 1
+draft: false
+---
+
+Mandareen is an AI-powered language tutor — a SaaS product I built solo, from the database schema to the deploy pipeline. The pitch was simple: generate lessons on demand and hold something closer to a real conversation with a student than a fixed curriculum.
+
+### The shape
+
+The stack is a Next.js frontend talking to a NestJS API, with PostgreSQL and Prisma underneath and pgvector doing the embedding storage. Supabase handles auth and a chunk of the data layer, S3 sits behind the media. Lessons aren’t pre-written — they’re generated per session, and the chat has to feel live, not like a form with a submit button.
+
+### The AI layer
+
+Generation runs on OpenAI, with Gemini producing the embeddings that pgvector searches over. Speech-to-text and text-to-speech turn the exchange into something you can actually talk through instead of type, and semantic search is what lets a lesson pull in the context that’s actually relevant instead of whatever matches literally.
+
+### The performance work
+
+The first version was slow in the way that kills a “conversation” product: every turn round-tripped to the retriever. I put an LRU cache in front of the hot lookups, batched the embedding calls instead of firing them one at a time, ran independent lookups in parallel instead of sequentially, and moved the vector index onto HNSW. Together that cut retrieval query volume by 99.8% and took end-to-end processing from 5.3 seconds to 0.37 — see [[rag-query-volume|cutting RAG query volume by 99.8%]] for the retrieval side of that story.
+
+Deployment is split across Vercel for the frontend, Railway for the API, and Supabase/S3 for data and media — which meant most of the debugging that mattered wasn’t inside any one service, it was in the seams between them.

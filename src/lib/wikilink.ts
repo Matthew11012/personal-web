@@ -4,8 +4,11 @@ import { visit } from "unist-util-visit";
 /**
  * Matches Obsidian-style wikilinks: [[target]] or [[target|alias]].
  * Exported so both the remark plugin (rendering) and the backlink graph
- * builder (content-collections.ts) use the exact same matcher — rendering
- * and graph-building can never disagree about what counts as a link.
+ * builder (content-collections.ts) use the exact same matcher. Rendering
+ * only ever visits mdast `text` nodes (never `code`/`inlineCode`), so
+ * `extractWikilinkTargets` strips fenced and inline code from the raw
+ * source before matching — see `stripCode` below — to keep the two paths
+ * in agreement about what counts as a link.
  */
 export const WIKILINK_PATTERN = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
@@ -30,13 +33,26 @@ export function extractWikilinks(content: string): WikilinkMatch[] {
   return matches;
 }
 
+/** Strips fenced code blocks (``` or ~~~) and inline code spans (`...`) from
+ * raw markdown/MDX source, so a `[[target]]` written inside code isn't
+ * mistaken for a real wikilink — matching remarkWikilink, which only ever
+ * visits `text` nodes and never descends into `code`/`inlineCode`. */
+function stripCode(content: string): string {
+  return content
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/~~~[\s\S]*?~~~/g, "")
+    .replace(/`[^`\n]+`/g, "");
+}
+
 /** Extracts the deduped set of outgoing link targets from raw MDX source. */
 export function extractWikilinkTargets(content: string): string[] {
-  return Array.from(new Set(extractWikilinks(content).map((m) => m.target)));
+  return Array.from(
+    new Set(extractWikilinks(stripCode(content)).map((m) => m.target)),
+  );
 }
 
 export interface RemarkWikilinkOptions {
-  /** the set of valid note slugs a wikilink is allowed to resolve to */
+  /** the set of valid slugs (notes and/or projects) a wikilink is allowed to resolve to */
   slugs: Set<string>;
   /** the source file the link was found in, used in the thrown error */
   sourceFile: string;
@@ -62,7 +78,7 @@ export function remarkWikilink({ slugs, sourceFile, resolveHref }: RemarkWikilin
       for (const { target } of matches) {
         if (!slugs.has(target)) {
           throw new Error(
-            `Unresolved wikilink [[${target}]] in "${sourceFile}" — no note with that slug exists.`,
+            `Unresolved wikilink [[${target}]] in "${sourceFile}" — no published note or project with that slug exists. Check for a typo, or that the target isn't a draft (drafts are excluded from the wikilink slug set).`,
           );
         }
       }

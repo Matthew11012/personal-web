@@ -4,11 +4,13 @@ plot: engineering
 stage: seedling
 planted: 2026-05-02
 tended: [2026-05-10]
-excerpt: The cheapest retrieval is the one you don't run.
+excerpt: The cheapest retrieval is the one you don’t run.
 margin: "Most of the savings came from refusing to ask, not from asking faster."
 draft: false
 ---
 
-The cheapest retrieval call is the one you never make. Most of our latency and cost wasn't in the vector search itself — it was in re-asking questions the system had effectively already answered minutes earlier.
+The cheapest retrieval call is the one you never make. Most of our latency and cost wasn’t in the vector search itself — it was in re-asking questions the system had effectively already answered minutes earlier.
 
 A cache in front of the retriever, keyed on intent rather than exact text, cut query volume by over 99.8% without touching answer quality. The same slow-down instinct from [[black-belt-debugging|what a black belt taught me about debugging]] applies here: check what you already know before you go looking for more.
+
+This was the retrieval layer inside [[mandareen|Mandareen]], the AI tutor I built end to end. The caching idea itself is really just [[cache-bet-on-future|a bet on the future]], and the reason I trusted the 99.8% number at all is the same discipline behind [[evals-i-trust|the evals I actually trust]] — measured against what the product actually asked for, not a synthetic benchmark.

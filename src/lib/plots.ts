@@ -1,5 +1,10 @@
 import type { Plot } from "./types";
 
+/** The one hue absent from the plot wheel — engineering blue, taekwondo
+ * rust, triathlon teal, life ochre — so the workshop reads as a distinct
+ * department of the same publication, not a new palette. */
+export const WORKSHOP_ACCENT = "#7d5a6b";
+
 export const PLOTS: Plot[] = [
   {
     slug: "engineering",

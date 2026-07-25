@@ -39,24 +39,26 @@
   --font-mono: var(--font-jetbrains-mono);
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  background: var(--bg);
-  color: var(--ink);
-  transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
+  html,
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+  }
 
-a {
-  color: #b0573f;
-  text-decoration: none;
-}
+  a {
+    color: #b0573f;
+    text-decoration: none;
+  }
 
-a:hover {
-  color: #8f4227;
+  a:hover {
+    color: #8f4227;
+  }
 }
 
 ::selection {
@@ -208,6 +210,17 @@ a:hover {
   font-size: clamp(40px, 4vw, 56px);
   line-height: 0.7;
   color: var(--num);
+}
+
+/* Same type scale as .entry-num, but for result figures, which sit on
+   --bg rather than --panel — --num is nearly invisible there, so this
+   is --ink from the start rather than an inline override. */
+.result-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 0.7;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .idx-title {
