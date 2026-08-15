@@ -61,7 +61,7 @@ export default function AboutPage() {
             Find me
           </div>
           <div className="flex flex-col gap-2 font-mono text-[13px]">
-            <a href="#" style={{ color: ACCENT }}>
+            <a href="https://github.com/Matthew11012" style={{ color: ACCENT }}>
               GitHub ↗
             </a>
             <a href="#" style={{ color: ACCENT }}>
