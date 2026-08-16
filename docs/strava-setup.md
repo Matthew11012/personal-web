@@ -29,8 +29,8 @@ cp .env.example .env.local
 ```
 
 Fill in `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, and `DATABASE_URL` from
-the steps above. Leave `STRAVA_REFRESH_TOKEN`, `STRAVA_VERIFY_TOKEN`,
-`STRAVA_SUBSCRIPTION_ID` and `CRON_SECRET` for the steps below — pick any
+the steps above. Leave `STRAVA_REFRESH_TOKEN`, `STRAVA_ATHLETE_ID`,
+`STRAVA_VERIFY_TOKEN`, `STRAVA_SUBSCRIPTION_ID` and `CRON_SECRET` for the steps below — pick any
 string you like for `STRAVA_VERIFY_TOKEN` and `CRON_SECRET`, they're just
 shared secrets you're choosing.
 
@@ -53,9 +53,9 @@ Opens a local server on `localhost:8420`, prints an authorize URL — open it,
 approve access, and the script catches the redirect itself. It prints:
 
 - a **refresh token**: paste it into `.env.local` as `STRAVA_REFRESH_TOKEN`.
-- an **athlete id**: note it down. It's not an env var yet, but the webhook
-  route needs it to verify `owner_id` on incoming events, so keep it handy
-  when you get to that route's config.
+- an **athlete id**: paste it into `.env.local` as `STRAVA_ATHLETE_ID`. The
+  webhook compares it against `owner_id` on incoming events and ignores
+  anything that isn't yours.
 
 This only needs to run once, ever, per environment. After the first
 successful token refresh, the `strava_auth` table in Postgres becomes the
@@ -87,8 +87,8 @@ Use `npm run strava:subscribe list` to check what's currently registered, and
 
 Everything in `.env.local` also needs to be set in the Vercel project's
 environment variables: `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`,
-`STRAVA_REFRESH_TOKEN`, `STRAVA_VERIFY_TOKEN`, `STRAVA_SUBSCRIPTION_ID`,
-`DATABASE_URL`, `CRON_SECRET`.
+`STRAVA_REFRESH_TOKEN`, `STRAVA_ATHLETE_ID`, `STRAVA_VERIFY_TOKEN`,
+`STRAVA_SUBSCRIPTION_ID`, `DATABASE_URL`, `CRON_SECRET`.
 
 ## Why it's shaped this way
 
