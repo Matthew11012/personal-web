@@ -3,8 +3,14 @@ import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryCard, type HomeEntry } from "@/components/entry-card";
 import { PlotIndexRow } from "@/components/plot-index-row";
+import { HomeTrainingBand } from "@/components/training/home-training-band";
 import { getRecentNotes } from "@/lib/content";
 import { getPlot, PLOTS } from "@/lib/plots";
+
+// 24h backstop only — the webhook and cron call revalidatePath("/") when
+// Strava data actually changes, so this timer isn't tracking the training
+// schedule. It only covers the cron dying silently.
+export const revalidate = 86400;
 
 const TITLE_CLASSES = [
   "entry-title-1",
@@ -14,7 +20,7 @@ const TITLE_CLASSES = [
 ];
 const STAGGER_CLASSES = ["stagger-0", "stagger-1", "stagger-2", "stagger-3"];
 
-export default function HomePage() {
+export default async function HomePage() {
   const entries: HomeEntry[] = getRecentNotes(4).map((note, i) => {
     const plot = getPlot(note.plotSlug);
     return {
@@ -68,6 +74,8 @@ export default function HomePage() {
           <EntryCard key={entry.slug} entry={entry} />
         ))}
       </StaggerGroup>
+
+      <HomeTrainingBand />
 
       <nav
         aria-label="The plots"
