@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "strava:auth": "node --env-file=.env.local scripts/strava-auth.mjs",
+    "strava:subscribe": "node --env-file=.env.local scripts/strava-subscribe.mjs",
+    "db:push": "node --env-file=.env.local scripts/db-push.mjs"
   },
   "dependencies": {
     "@content-collections/core": "^0.15.2",
