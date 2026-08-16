@@ -16,10 +16,11 @@ unattended for a year and every detail has been forgotten. Follow in order.
 ## 2. Create a Supabase project
 
 1. Create a project at https://supabase.com.
-2. In the project's connection settings, find the **pooled** connection
-   string (transaction-mode pooler, usually port 6543), not the direct one.
-   `src/lib/db.ts` connects with `prepare: false` specifically because the
-   pooled connection can't carry prepared statements across checkouts.
+2. In the project's connection settings, find the **transaction-mode pooler**
+   connection string — port **6543**, not the direct connection on 5432.
+   `src/lib/db.ts` connects with `prepare: false` specifically because
+   transaction-mode pooling can't carry prepared statements across checkouts,
+   so pointing this at 5432 works right up until it doesn't.
 3. This string goes in `.env.local` as `DATABASE_URL`.
 
 ## 3. Set up `.env.local`
@@ -99,17 +100,32 @@ table on the very first token refresh — after that, the table is
 authoritative and the env var is inert. If you edit it later expecting it to
 do anything, it won't.
 
-**The webhook is the only thing that can propagate a privacy change or a
-delete.** The cron's cursor is `MAX(start_date)` — it only asks Strava for
-activities newer than what's already stored, which by construction can never
-see an existing activity change visibility or disappear. Flipping an
-activity to "Only You" on Strava, or deleting it, only reaches this site
-through the webhook `update`/`delete` events.
+**The webhook is the fast path for a privacy change or a delete, but not the
+only one.** Flipping an activity to "Only You" on Strava, or deleting it,
+reaches the site within seconds through the webhook `update`/`delete` events.
+Strava never re-delivers an event once it has seen a 200, though, so the
+webhook alone would mean a single dropped delivery leaves a private activity
+published forever. Two things stop that: the webhook retries a failed fetch
+three times before giving up, and the cron sweep re-reads the trailing
+window and reconciles it (see below).
 
-**The cron is a reconciliation sweep, not the primary path.** It exists
-purely to catch webhook deliveries Strava gave up retrying. Its job is
-narrow: fetch anything newer than the cursor and upsert it. If webhooks never
-failed, the cron would never have anything to do.
+**The cron's cursor looks 14 days behind itself.** The cursor is
+`MAX(start_date)`, and a naive `after = cursor` is permanently blind to
+anything that lands *out of order* — a 06:00 swim still on the watch when an
+08:00 ride auto-uploads and drags the cursor forward, a backdated manual
+entry, a Garmin or Zwift backfill. Subtracting a fortnight before asking
+Strava closes that; the upserts are idempotent, so the overlap costs about
+one extra page per run.
+
+That same window is what makes deletes self-heal. Once a run has paginated
+all the way to an empty page, anything we hold inside the window that Strava
+did *not* return has been deleted or hidden, and is removed locally. This is
+strictly scoped to the fetched window and skipped entirely if pagination
+stopped early — otherwise an incomplete run would wipe the history.
+
+**The cron is a reconciliation sweep, not the primary path.** It exists to
+catch webhook deliveries Strava gave up retrying. If webhooks never failed,
+the cron would find nothing but rows it already has.
 
 ## Troubleshooting
 
@@ -120,8 +136,16 @@ logs (Vercel), and confirm `CRON_SECRET` still matches between Vercel's
 scheduled invocation and the environment variable.
 
 **The refresh token is stranded** (e.g. a deploy crashed mid-refresh after
-Strava issued a new token but before it was persisted, or the database was
-reset). Re-run the OAuth dance:
+Strava issued a new token but before the transaction committed, or the
+database was reset). **Check the logs first.** `getAccessToken` prints the
+newly-issued refresh token to `console.error` when a refresh succeeds but
+persisting it fails — that is the exact moment it would otherwise be lost, so
+writing it to the log is a deliberate trade. Search the Vercel logs for
+`token refresh succeeded but persisting it failed`; if it's there, put that
+token in `STRAVA_REFRESH_TOKEN`, delete the `strava_auth` row (below), and
+you're done without re-authorising.
+
+Otherwise, re-run the OAuth dance:
 
 ```
 npm run strava:auth

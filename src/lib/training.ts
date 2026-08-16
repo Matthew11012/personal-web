@@ -39,11 +39,20 @@ interface TrainingActivityRow {
 /** Every publicly-visible swim/bike/run activity since TRAINING_HISTORY_START,
  * oldest first.
  *
- * Visibility is filtered to exactly 'everyone' — 'followers_only', 'only_me'
- * and NULL are all excluded. This fails closed on purpose: it's a privacy
- * filter, Matthew's Strava setting is the single source of truth, and an
- * unknown value must never be published. This is precisely why the webhook
- * exists — it's the only mechanism that propagates a privacy change here.
+ * Two conditions, both of which must hold. `visibility` is filtered to exactly
+ * 'everyone' — 'followers_only', 'only_me' and NULL are all excluded — and
+ * `private` must be explicitly not true, so a NULL there is excluded as well.
+ * This fails closed on purpose: it's a privacy filter, Matthew's Strava setting
+ * is the single source of truth, and an unknown value must never be published.
+ *
+ * Both columns are checked because `visibility` is not in Strava's published
+ * SummaryActivity model while `private` is. Resting the entire privacy contract
+ * on an undocumented field means an API revision that drops it publishes
+ * everything; requiring agreement means the worst case is that a public
+ * activity stops being displayed.
+ *
+ * The webhook is the fast path for propagating a privacy change; the cron's
+ * lookback sweep is the backstop for a webhook delivery that never arrived.
  *
  * Must be called from a request/render, never at module scope — a
  * module-scope read would freeze the data at build time. */
@@ -54,6 +63,7 @@ export async function getTrainingActivities(): Promise<TrainingActivity[]> {
     FROM strava_activities
     WHERE start_date_local >= ${TRAINING_HISTORY_START}::timestamptz
       AND visibility = 'everyone'
+      AND "private" IS NOT TRUE
     ORDER BY start_date_local ASC
   `;
 

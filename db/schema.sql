@@ -14,10 +14,20 @@ CREATE TABLE IF NOT EXISTS strava_activities (
   average_speed double precision,
   average_heartrate double precision,
   suffer_score double precision,
+  -- visibility is what the privacy filter actually keys on, but it is not in
+  -- Strava's published SummaryActivity model. "private" is documented, so both
+  -- are stored and the query layer requires them to agree: if Strava ever drops
+  -- visibility the column goes NULL, which is already excluded, rather than the
+  -- filter quietly opening up.
   visibility text,
+  "private" boolean,
   name text,
   synced_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Added after the table shipped; kept alongside the CREATE TABLE so this file
+-- stays safe to re-run against either an old or a new database.
+ALTER TABLE strava_activities ADD COLUMN IF NOT EXISTS "private" boolean;
 
 CREATE INDEX IF NOT EXISTS idx_strava_activities_start_date
   ON strava_activities (start_date);

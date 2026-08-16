@@ -50,4 +50,3 @@ next-env.d.ts
 # to be /docs/* rather than /docs for the negation below to take effect.
 /docs/*
 !/docs/strava-setup.md
-!/docs/strava-setup.md
