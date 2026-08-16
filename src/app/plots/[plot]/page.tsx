@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryRow } from "@/components/entry-row";
+import { TrainingBand } from "@/components/training/training-band";
 import { getPlot, PLOTS } from "@/lib/plots";
 import { getNotesByPlot } from "@/lib/content";
 import type { EntrySummary } from "@/lib/types";
@@ -10,6 +11,12 @@ import type { EntrySummary } from "@/lib/types";
 export function generateStaticParams() {
   return PLOTS.map((plot) => ({ plot: plot.slug }));
 }
+
+// 24h backstop only — the webhook and cron call revalidatePath when Strava
+// data actually changes, so this timer isn't tracking the training schedule.
+// It only covers the cron dying silently. Hourly would regenerate the page
+// 23 extra times a day for no new data.
+export const revalidate = 86400;
 
 export default async function PlotPage({
   params,
@@ -70,6 +77,8 @@ export default async function PlotPage({
           <span style={{ color: "#4f6d9e" }}>◍ Evergreen</span>
         </span>
       </div>
+
+      {plot.slug === "triathlon" && <TrainingBand />}
 
       <StaggerGroup className="mt-3">
         {entries.map((entry) => (

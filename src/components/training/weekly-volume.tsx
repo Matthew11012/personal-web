@@ -1,0 +1,103 @@
+import type { WeeklyBucket } from "@/lib/types";
+import { formatHours } from "@/lib/training-derive";
+
+type Row = {
+  key: "swim" | "bike" | "run";
+  label: string;
+  opacity: number;
+};
+
+// Swim strongest, run lightest — an arbitrary but consistent ordering so the
+// three rows read as one family rather than three unrelated charts. Opacity
+// on --acc (never a hardcoded colour) is what keeps this working in dark mode.
+const ROWS: Row[] = [
+  { key: "swim", label: "Swim", opacity: 0.85 },
+  { key: "bike", label: "Bike", opacity: 0.55 },
+  { key: "run", label: "Run", opacity: 0.3 },
+];
+
+const VIEW_HEIGHT = 40;
+const BAR_GAP_RATIO = 0.25; // fraction of each slot left as gap between bars
+
+function formatWeekLabel(iso: string): string {
+  // weekStart is always a UTC-midnight ISO date; format with UTC accessors so
+  // this never drifts a week relative to the bucket it's labelling.
+  const date = new Date(iso);
+  const month = date.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+  return `${month} ${date.getUTCDate()}`;
+}
+
+/** Three small-multiple rows (swim/bike/run) sharing one x-axis and one
+ * y-scale, rendered as hand-rolled SVG bars. Hours, not distance — the only
+ * unit that means anything compared across disciplines. */
+export function WeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
+  if (buckets.length === 0) return null;
+
+  const hoursByRow = ROWS.map((row) => buckets.map((bucket) => bucket[row.key] / 3600));
+
+  // One max shared across all three rows so they stay comparable to each
+  // other. Guarded: an all-zero range would otherwise divide by zero and put
+  // NaN into every bar's height attribute.
+  const max = Math.max(0, ...hoursByRow.flat());
+  const safeMax = max > 0 ? max : 1;
+
+  const n = buckets.length;
+  const slot = 100 / n;
+  const barWidth = slot * (1 - BAR_GAP_RATIO);
+
+  const totalsText = ROWS.map(
+    (row, i) => `${row.label.toLowerCase()} ${formatHours(hoursByRow[i].reduce((a, b) => a + b, 0) * 3600)}`,
+  ).join(", ");
+
+  return (
+    <div className="mt-[clamp(28px,4vw,44px)]">
+      <div className="label-mono tracking-[0.18em] text-faint">Weekly volume</div>
+      <div className="mt-4 flex flex-col gap-4">
+        {ROWS.map((row, rowIndex) => (
+          <div key={row.key} className="flex items-center gap-4">
+            <div className="label-mono w-10 shrink-0 tracking-[0.1em] text-faint">
+              {row.label}
+            </div>
+            <svg
+              viewBox={`0 0 100 ${VIEW_HEIGHT}`}
+              preserveAspectRatio="none"
+              className="h-8 w-full"
+              role="img"
+              aria-label={`Weekly ${row.label.toLowerCase()} volume over ${n} weeks, ${
+                max > 0 ? totalsText : "no recorded training in this range"
+              }.`}
+            >
+              {hoursByRow[rowIndex].map((hours, i) => {
+                const height = (hours / safeMax) * VIEW_HEIGHT;
+                const x = i * slot + (slot - barWidth) / 2;
+                const y = VIEW_HEIGHT - height;
+                return (
+                  <rect
+                    key={buckets[i].weekStart}
+                    x={x}
+                    y={y}
+                    width={barWidth}
+                    // A 0-height rect renders nothing, which reads as a gap
+                    // rather than a zero week — floor it to a hairline sliver.
+                    height={Math.max(height, 0.6)}
+                    fill="var(--acc)"
+                    fillOpacity={row.opacity}
+                  />
+                );
+              })}
+            </svg>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 ml-14 flex justify-between">
+        <span className="label-mono tracking-[0.1em] text-faint">
+          {formatWeekLabel(buckets[0].weekStart)}
+        </span>
+        <span className="label-mono tracking-[0.1em] text-faint">
+          {formatWeekLabel(buckets[buckets.length - 1].weekStart)}
+        </span>
+      </div>
+      <p className="sr-only">Weekly totals: {totalsText}.</p>
+    </div>
+  );
+}
