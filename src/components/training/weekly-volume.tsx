@@ -33,7 +33,7 @@ function formatWeekLabel(iso: string): string {
 export function WeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
   if (buckets.length === 0) return null;
 
-  const hoursByRow = ROWS.map((row) => buckets.map((bucket) => bucket[row.key] / 3600));
+  const hoursByRow = ROWS.map((row) => buckets.map((bucket) => bucket[row.key].seconds / 3600));
 
   // One max shared across all three rows so they stay comparable to each
   // other. Guarded: an all-zero range would otherwise divide by zero and put

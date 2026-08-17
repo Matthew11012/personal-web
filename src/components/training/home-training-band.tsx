@@ -30,7 +30,7 @@ function formatWeekLabel(iso: string): string {
 function CombinedWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
   if (buckets.length === 0) return null;
 
-  const hours = buckets.map((bucket) => (bucket.swim + bucket.bike + bucket.run) / 3600);
+  const hours = buckets.map((bucket) => bucket.total.seconds / 3600);
 
   // Guarded the same way as WeeklyVolume: an all-zero window (no activity in
   // the last 12 weeks) would otherwise divide by zero and put NaN into every

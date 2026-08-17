@@ -41,9 +41,9 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
   const leadingPad = mondayIndex(cells[0].date);
   const trailingPad = (7 - ((leadingPad + cells.length) % 7)) % 7;
 
-  const max = Math.max(0, ...cells.map((cell) => cell.total));
-  const activeDays = cells.filter((cell) => cell.total > 0).length;
-  const totalHoursLabel = formatHours(cells.reduce((sum, cell) => sum + cell.total, 0));
+  const max = Math.max(0, ...cells.map((cell) => cell.total.seconds));
+  const activeDays = cells.filter((cell) => cell.total.seconds > 0).length;
+  const totalHoursLabel = formatHours(cells.reduce((sum, cell) => sum + cell.total.seconds, 0));
 
   return (
     <div className="mt-[clamp(28px,4vw,44px)]">
@@ -62,16 +62,16 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
           <div key={`pad-start-${i}`} aria-hidden="true" className="aspect-square" />
         ))}
         {cells.map((cell) => {
-          const ratio = max > 0 ? cell.total / max : 0;
+          const ratio = max > 0 ? cell.total.seconds / max : 0;
           const style =
-            cell.total > 0
+            cell.total.seconds > 0
               ? { backgroundColor: "var(--acc)", opacity: opacityForRatio(ratio) }
               : { backgroundColor: "var(--rule)" };
           return (
             <div
               key={cell.date}
               className="aspect-square"
-              title={`${formatDayLabel(cell.date)}: ${cell.total > 0 ? formatHours(cell.total) : "rest"}`}
+              title={`${formatDayLabel(cell.date)}: ${cell.total.seconds > 0 ? formatHours(cell.total.seconds) : "rest"}`}
               style={style}
             />
           );
