@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "strava:auth": "node --env-file=.env.local scripts/strava-auth.mjs",
+    "strava:subscribe": "node --env-file=.env.local scripts/strava-subscribe.mjs",
+    "db:push": "node --env-file=.env.local scripts/db-push.mjs"
   },
   "dependencies": {
     "@content-collections/core": "^0.15.2",
@@ -15,6 +18,7 @@
     "motion": "^12.42.2",
     "next": "16.2.11",
     "next-themes": "^0.4.6",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "reading-time": "^1.5.0",

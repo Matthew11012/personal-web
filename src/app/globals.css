@@ -59,6 +59,14 @@
   a:hover {
     color: #8f4227;
   }
+
+  /* Restrained keyboard-only focus ring — a hairline outline in the
+     system's own accent, never Tailwind's default blue glow/ring. Scoped
+     to :focus-visible only so mouse/pointer interaction never shows it. */
+  :focus-visible {
+    outline: 1px solid var(--acc, var(--ink));
+    outline-offset: 2px;
+  }
 }
 
 ::selection {
