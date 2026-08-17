@@ -129,13 +129,21 @@ export interface RangePresetOption {
   label: string;
 }
 
-/** Moving time per discipline for one calendar week (Monday 00:00 UTC start).
- * Present for every week in a range, even ones with no activity at all. */
+/** Moving time and distance for one discipline within a bucket. */
+export interface DisciplineVolume {
+  seconds: number;
+  metres: number;
+}
+
+/** Moving time and distance per discipline for one calendar week (Monday
+ * 00:00 UTC start), plus a combined total. Present for every week in a
+ * range, even ones with no activity at all. */
 export interface WeeklyBucket {
   weekStart: string; // ISO date, Monday 00:00 UTC
-  swim: number; // moving seconds
-  bike: number;
-  run: number;
+  swim: DisciplineVolume;
+  bike: DisciplineVolume;
+  run: DisciplineVolume;
+  total: DisciplineVolume;
 }
 
 /** Distance per discipline over some set of activities. */
@@ -150,8 +158,8 @@ export interface DisciplineTotals {
  * range, even rest days. */
 export interface DailyCell {
   date: string; // ISO date (UTC), e.g. "2026-03-14"
-  swim: number; // moving seconds
-  bike: number;
-  run: number;
-  total: number;
+  swim: DisciplineVolume;
+  bike: DisciplineVolume;
+  run: DisciplineVolume;
+  total: DisciplineVolume;
 }
