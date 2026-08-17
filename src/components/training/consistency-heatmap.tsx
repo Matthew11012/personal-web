@@ -86,6 +86,16 @@ function computeMonthMarkers(paddedDates: (string | null)[], weeksCount: number)
     if (keep) markers[week] = formatMonthLabel(firstOfMonth);
     seen += 1;
   }
+
+  // A range that opens mid-month contains no boundary for the month it starts
+  // in, so the leading weeks would sit unlabelled — the reader has to count
+  // backwards from the first marker to place them. Label the opening week with
+  // its own month unless it already earned a marker.
+  if (markers[0] === null) {
+    const opening = paddedDates.slice(0, 7).find((date) => date !== null);
+    if (opening) markers[0] = formatMonthLabel(opening);
+  }
+
   return markers;
 }
 
@@ -226,8 +236,11 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
 
   return (
     <div className="mt-[clamp(28px,4vw,44px)]">
+      {/* The stat line is deliberately NOT repeated here — it is the
+          inspector's idle headline below the grid, so printing it above as
+          well said the same sentence twice. Label above, readout below, same
+          shape as WeeklyVolume. */}
       <div className="label-mono tracking-[0.18em] text-faint">Consistency</div>
-      <p className="label-mono mt-2 tracking-[0.05em] text-dim">{statLine}</p>
 
       {/* Two responsive tracks, computed once from the same padded,
           chronological week chunks as the heatmap itself:
