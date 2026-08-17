@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# commit the example file so developers know what vars are needed
+!.env.example
 
 # vercel
 .vercel
@@ -43,4 +45,8 @@ next-env.d.ts
 # content-collections
 .content-collections
 
-/docs
+# docs/ stays local — except the Strava runbook, which a fresh clone needs.
+# Git cannot re-include a file whose parent directory is excluded, so this has
+# to be /docs/* rather than /docs for the negation below to take effect.
+/docs/*
+!/docs/strava-setup.md

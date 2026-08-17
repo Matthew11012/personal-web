@@ -107,3 +107,51 @@ export type ProjectSummary = Pick<
   Project,
   "slug" | "title" | "tagline" | "period" | "accent"
 >;
+
+// -- Training (phase 4 / Strava) -----------------------------------------
+
+export type Discipline = "swim" | "bike" | "run";
+
+/** One activity, reduced to what the charts actually plot. Kept deliberately
+ *  small: the whole array is serialised into the page. */
+export interface TrainingActivity {
+  id: string; // Strava's id as a string — see the int8 note in strava.ts
+  discipline: Discipline;
+  startLocal: string; // ISO string; local wall-clock time wearing a fake Z — read with UTC accessors only
+  movingSeconds: number;
+  distanceMetres: number;
+}
+
+export type RangePreset = "all" | "ytd" | "12w" | "4w";
+
+export interface RangePresetOption {
+  value: RangePreset;
+  label: string;
+}
+
+/** Moving time per discipline for one calendar week (Monday 00:00 UTC start).
+ * Present for every week in a range, even ones with no activity at all. */
+export interface WeeklyBucket {
+  weekStart: string; // ISO date, Monday 00:00 UTC
+  swim: number; // moving seconds
+  bike: number;
+  run: number;
+}
+
+/** Distance per discipline over some set of activities. */
+export interface DisciplineTotals {
+  swim: number; // metres
+  bike: number;
+  run: number;
+  combined: number;
+}
+
+/** One day's totals for the consistency heatmap. Present for every day in a
+ * range, even rest days. */
+export interface DailyCell {
+  date: string; // ISO date (UTC), e.g. "2026-03-14"
+  swim: number; // moving seconds
+  bike: number;
+  run: number;
+  total: number;
+}
