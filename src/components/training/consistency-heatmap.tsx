@@ -41,6 +41,28 @@ const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 // blocks in the JSX below for how each dimension gets matched.
 const AXIS_TRACK = "repeat(7, minmax(0, 1fr))";
 
+// Gap between cells, in px. Declared here because the desktop width cap below
+// has to account for it, and the two must not drift from the `gap-[3px]`
+// utility on the grid itself.
+const CELL_GAP_PX = 3;
+
+/** Largest a cell is allowed to get on the desktop (weeks-as-columns) layout.
+ *
+ * Without a cap, `auto-cols-[minmax(0,1fr)]` divides the full width by the
+ * number of weeks, so a SHORTER range produces WIDER columns — and
+ * `aspect-square` turns that width straight into height. At the 4-week preset
+ * that meant ~5 columns across the page, cells around 250px, and a grid
+ * roughly 1750px tall that pushed the readout below the fold: you had to
+ * scroll away from the cell you were hovering to read what it said.
+ *
+ * 40px is above the ~33px cells the full-history range already produces at a
+ * typical desktop width, so the long ranges are unaffected and only the short
+ * ones stop ballooning. It also fixes the grid's maximum height at
+ * 7 x 40 + 6 x 3 = 298px regardless of range. Cells staying one size across
+ * ranges is the same property the absolute colour bands give: what you see
+ * doesn't silently rescale when you change the window. */
+const MAX_CELL_PX = 40;
+
 // Strength of --acc for bands 1..5, as a percentage mixed against
 // transparent (0 is rest, handled separately — see the render loop). Spaced
 // for clearly separated lightness rather than the old 0.3/0.6/0.9: the
@@ -135,6 +157,9 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
   // the heatmap's own week-columns) and as rows (mobile month side column,
   // beside the heatmap's own week-rows) — one week axis, two orientations.
   const weeksTrackTemplate = `repeat(${weeksCount}, minmax(0, 1fr))`;
+  // Applied to the month track and the grid alike (sm+ only), so capping the
+  // cells can't desynchronise the labels from the columns they mark.
+  const weeksMaxWidth = weeksCount * MAX_CELL_PX + (weeksCount - 1) * CELL_GAP_PX;
 
   const stats = streakStats(cells);
   const totalHoursLabel = formatHours(cells.reduce((sum, cell) => sum + cell.total.seconds, 0));
@@ -253,10 +278,15 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
           weeks-count template) rather than being positioned by hand, so
           they line up with the grid automatically. The corner spacer keeps
           the header row offset by exactly the side column's width. */}
-      <div className="mt-4">
+      {/* --heatmap-max-w caps the desktop grid so short ranges don't inflate
+          their cells (see MAX_CELL_PX). It's a custom property rather than an
+          inline max-width because the cap must apply at sm+ only — on mobile
+          the week axis runs vertically, where the column count is always 7 and
+          the cells never inflate. */}
+      <div className="mt-4" style={{ ["--heatmap-max-w" as string]: `${weeksMaxWidth}px` }}>
         <div className="flex">
           <div aria-hidden="true" className="w-8 shrink-0" />
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
             <div
               aria-hidden="true"
               className="grid gap-[3px] sm:hidden"
@@ -306,7 +336,7 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
             </div>
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
             {/* Single tab stop for the whole grid; the visual grid itself is
                 aria-hidden below, with the group's aria-label and the
                 sr-only paragraph carrying the accessible description. */}
