@@ -63,12 +63,19 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
     ? `Week of ${formatWeekLabel(activeBucket.weekStart)} · ${formatHours(activeBucket.total.seconds)} · ${formatDistanceKmCompact(activeBucket.total.metres)}`
     : idleHeadline;
 
+  // All three disciplines are always listed so the rows hold their positions
+  // as you arrow across weeks. A discipline with no time shows an em dash
+  // rather than "0.0h 0 km", which reads as a measurement rather than an
+  // absence. Matches WeeklyVolume on the plot page.
   const inspectorRows: InspectorRow[] | undefined = activeBucket
-    ? ROW_LABELS.map((row) => ({
-        label: row.label,
-        hours: formatHours(activeBucket[row.key].seconds),
-        distance: formatDistanceKmCompact(activeBucket[row.key].metres),
-      }))
+    ? ROW_LABELS.map((row) => {
+        const volume = activeBucket[row.key];
+        return {
+          label: row.label,
+          hours: volume.seconds > 0 ? formatHours(volume.seconds) : "—",
+          distance: volume.seconds > 0 ? formatDistanceKmCompact(volume.metres) : "",
+        };
+      })
     : undefined;
 
   function moveActive(next: number) {
