@@ -253,6 +253,28 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* CountUpFigure renders two copies of its number: .countup-live, which the
+   server sends as a zero frame and the client counts up, and .countup-static,
+   the real figure. Only one is ever visible.
+
+   This swap is CSS rather than JS on purpose — it has to be right in the
+   prerendered HTML, before any hydration. A reader who asked for reduced
+   motion would otherwise stare at a 0 for the ~250ms it takes the bundle to
+   land and tell the component to stop animating, which is precisely the
+   audience that should never see the animation's scaffolding. */
+.countup-static {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countup-live {
+    display: none;
+  }
+  .countup-static {
+    display: inline;
+  }
+}
+
 .idx-title {
   font-family: var(--font-display);
   font-size: clamp(24px, 2.4vw, 34px);

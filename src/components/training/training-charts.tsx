@@ -85,7 +85,7 @@ export function TrainingCharts({
   return (
     <section className="mb-[clamp(40px,6vw,64px)]">
       <RangeControl range={range} onChange={handleRangeChange} />
-      <ResultFigures results={results} />
+      <ResultFigures results={results} countUp />
       <WeeklyVolume buckets={weeklyBuckets} />
       <ConsistencyHeatmap cells={dailyCells} />
       <div className="mt-[clamp(28px,4vw,44px)]">

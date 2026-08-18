@@ -53,7 +53,7 @@ export async function HomeTrainingBand() {
   return (
     <div style={{ ["--acc" as string]: accent }} className="mt-[clamp(56px,8vw,110px)]">
       <MetaStrip border="top" items={["In training", "Last 12 weeks — via Strava"]} />
-      <ResultFigures results={results} />
+      <ResultFigures results={results} countUp />
       <HomeWeeklyVolume buckets={buckets} />
       <div className="mt-[clamp(20px,2.5vw,28px)]">
         <Link
