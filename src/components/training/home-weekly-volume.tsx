@@ -3,7 +3,7 @@
 import { useState, type KeyboardEvent } from "react";
 import type { WeeklyBucket } from "@/lib/types";
 import { formatDistanceKmCompact, formatHours } from "@/lib/training-derive";
-import { ChartInspector, type InspectorRow } from "./chart-inspector";
+import { ChartInspector, type InspectorFigure, type InspectorRow } from "./chart-inspector";
 
 const VIEW_HEIGHT = 40;
 const BAR_GAP_RATIO = 0.25; // fraction of each slot left as gap between bars
@@ -17,10 +17,13 @@ function formatWeekLabel(iso: string): string {
   return `${month} ${date.getUTCDate()}`;
 }
 
-const ROW_LABELS: { key: "swim" | "bike" | "run"; label: string }[] = [
-  { key: "swim", label: "swim" },
-  { key: "bike", label: "bike" },
-  { key: "run", label: "run" },
+// Swim strongest, run lightest — same tint family as WeeklyVolume's ROWS
+// (0.85 / 0.55 / 0.3) so the readout swatches match across pages even
+// though this chart's bars are a single combined series, not three rows.
+const ROW_LABELS: { key: "swim" | "bike" | "run"; label: string; tint: number }[] = [
+  { key: "swim", label: "swim", tint: 0.85 },
+  { key: "bike", label: "bike", tint: 0.55 },
+  { key: "run", label: "run", tint: 0.3 },
 ];
 
 /** One combined bar per week — swim + bike + run hours summed, unlike the
@@ -54,14 +57,29 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
   const totalSeconds = buckets.reduce((sum, bucket) => sum + bucket.total.seconds, 0);
   const totalMetres = buckets.reduce((sum, bucket) => sum + bucket.total.metres, 0);
   const weekWord = n === 1 ? "week" : "weeks";
-  const idleHeadline =
-    totalSeconds > 0
-      ? `Last ${n} ${weekWord} · ${formatHours(totalSeconds)} · ${formatDistanceKmCompact(totalMetres)}`
+
+  // Same split as WeeklyVolume: a zero-training window has no figures worth
+  // the display scale, so the whole sentence folds into the eyebrow and
+  // figures stays empty rather than showing a dishonest "0.0h · 0 km".
+  const eyebrow = activeBucket
+    ? `Week of ${formatWeekLabel(activeBucket.weekStart)}`
+    : totalSeconds > 0
+      ? `Last ${n} ${weekWord}`
       : `Last ${n} ${weekWord} · no recorded training in this range`;
 
-  const headline = activeBucket
-    ? `Week of ${formatWeekLabel(activeBucket.weekStart)} · ${formatHours(activeBucket.total.seconds)} · ${formatDistanceKmCompact(activeBucket.total.metres)}`
-    : idleHeadline;
+  const figures: InspectorFigure[] =
+    activeBucket || totalSeconds > 0
+      ? [
+          {
+            value: formatHours(activeBucket ? activeBucket.total.seconds : totalSeconds),
+            label: "time",
+          },
+          {
+            value: formatDistanceKmCompact(activeBucket ? activeBucket.total.metres : totalMetres),
+            label: "distance",
+          },
+        ]
+      : [];
 
   // All three disciplines are always listed so the rows hold their positions
   // as you arrow across weeks. A discipline with no time shows an em dash
@@ -74,6 +92,7 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
           label: row.label,
           hours: volume.seconds > 0 ? formatHours(volume.seconds) : "—",
           distance: volume.seconds > 0 ? formatDistanceKmCompact(volume.metres) : "",
+          tint: row.tint,
         };
       })
     : undefined;
@@ -190,7 +209,12 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
           {formatWeekLabel(buckets[buckets.length - 1].weekStart)}
         </span>
       </div>
-      <ChartInspector headline={headline} rows={inspectorRows} />
+      <ChartInspector
+        eyebrow={eyebrow}
+        figures={figures}
+        rows={inspectorRows}
+        active={activeBucket !== null}
+      />
     </div>
   );
 }

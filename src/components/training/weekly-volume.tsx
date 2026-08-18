@@ -3,7 +3,7 @@
 import { useState, type KeyboardEvent } from "react";
 import type { WeeklyBucket } from "@/lib/types";
 import { formatDistanceKmCompact, formatHours } from "@/lib/training-derive";
-import { ChartInspector, type InspectorRow } from "./chart-inspector";
+import { ChartInspector, type InspectorFigure, type InspectorRow } from "./chart-inspector";
 
 type Row = {
   key: "swim" | "bike" | "run";
@@ -67,14 +67,31 @@ export function WeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
   const totalSeconds = buckets.reduce((sum, bucket) => sum + bucket.total.seconds, 0);
   const totalMetres = buckets.reduce((sum, bucket) => sum + bucket.total.metres, 0);
   const weekWord = n === 1 ? "week" : "weeks";
-  const idleHeadline =
-    totalSeconds > 0
-      ? `${n} ${weekWord} · ${formatHours(totalSeconds)} · ${formatDistanceKmCompact(totalMetres)}`
+
+  // A zero-training range has no figures worth putting on the display
+  // scale — "0.0h · 0 km" would read as a measurement rather than an
+  // absence, same reasoning as the em-dash on a quiet discipline row below.
+  // Folding the whole sentence into the eyebrow and leaving figures empty
+  // keeps that honest without a fourth prop just for this case.
+  const eyebrow = activeBucket
+    ? `Week of ${formatWeekLabel(activeBucket.weekStart)}`
+    : totalSeconds > 0
+      ? `${n} ${weekWord}`
       : `${n} ${weekWord} · no recorded training in this range`;
 
-  const headline = activeBucket
-    ? `Week of ${formatWeekLabel(activeBucket.weekStart)} · ${formatHours(activeBucket.total.seconds)} · ${formatDistanceKmCompact(activeBucket.total.metres)}`
-    : idleHeadline;
+  const figures: InspectorFigure[] =
+    activeBucket || totalSeconds > 0
+      ? [
+          {
+            value: formatHours(activeBucket ? activeBucket.total.seconds : totalSeconds),
+            label: "time",
+          },
+          {
+            value: formatDistanceKmCompact(activeBucket ? activeBucket.total.metres : totalMetres),
+            label: "distance",
+          },
+        ]
+      : [];
 
   // All three disciplines are always listed, unlike the heatmap's per-day
   // readout: the rows hold their positions as you arrow across weeks, so the
@@ -88,6 +105,7 @@ export function WeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
           label: row.label.toLowerCase(),
           hours: volume.seconds > 0 ? formatHours(volume.seconds) : "—",
           distance: volume.seconds > 0 ? formatDistanceKmCompact(volume.metres) : "",
+          tint: row.opacity,
         };
       })
     : undefined;
@@ -212,7 +230,12 @@ export function WeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
           {formatWeekLabel(buckets[buckets.length - 1].weekStart)}
         </span>
       </div>
-      <ChartInspector headline={headline} rows={inspectorRows} />
+      <ChartInspector
+        eyebrow={eyebrow}
+        figures={figures}
+        rows={inspectorRows}
+        active={activeBucket !== null}
+      />
       <p className="sr-only">Weekly totals: {totalsText}.</p>
     </div>
   );

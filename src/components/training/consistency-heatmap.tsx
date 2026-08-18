@@ -9,7 +9,7 @@ import {
   heatmapBand,
   streakStats,
 } from "@/lib/training-derive";
-import { ChartInspector, type InspectorRow } from "./chart-inspector";
+import { ChartInspector, type InspectorFigure, type InspectorRow } from "./chart-inspector";
 
 // Monday-indexed day-of-week (0=Mon..6=Sun) from a UTC ISO date, matching
 // weekStart's own off-by-one handling in training-derive.ts.
@@ -123,6 +123,10 @@ function computeMonthMarkers(paddedDates: (string | null)[], weeksCount: number)
 
 const DISCIPLINES: Discipline[] = ["swim", "bike", "run"];
 
+// Same tint family as WeeklyVolume's ROWS (0.85 / 0.55 / 0.3) — the swatch
+// on each readout row should mean the same thing on every training chart.
+const DISCIPLINE_TINT: Record<Discipline, number> = { swim: 0.85, bike: 0.55, run: 0.3 };
+
 /** Consistency heatmap: one cell per day, filled by total training time.
  *
  * Deliberately a CSS grid, not SVG — the desktop layout (weeks as columns)
@@ -163,22 +167,38 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
 
   const stats = streakStats(cells);
   const totalHoursLabel = formatHours(cells.reduce((sum, cell) => sum + cell.total.seconds, 0));
-  const statLine =
-    stats.activeDays > 0
-      ? `${stats.activeDays} of ${stats.totalDays} days trained · longest streak ${stats.longestStreak} day${
-          stats.longestStreak === 1 ? "" : "s"
-        } · ${formatHours(stats.meanSecondsPerActiveDay)} per active day`
-      : `0 of ${stats.totalDays} days trained in this range`;
 
   const n = cells.length;
   const activeIndex = active !== null && active >= 0 && active < n ? active : null;
   const activeCell = activeIndex !== null ? cells[activeIndex] : null;
+  const isRestDay = activeCell !== null && activeCell.total.seconds === 0;
 
-  const headline = activeCell
-    ? activeCell.total.seconds > 0
-      ? `${formatDayLabel(activeCell.date)} · ${formatHours(activeCell.total.seconds)} · ${formatDistanceKmCompact(activeCell.total.metres)}`
-      : `${formatDayLabel(activeCell.date)} · rest`
-    : statLine;
+  // A rest day and a zero-training range both fold their whole message into
+  // the eyebrow with an empty figures array, same reasoning as the
+  // zero-training fallback on WeeklyVolume: "0.0h" would read as a
+  // measurement rather than an absence.
+  const eyebrow = activeCell
+    ? isRestDay
+      ? `${formatDayLabel(activeCell.date)} · rest`
+      : formatDayLabel(activeCell.date)
+    : stats.activeDays > 0
+      ? `${stats.totalDays} day${stats.totalDays === 1 ? "" : "s"}`
+      : `${stats.totalDays} day${stats.totalDays === 1 ? "" : "s"} · 0 trained`;
+
+  const figures: InspectorFigure[] = activeCell
+    ? isRestDay
+      ? []
+      : [
+          { value: formatHours(activeCell.total.seconds), label: "time" },
+          { value: formatDistanceKmCompact(activeCell.total.metres), label: "distance" },
+        ]
+    : stats.activeDays > 0
+      ? [
+          { value: `${stats.activeDays}/${stats.totalDays}`, label: "trained" },
+          { value: `${stats.longestStreak}d`, label: "longest streak" },
+          { value: formatHours(stats.meanSecondsPerActiveDay), label: "per active day" },
+        ]
+      : [];
 
   // Unlike the weekly chart, most days only have one discipline — empty ones
   // are skipped here rather than shown as zeroed rows.
@@ -188,6 +208,7 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
           label: discipline,
           hours: formatHours(activeCell[discipline].seconds),
           distance: formatDistanceKmCompact(activeCell[discipline].metres),
+          tint: DISCIPLINE_TINT[discipline],
         }))
       : undefined;
 
@@ -400,7 +421,12 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
         ))}
       </div>
 
-      <ChartInspector headline={headline} rows={inspectorRows} />
+      <ChartInspector
+        eyebrow={eyebrow}
+        figures={figures}
+        rows={inspectorRows}
+        active={activeCell !== null}
+      />
 
       <p className="sr-only">
         {stats.activeDays} of {cells.length} days trained, {totalHoursLabel} total.

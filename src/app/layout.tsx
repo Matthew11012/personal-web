@@ -54,6 +54,19 @@ export default function RootLayout({
       className={`${instrumentSerif.variable} ${spectral.variable} ${spectralItalic.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">
+        {/* CountUpFigure ships its number twice — a zero frame the client
+            counts up, and the real figure — because the count has to start
+            from zero in the prerendered HTML to avoid flashing the true value
+            first. With scripts off nothing ever counts, so swap to the real
+            figure. Written as raw HTML rather than a JSX <style> child so
+            React leaves it inside the noscript instead of hoisting it into
+            the head, where it would apply unconditionally. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              "<style>.countup-live{display:none}.countup-static{display:inline}</style>",
+          }}
+        />
         <Providers>
           <SiteHeader />
           <main className="flex-1">{children}</main>

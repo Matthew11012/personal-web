@@ -3,6 +3,27 @@ import type { Variants } from "motion/react";
 /** Standard easing used throughout the site: cubic-bezier(.2,.7,.2,1) */
 export const EASE: [number, number, number, number] = [0.2, 0.7, 0.2, 1];
 
+/**
+ * Count-up easing: cubic-bezier(.33,.3,.3,1).
+ *
+ * EASE is wrong for a running number. It front-loads hard — ~76% of the value
+ * is spent in the first 27% of the duration, leaving only ~4% for the final
+ * 39%. On a figure that means the digits race, then sit almost still, then
+ * land: the deceleration is real but too small to read, so the count appears
+ * to stop dead on its last value.
+ *
+ * This curve front-loads much harder and then coasts: ~87% of the value is
+ * spent in the first ~17% of the duration and ~99.7% by ~64%, leaving the
+ * remainder to creep out across the final third as a long, soft landing.
+ *
+ * Worth knowing when tuning it: the tail is only visible on figures with the
+ * magnitude to still be changing digits down there. On a large total (1823km)
+ * the last stretch ticks out single kilometres; on a small one-decimal figure
+ * (3.8km) the remainder rounds away, so the number reaches its final value
+ * early and simply holds until the tween ends.
+ */
+export const COUNT_EASE: [number, number, number, number] = [.05,1,.07,1];
+
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
