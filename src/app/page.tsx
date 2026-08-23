@@ -2,6 +2,7 @@ import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryCard, type HomeEntry } from "@/components/entry-card";
+import { IntroBand } from "@/components/intro-band";
 import { PlotIndexRow } from "@/components/plot-index-row";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
 import { getRecentNotes } from "@/lib/content";
@@ -60,7 +61,11 @@ export default async function HomePage() {
         </Reveal>
       </div>
 
-      <div className="mt-[clamp(32px,4vw,48px)]">
+      <Reveal delay={0.26}>
+        <IntroBand />
+      </Reveal>
+
+      <div className="mt-[clamp(48px,6vw,80px)]">
         <MetaStrip
           border="top"
           items={["Lately in the garden", "Four latest — all plots"]}
