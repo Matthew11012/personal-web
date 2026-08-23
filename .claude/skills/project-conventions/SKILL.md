@@ -34,8 +34,21 @@ See `src/lib/strava.ts` + `src/components/training/home-training-band.tsx` as th
 gate them yourself with `useReducedMotion()` and pin the end state.
 `src/components/intro-band.tsx` is the worked example (SVG `pathLength` drawn by
 scroll). Its route geometry is hand-authored: the station `x`/`y` percentages and
-the `PATH` string are one unit, and the box has a fixed `h-[...]` because the
-path is authored against it.
+the `ROUTE` control points are one unit, and the box has a fixed `h-[...]`
+because the path is authored against it.
+
+**`vector-effect: non-scaling-stroke` silently breaks `pathLength` drawing.**
+Motion animates `pathLength` via `stroke-dasharray` in path-length units
+(`pathLength="1"`), but Chrome reads the dash array in *screen* pixels when
+non-scaling-stroke is set — so the line renders as a fixed dotted pattern along
+its whole length instead of one advancing stroke, at every scroll position. The
+two cannot be combined. If a stretched `viewBox` + `preserveAspectRatio="none"`
+is what made non-scaling-stroke necessary, scale the coordinates into pixels in
+JS instead and use a 1:1 `viewBox` (`buildRoute` in intro-band).
+
+Prefer driving scroll-reactive decoration off the same MotionValue as the thing
+it decorates (`useTransform(drawn, [at, at + 0.06], [0, 1])`) rather than off
+`whileInView` — but never gate *content* behind a scroll value, only ornament.
 
 ## Assets
 
