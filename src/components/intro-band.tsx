@@ -47,6 +47,9 @@ const STATIONS = [
        The contrast with the two photographs is the point — it reads as the
        person, where the others read as evidence. */
     shape: "cutout",
+    /* The cut-out is 6:13, so a width that suits the two landscape-ish photos
+       makes it 650px of standing figure on a phone. It gets its own. */
+    narrow: "w-[min(42%,150px)]",
     width: "lg:w-[clamp(120px,13vw,160px)]",
     ratio: "aspect-[6/13]",
     pad: "pl-8",
@@ -63,6 +66,7 @@ const STATIONS = [
     alt: "Matthew presenting UQuizzle on stage at UQ",
     caption: "UQuizzle, Team 1103 — UQ",
     shape: "frame",
+    narrow: "w-[min(100%,300px)]",
     width: "lg:w-[clamp(240px,28vw,340px)]",
     ratio: "aspect-[3/2]",
     pad: "pl-7",
@@ -81,6 +85,7 @@ const STATIONS = [
     /* A disc, not a rectangle. The one curve in a page built entirely from
        hairlines and right angles, and it earns it: the subject is a wheel. */
     shape: "disc",
+    narrow: "w-[min(72%,250px)]",
     width: "lg:w-[clamp(170px,19vw,240px)]",
     ratio: "aspect-square",
     pad: "pl-9",
@@ -180,7 +185,7 @@ function Marker({
 function StationFigure({ station }: { station: (typeof STATIONS)[number] }) {
   const { shape } = station;
   return (
-    <figure className={`m-0 mt-6 w-[min(100%,300px)] ${station.width}`}>
+    <figure className={`m-0 mt-6 ${station.narrow} ${station.width}`}>
       <div
         className={`relative w-full ${station.ratio} ${
           shape === "cutout" ? "" : "overflow-hidden"
