@@ -26,16 +26,16 @@ See `src/lib/strava.ts` + `src/components/training/home-training-band.tsx` as th
 - **Known gap, present in every heatmap so far**: cells only wire `onMouseEnter` + keyboard arrow-nav for the inspector — no touch/click handler, so the per-day readout is desktop-only. Worth fixing once, shared, rather than per-component, if it's ever prioritized.
 - Keyboard contract: single tab-stop `role="group"` (not per-cell tabbing), arrow keys = ±1 week (left/right) / ±1 day (up/down), Home/End, Escape to clear.
 
-## Hover/tap interactions
+## Scroll-linked motion
 
-Any "hover a thing to change another thing" component needs **separate** hover,
-focus and pin states resolved by precedence (`hovered ?? focused ?? pinned ?? 0`)
-— never one shared index. A click is always preceded by the hover and focus that
-write that same value, so a toggle comparing against it undoes itself; and a tap
-gets synthesised pointer events but no `mouseleave`, so it lands back on the
-default. Gate hover to `e.pointerType === "mouse"` on `onPointerEnter/Leave`.
-`src/components/intro-band.tsx` is the worked example. (This is the same
-touch-support gap the heatmaps still have, solved once.)
+`Providers` wraps everything in `LazyMotion ... strict`, so only `m.*` is legal.
+`MotionConfig reducedMotion="user"` covers `animate`/`whileInView` but **not**
+`useScroll`/`useTransform`/`useSpring` — scroll-linked values keep updating, so
+gate them yourself with `useReducedMotion()` and pin the end state.
+`src/components/intro-band.tsx` is the worked example (SVG `pathLength` drawn by
+scroll). Its route geometry is hand-authored: the station `x`/`y` percentages and
+the `PATH` string are one unit, and the box has a fixed `h-[...]` because the
+path is authored against it.
 
 ## Assets
 
