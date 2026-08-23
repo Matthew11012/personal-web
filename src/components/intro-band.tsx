@@ -3,10 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { m } from "motion/react";
-import { useState } from "react";
-
-/** The gardener's accent, shared with /about so the two read as one voice. */
-const ACCENT = "#9a8636";
+import { useState, type PointerEvent } from "react";
+import { CV, GARDENER_ACCENT as ACCENT } from "@/lib/me";
 
 /**
  * Frame 0 is the rest state — it shows whenever nothing is being pointed at,
@@ -37,19 +35,35 @@ const FRAMES = [
 ] as const;
 
 export function IntroBand() {
-  const [active, setActive] = useState(0);
+  /* Three independent inputs rather than one `active` index, because they
+     have different lifetimes: hover and focus are transient (leaving or
+     blurring restores the portrait) while a tap pins a frame open, since a
+     touch reader has nowhere to move away to.
 
-  /* Pointer and focus are transient — leaving restores the portrait. Tap is
-     sticky, because a touch reader has nowhere to move away to. */
+     Collapsing these into a single value is the trap here — a click is always
+     preceded by the hover and focus that set that same value, so a toggle
+     comparing against it would immediately undo itself, and a tap (which gets
+     synthesised hover events but never a mouseleave) would show nothing at
+     all. Hover is also gated to real mice for that reason. */
+  const [pinned, setPinned] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [focused, setFocused] = useState<number | null>(null);
+  const active = hovered ?? focused ?? pinned ?? 0;
+
   const phrase = (i: number) => ({
     type: "button" as const,
     className: "phrase",
     "data-active": active === i,
-    onMouseEnter: () => setActive(i),
-    onMouseLeave: () => setActive(0),
-    onFocus: () => setActive(i),
-    onBlur: () => setActive(0),
-    onClick: () => setActive((prev) => (prev === i ? 0 : i)),
+    "aria-pressed": pinned === i,
+    onPointerEnter: (e: PointerEvent<HTMLButtonElement>) => {
+      if (e.pointerType === "mouse") setHovered(i);
+    },
+    onPointerLeave: (e: PointerEvent<HTMLButtonElement>) => {
+      if (e.pointerType === "mouse") setHovered(null);
+    },
+    onFocus: () => setFocused(i),
+    onBlur: () => setFocused(null),
+    onClick: () => setPinned((prev) => (prev === i ? null : i)),
   });
 
   return (
@@ -114,13 +128,8 @@ export function IntroBand() {
       <div className="label-mono mt-[clamp(32px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
         <span className="text-ink">Grad student — retrieval &amp; applied AI</span>
         <span>Brisbane / Jakarta</span>
-        <a
-          href="/MatthewRizkyHartadi_CV.pdf"
-          download
-          className="navlink"
-          style={{ color: ACCENT }}
-        >
-          CV — PDF, 91 KB ↓
+        <a href={CV.href} download className="navlink" style={{ color: ACCENT }}>
+          {CV.label}
         </a>
       </div>
     </section>

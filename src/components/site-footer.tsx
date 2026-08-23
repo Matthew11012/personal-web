@@ -1,14 +1,16 @@
+import { CV, GARDENER_ACCENT } from "@/lib/me";
+
 export function SiteFooter() {
   return (
     <footer className="label-mono flex flex-wrap justify-between gap-3 px-[clamp(24px,6vw,120px)] pb-[clamp(40px,5vw,60px)] text-[10px] tracking-[0.14em] text-faint">
       <span>Tended by hand · Brisbane / Jakarta</span>
       <a
-        href="/MatthewRizkyHartadi_CV.pdf"
+        href={CV.href}
         download
         className="navlink"
-        style={{ color: "#9a8636" }}
+        style={{ color: GARDENER_ACCENT }}
       >
-        CV — PDF, 91 KB ↓
+        {CV.label}
       </a>
       <span>© 2026 M.R.H</span>
     </footer>
