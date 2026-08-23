@@ -11,7 +11,6 @@ const GITHUB_TIMEOUT_MS = 10_000;
 const CONTRIBUTIONS_QUERY = `
   query($from: DateTime!, $to: DateTime!) {
     viewer {
-      createdAt
       contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           totalContributions
@@ -35,7 +34,6 @@ const contributionDaySchema = z.object({
 const graphqlResponseSchema = z.object({
   data: z.object({
     viewer: z.object({
-      createdAt: z.string(),
       contributionsCollection: z.object({
         contributionCalendar: z.object({
           totalContributions: z.number(),
@@ -82,14 +80,12 @@ function contributionLevel(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
 
 /** Issues one contributions-calendar request for the given window, validates
  * it, and flattens it into daily cells with a relative 0-4 level computed off
- * that window's own max day. Also returns the raw `createdAt` string so
- * callers that need the account's join date don't have to issue a second
- * request just for that field. */
+ * that window's own max day. */
 async function fetchContributionWindow(
   token: string,
   from: Date,
   to: Date,
-): Promise<{ totalContributions: number; days: ContributionDay[]; createdAt: string }> {
+): Promise<{ totalContributions: number; days: ContributionDay[] }> {
   const res = await fetch(GITHUB_GRAPHQL_API, {
     method: "POST",
     headers: {
@@ -123,8 +119,7 @@ async function fetchContributionWindow(
     throw new Error(`Unexpected GitHub contributions payload: ${parsed.error.message}`);
   }
 
-  const { viewer } = parsed.data.data;
-  const calendar = viewer.contributionsCollection.contributionCalendar;
+  const calendar = parsed.data.data.viewer.contributionsCollection.contributionCalendar;
   const flattened = calendar.weeks.flatMap((week) => week.contributionDays);
 
   const max = flattened.reduce((acc, day) => Math.max(acc, day.contributionCount), 0);
@@ -135,13 +130,20 @@ async function fetchContributionWindow(
     level: contributionLevel(day.contributionCount, max),
   }));
 
-  return { totalContributions: calendar.totalContributions, days, createdAt: viewer.createdAt };
+  return { totalContributions: calendar.totalContributions, days };
 }
+
+/** Earliest calendar year offered in the range selector. Fixed rather than
+ * derived from `viewer.createdAt` (the account's actual join year): the
+ * account predates its real activity by several years, so an account-age
+ * range surfaced a run of all-zero years with nothing to show. */
+const EARLIEST_CONTRIBUTION_YEAR = 2025;
 
 /** The authenticated account's contribution calendar as a set of switchable
  * ranges: a rolling trailing-365-day window plus one entry per calendar year
- * the account has existed, all fetched in one call so a client component can
- * flip between them with zero extra network requests. Uses `viewer` rather
+ * from EARLIEST_CONTRIBUTION_YEAR through the current year, all fetched in
+ * one call so a client component can flip between them with zero extra
+ * network requests. Uses `viewer` rather
  * than `user(login: ...)` so private contributions for the token's own
  * account are always included, with no login-matching or privacy-toggle edge
  * cases. */
@@ -153,11 +155,10 @@ export async function getGithubContributions(): Promise<ContributionRange[]> {
 
   const last12Months = await fetchContributionWindow(token, last12From, now);
 
-  const joinYear = new Date(last12Months.createdAt).getUTCFullYear();
   const currentYear = now.getUTCFullYear();
 
   const years: number[] = [];
-  for (let year = currentYear; year >= joinYear; year--) {
+  for (let year = currentYear; year >= EARLIEST_CONTRIBUTION_YEAR; year--) {
     years.push(year);
   }
 
