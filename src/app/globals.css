@@ -11,10 +11,6 @@
   --rule: #cfc7b7;
   --hair: #221f1b;
   --num: #d8c9a8;
-  /* The intro-band photo plate. The portrait is keyed to transparency, so
-     this is the paper it prints on — in dark mode it stays a warm mid-tone
-     rather than dropping to --panel, which a black shirt would vanish into. */
-  --plate: #efe7d9;
 }
 
 .dark {
@@ -26,7 +22,6 @@
   --rule: #39332a;
   --hair: #4a4336;
   --num: #463f30;
-  --plate: #3b3429;
 }
 
 @theme inline {
@@ -38,7 +33,6 @@
   --color-rule: var(--rule);
   --color-hair: var(--hair);
   --color-num: var(--num);
-  --color-plate: var(--plate);
 
   --font-display: var(--font-instrument-serif);
   --font-body: var(--font-spectral);
@@ -113,32 +107,6 @@
 .navlink:hover::after {
   transform: scaleX(1);
   transform-origin: left;
-}
-
-/* ---------------------------------------------------------------- */
-/* Intro-band phrase trigger — a word in the sentence that owns one   */
-/* of the photo frames. A dotted underline is the long-standing       */
-/* convention for "there is something under this word", so it signals */
-/* without needing an instruction line. Rendered as a real <button>,  */
-/* hence the reset: it has to sit in the paragraph's own type.        */
-/* ---------------------------------------------------------------- */
-.phrase {
-  font: inherit;
-  color: var(--ink);
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  text-decoration: underline dotted var(--acc);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 5px;
-  transition: color 0.3s ease;
-}
-
-.phrase:hover,
-.phrase[data-active="true"] {
-  color: var(--acc);
 }
 
 /* ---------------------------------------------------------------- */
