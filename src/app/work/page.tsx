@@ -3,7 +3,11 @@ import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { ProjectIndexRow } from "@/components/project-index-row";
+import { GithubActivityBand } from "@/components/engineering/github-activity-band";
 import { getAllProjects } from "@/lib/content";
+
+// 24h ISR — the GitHub activity band fetches live data on each revalidation.
+export const revalidate = 86400;
 
 export function generateMetadata(): Metadata {
   return {
@@ -40,6 +44,8 @@ export default function WorkPage() {
           Projects explained, not hosted — what got built, and what it took.
         </p>
       </div>
+
+      <GithubActivityBand />
 
       <div className="label-mono mt-[22px] tracking-[0.14em] text-faint">
         {projects.length} {projects.length === 1 ? "project" : "projects"}
