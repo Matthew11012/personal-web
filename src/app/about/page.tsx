@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IntroBand } from "@/components/intro-band";
 import { Reveal } from "@/components/reveal";
 import { GARDENER_ACCENT as ACCENT } from "@/lib/me";
 
@@ -72,6 +73,10 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+
+      <Reveal>
+        <IntroBand variant="about" />
+      </Reveal>
     </div>
   );
 }
