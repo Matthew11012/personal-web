@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { ProjectIndexRow } from "@/components/project-index-row";
+import { MetaStrip } from "@/components/meta-strip";
 import { GithubActivityBand } from "@/components/engineering/github-activity-band";
 import { getAllProjects } from "@/lib/content";
 
@@ -19,6 +20,8 @@ export function generateMetadata(): Metadata {
 
 export default function WorkPage() {
   const projects = getAllProjects();
+  const featuredProjects = projects.filter((project) => project.featured);
+  const stubProjects = projects.filter((project) => !project.featured);
 
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(36px,5vw,64px)]">
@@ -45,14 +48,13 @@ export default function WorkPage() {
         </p>
       </div>
 
-      <GithubActivityBand />
-
       <div className="label-mono mt-[22px] tracking-[0.14em] text-faint">
-        {projects.length} {projects.length === 1 ? "project" : "projects"}
+        {featuredProjects.length} case{" "}
+        {featuredProjects.length === 1 ? "study" : "studies"}
       </div>
 
       <StaggerGroup className="mt-3 flex flex-col">
-        {projects.map((project) => (
+        {featuredProjects.map((project) => (
           <ProjectIndexRow
             key={project.slug}
             project={{
@@ -65,6 +67,31 @@ export default function WorkPage() {
           />
         ))}
       </StaggerGroup>
+
+      {stubProjects.length > 0 && (
+        <div className="mt-[clamp(36px,5vw,52px)]">
+          <MetaStrip items={["Also built"]} />
+          <ul className="mt-3 divide-y divide-hair">
+            {stubProjects.map((project) => (
+              <li key={project.slug}>
+                <Link
+                  href={`/work/${project.slug}`}
+                  className="navlink flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-2.5 text-dim"
+                >
+                  <span className="font-body text-[15px] text-ink">
+                    {project.title}
+                  </span>
+                  <span className="label-mono text-[11px] tracking-[0.1em] text-faint">
+                    {project.period}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <GithubActivityBand />
     </div>
   );
 }
