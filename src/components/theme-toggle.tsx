@@ -22,7 +22,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="label-mono flex cursor-pointer items-center gap-2 tracking-[0.14em] text-faint transition-colors duration-300 hover:text-[#b0573f]"
+      className="label-mono flex cursor-pointer items-center gap-2 tracking-[0.08em] sm:tracking-[0.14em] text-faint transition-colors duration-300 hover:text-[#b0573f]"
       aria-label="Toggle dark mode"
     >
       <m.span
@@ -32,7 +32,13 @@ export function ThemeToggle() {
         className="h-[10px] w-[10px] rounded-full border border-ink"
         style={{ background: isDark ? "#f4efe6" : "#221f1b" }}
       />
-      {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
+      {/* Below sm the pip is the whole control. The button already carries an
+          aria-label, so dropping the word costs nothing to a screen reader —
+          and a display:none span is not a flex item, so the gap-2 collapses
+          with it. */}
+      <span className="hidden sm:inline">
+        {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
+      </span>
     </button>
   );
 }

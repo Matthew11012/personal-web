@@ -166,6 +166,20 @@
   text-transform: uppercase;
 }
 
+/* One step down on phones. These labels are uppercase mono carrying wide
+   per-site tracking, so any stack of three or four of them reads as a block of
+   shouting. Dropping the SIZE takes ~9% off every strip site-wide while
+   leaving the tracking alone — tracking is set per call site (0.08em to
+   0.26em) and is what carries the hierarchy between an eyebrow and a nav link.
+   Note this rule is deliberately unlayered, like the class it repeats: in
+   Tailwind v4 an unlayered rule beats every utility, so setting letter-spacing
+   here would silently override all 70 call sites. Don't. */
+@media (max-width: 639px) {
+  .label-mono {
+    font-size: 10px;
+  }
+}
+
 .prose-body {
   font-family: var(--font-body);
   font-size: clamp(18px, 1.5vw, 21px);
