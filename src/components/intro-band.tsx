@@ -255,10 +255,7 @@ function StationHeading({
 }) {
   return (
     <div>
-      <span
-        className="label-mono block tracking-[0.26em]"
-        style={{ color: ACCENT }}
-      >
+      <span className="label-mono block tracking-[0.26em] text-gardener">
         {eyebrow}
       </span>
       {phrase && (
@@ -717,10 +714,10 @@ export function IntroBand({ variant = "home" }: { variant?: IntroVariant }) {
       ref={ref}
       aria-label="About Matthew"
       className="mt-[clamp(24px,4vw,56px)]"
-      style={{ ["--acc" as string]: ACCENT }}
+      style={{ ["--acc" as string]: "var(--gardener)" }}
     >
       <div className="label-mono flex justify-between border-b border-hair pb-3 tracking-[0.28em] text-faint">
-        <span style={{ color: ACCENT }}>The gardener</span>
+        <span className="text-gardener">The gardener</span>
         <span>Two cities, two degrees</span>
       </div>
 
@@ -950,8 +947,7 @@ export function IntroBand({ variant = "home" }: { variant?: IntroVariant }) {
       {variant !== "about" && (
         <Link
           href="/about"
-          className="navlink label-mono inline-flex tracking-[0.18em]"
-          style={{ color: ACCENT }}
+          className="navlink label-mono inline-flex tracking-[0.18em] text-gardener"
         >
           The long version →
         </Link>
