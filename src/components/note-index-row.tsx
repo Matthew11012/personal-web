@@ -13,9 +13,11 @@ import type { Stage } from "@/lib/types";
 
 const MotionLink = m.create(Link);
 
-/** Mirrors PlotIndexRow's row geometry, with a StagePip in the numeral slot
- * (notes aren't a sequence, so a positional number would encode something
- * false) and the note's excerpt trailing instead of a plot description. */
+/** One of the two index-row variants (see also ProjectIndexRow): a baseline row
+ * of lead / title / dotted leader / trailing text, sharing the idx* hover
+ * choreography. Here the lead is a StagePip rather than a numeral — notes
+ * aren't a sequence, so a positional number would encode something false — and
+ * the trailing text is the note's excerpt. */
 export interface NoteIndexSummary {
   slug: string;
   title: string;

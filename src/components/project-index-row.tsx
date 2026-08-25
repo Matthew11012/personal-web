@@ -12,8 +12,10 @@ import type { ProjectSummary } from "@/lib/types";
 
 const MotionLink = m.create(Link);
 
-/** Mirrors PlotIndexRow's row geometry and hover choreography, with the
- * project's year in the numeral slot and its tagline set beneath the title
+/** One of the two index-row variants (see also NoteIndexRow): a baseline row of
+ * lead / title / dotted leader / trailing text, sharing the idx* hover
+ * choreography. Here the lead is the project's year — a real year, so the
+ * numeric slot carries information — and the tagline sits beneath the title
  * line rather than trailing it. */
 export function ProjectIndexRow({ project }: { project: ProjectSummary }) {
   return (
