@@ -75,7 +75,7 @@ export default function AboutPage() {
       </div>
 
       <Reveal>
-        <IntroBand variant="about" />
+        <IntroBand />
       </Reveal>
     </div>
   );
