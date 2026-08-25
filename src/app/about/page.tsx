@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { IntroBand } from "@/components/intro-band";
 import { Reveal } from "@/components/reveal";
-
-const ACCENT = "#9a8636";
+import { GARDENER_ACCENT as ACCENT } from "@/lib/me";
 
 export default function AboutPage() {
   return (
@@ -73,6 +73,10 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+
+      <Reveal>
+        <IntroBand variant="about" />
+      </Reveal>
     </div>
   );
 }
