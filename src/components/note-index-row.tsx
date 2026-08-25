@@ -30,25 +30,32 @@ export function NoteIndexRow({ note }: { note: NoteIndexSummary }) {
       href={`/notes/${note.slug}`}
       variants={noteRowVariants}
       whileHover="hover"
-      className="relative flex flex-wrap items-baseline gap-4 py-[clamp(13px,1.6vw,20px)]"
+      className="relative flex flex-wrap items-baseline gap-x-4 gap-y-1.5 py-[clamp(13px,1.6vw,20px)] sm:flex-nowrap"
       style={{ color: "inherit" }}
     >
-      <span className="label-mono flex items-center gap-2 tracking-[0.1em]">
+      <span className="label-mono flex shrink-0 items-center gap-2 tracking-[0.1em]">
         <StagePip stage={note.stage} accent={note.accent} />
       </span>
-      <m.span variants={idxTitleVariants} className="idx-title text-ink">
+      <m.span
+        variants={idxTitleVariants}
+        className="idx-title min-w-0 text-ink sm:max-w-[46ch] sm:truncate"
+      >
         {note.title}
       </m.span>
+      {/* The leader and the arrow are decoration that only reads at width: on a
+          phone the leader collapses to a meaningless stub and the arrow — which
+          only appears on hover, so never on touch — lands mid-excerpt. Both are
+          desktop-only; the excerpt takes its own line instead. */}
       <m.span
         variants={idxLeadVariants}
-        className="min-w-[40px] flex-1 -translate-y-1.5 border-b border-dotted"
+        className="hidden min-w-[40px] flex-1 -translate-y-1.5 border-b border-dotted sm:block"
       />
-      <span className="font-body text-[clamp(13px,1.1vw,15px)] text-faint">
+      <span className="w-full min-w-0 shrink font-body text-[clamp(13px,1.1vw,15px)] text-faint sm:w-auto sm:truncate">
         {note.excerpt}
       </span>
       <m.span
         variants={idxArrowVariants}
-        className="font-mono text-base"
+        className="hidden shrink-0 font-mono text-base sm:inline-block"
         style={{ color: "var(--acc)" }}
         aria-hidden="true"
       >
