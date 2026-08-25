@@ -17,7 +17,7 @@ export function StagePip({
 }) {
   const degrees = DEGREES[stage];
   const background =
-    degrees === null ? accent : `conic-gradient(${accent} ${degrees}deg, #d8d1c3 0)`;
+    degrees === null ? accent : `conic-gradient(${accent} ${degrees}deg, var(--rule) 0)`;
 
   return (
     <span

@@ -11,6 +11,10 @@
   --rule: #cfc7b7;
   --hair: #221f1b;
   --num: #d8c9a8;
+  /* Same ochre family as GARDENER_ACCENT in src/lib/me.ts, darkened here to
+     clear 4.5:1 on --bg — the raw hex (#9a8636) only manages 2.79:1 in light
+     mode. Text-only: decorative uses (rail, SVG stroke) keep the raw hex. */
+  --gardener: #6f6020;
 }
 
 .dark {
@@ -22,6 +26,8 @@
   --rule: #39332a;
   --hair: #4a4336;
   --num: #463f30;
+  /* The raw #9a8636 already clears ~5.6:1 against dark --bg. */
+  --gardener: #9a8636;
 }
 
 @theme inline {
@@ -33,6 +39,7 @@
   --color-rule: var(--rule);
   --color-hair: var(--hair);
   --color-num: var(--num);
+  --color-gardener: var(--gardener);
 
   --font-display: var(--font-instrument-serif);
   --font-body: var(--font-spectral);

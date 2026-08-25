@@ -30,12 +30,16 @@ export function ProjectRail({
       </div>
       <p className="mb-6 font-body text-[14px] text-dim">{period}</p>
 
-      <div className="label-mono mb-3 text-[10px] tracking-[0.16em] text-faint">
-        Stack
-      </div>
-      <p className="mb-6 font-mono text-[13px] leading-[1.6] text-dim">
-        {stack.join(", ")}
-      </p>
+      {stack.length > 0 && (
+        <>
+          <div className="label-mono mb-3 text-[10px] tracking-[0.16em] text-faint">
+            Stack
+          </div>
+          <p className="mb-6 font-mono text-[13px] leading-[1.6] text-dim">
+            {stack.join(", ")}
+          </p>
+        </>
+      )}
 
       {links.length > 0 && (
         <>

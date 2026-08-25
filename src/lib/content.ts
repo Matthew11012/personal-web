@@ -71,7 +71,13 @@ export function getNotesByPlot(plotSlug: string): Note[] {
 }
 
 export function getRecentNotes(count: number): Note[] {
-  return getAllNotes().slice(0, count);
+  return [...getAllNotes()]
+    .sort(
+      (a, b) =>
+        Number(b.featured) - Number(a.featured) ||
+        b.plantedIso.localeCompare(a.plantedIso),
+    )
+    .slice(0, count);
 }
 
 /** Every visible project, ordered by their `order` frontmatter (lower

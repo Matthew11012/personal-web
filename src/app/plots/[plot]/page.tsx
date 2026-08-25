@@ -71,11 +71,6 @@ export default async function PlotPage({
         <span>
           {entries.length} {entries.length === 1 ? "entry" : "entries"}
         </span>
-        <span className="flex flex-wrap gap-[18px]">
-          <span style={{ color: "#3f8a8a" }}>● Seedling</span>
-          <span style={{ color: "#b0573f" }}>◐ Budding</span>
-          <span style={{ color: "#4f6d9e" }}>◍ Evergreen</span>
-        </span>
       </div>
 
       {plot.slug === "triathlon" && <TrainingBand />}

@@ -69,7 +69,13 @@ export default async function ProjectPage({
 
       <ResultFigures results={project.results} />
 
-      <div className="mt-[clamp(36px,5vw,52px)] grid grid-cols-1 gap-[clamp(32px,5vw,72px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(200px,22vw,300px))]">
+      <div
+        className={
+          project.featured
+            ? "mt-[clamp(36px,5vw,52px)] grid grid-cols-1 gap-[clamp(32px,5vw,72px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(200px,22vw,300px))]"
+            : "mt-[clamp(36px,5vw,52px)] flex flex-col gap-[clamp(32px,5vw,72px)]"
+        }
+      >
         <article className="prose-body max-w-[70ch] text-ink">
           <MDXContent code={project.mdx} components={mdxComponents} />
         </article>
