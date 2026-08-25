@@ -17,7 +17,7 @@ export function IdentityBand() {
         <span>Two cities, two degrees</span>
       </div>
 
-      <div className="mt-[clamp(28px,4vw,48px)] grid grid-cols-1 gap-[clamp(24px,4vw,40px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(140px,16vw,200px))] md:items-end">
+      <div className="mt-[clamp(28px,4vw,48px)] grid grid-cols-1 gap-[clamp(24px,4vw,40px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(110px,13vw,140px))] md:items-start">
         <div className="about-body max-w-[52ch] text-ink">
           <p className="mb-4">
             I&rsquo;m Matthew — a grad student and engineer working on
@@ -34,12 +34,12 @@ export function IdentityBand() {
           </Link>
         </div>
 
-        <div className="relative mx-auto aspect-[6/13] w-[min(42%,150px)] md:mx-0 md:w-full">
+        <div className="relative mx-auto aspect-[6/13] w-[min(42%,150px)] md:mx-0 md:h-[clamp(220px,26vw,300px)] md:w-auto">
           <Image
             src="/me/portrait-figure.png"
             alt="Matthew Rizky Hartadi"
             fill
-            sizes="(max-width: 768px) 42vw, 200px"
+            sizes="(max-width: 768px) 42vw, 140px"
             className="object-contain"
           />
         </div>
