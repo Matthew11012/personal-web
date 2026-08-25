@@ -34,7 +34,7 @@ export function EntryCard({ entry }: { entry: HomeEntry }) {
       href={`/notes/${entry.slug}`}
       variants={entryCardVariants}
       whileHover="hover"
-      className={`block ${entry.staggerClass}`}
+      className={`block supports-[grid-template-rows:subgrid]:grid supports-[grid-template-rows:subgrid]:grid-rows-subgrid supports-[grid-template-rows:subgrid]:row-span-4 ${entry.staggerClass}`}
       style={{ ["--acc" as string]: entry.accent, color: "inherit" }}
     >
       <div className="mb-3.5 flex items-baseline gap-3.5">
@@ -60,7 +60,7 @@ export function EntryCard({ entry }: { entry: HomeEntry }) {
         style={{ transformOrigin: "left" }}
         className="my-[clamp(14px,1.8vw,22px)] h-px bg-hair"
       />
-      <p className="lede max-w-[40ch] text-[clamp(14px,1.2vw,17px)] text-dim">
+      <p className="lede max-w-[40ch] text-[clamp(14px,1.2vw,17px)] text-dim supports-[grid-template-rows:subgrid]:mb-[clamp(40px,5vw,80px)]">
         {entry.excerpt}
       </p>
     </MotionLink>

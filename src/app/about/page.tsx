@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { IntroBand } from "@/components/intro-band";
 import { Reveal } from "@/components/reveal";
-import { GARDENER_ACCENT as ACCENT } from "@/lib/me";
 
 export default function AboutPage() {
   return (
@@ -16,8 +15,7 @@ export default function AboutPage() {
       <div className="border-b border-hair py-[clamp(36px,5vw,52px)] pb-[clamp(32px,4vw,40px)]">
         <Reveal>
           <div
-            className="label-mono mb-[22px] tracking-[0.28em]"
-            style={{ color: ACCENT }}
+            className="label-mono mb-[22px] tracking-[0.28em] text-gardener"
           >
             The gardener
           </div>
@@ -61,13 +59,13 @@ export default function AboutPage() {
             Find me
           </div>
           <div className="flex flex-col gap-2 font-mono text-[13px]">
-            <a href="https://github.com/Matthew11012" style={{ color: ACCENT }}>
+            <a href="https://github.com/Matthew11012" className="text-gardener">
               GitHub ↗
             </a>
-            <a href="#" style={{ color: ACCENT }}>
+            <a href="#" className="text-gardener">
               Are.na ↗
             </a>
-            <a href="#" style={{ color: ACCENT }}>
+            <a href="#" className="text-gardener">
               Email ↗
             </a>
           </div>
@@ -75,7 +73,7 @@ export default function AboutPage() {
       </div>
 
       <Reveal>
-        <IntroBand variant="about" />
+        <IntroBand />
       </Reveal>
     </div>
   );

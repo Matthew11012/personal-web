@@ -44,6 +44,7 @@ export interface Note {
   mdx: string; // compiled MDX (mdx-bundler code string), rendered via <MDXContent>
   margin: string;
   draft: boolean;
+  featured: boolean;
   backlinks: Backlink[];
 }
 
@@ -91,6 +92,7 @@ export interface Project {
   order: number;
   accent: string;
   draft: boolean;
+  featured: boolean;
   mdx: string;
   backlinks: Backlink[];
 }

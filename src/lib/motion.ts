@@ -102,6 +102,19 @@ export const idxArrowVariants: Variants = {
   },
 };
 
+/**
+ * Note-index row: entrance (hidden/show, inherited from a StaggerGroup
+ * parent) merged with the hover indent, so the same element can both fade
+ * up on mount and indent on hover without prop conflicts. idxRowVariants
+ * can't do this — it's rest/hover only, so setting initial="rest" on it
+ * overrides variant inheritance and silently defeats a StaggerGroup parent.
+ */
+export const noteRowVariants: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  hover: { paddingLeft: 24, transition: { duration: 0.4, ease: EASE } },
+};
+
 /** Plot-page entry row hover choreography. */
 export const engRowVariants: Variants = {
   rest: { paddingLeft: 0 },

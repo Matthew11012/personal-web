@@ -69,14 +69,13 @@ export default async function NotePage({
       </div>
 
       <div className="label-mono mt-[clamp(40px,6vw,56px)] flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 border-t border-hair pt-5 tracking-[0.12em] text-faint">
-        <Link href={`/plots/${note.plotSlug}`} className="text-faint">
+        <Link
+          href={`/plots/${note.plotSlug}`}
+          className="navlink"
+          style={{ color: accent }}
+        >
           More from {plot?.name ?? note.plotSlug}
         </Link>
-        {note.stage !== "evergreen" && (
-          <span style={{ color: accent }}>
-            This note is still growing {STAGE_SYMBOL[note.stage]}
-          </span>
-        )}
       </div>
     </div>
   );

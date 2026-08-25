@@ -132,3 +132,56 @@ override every one of those call sites — the Tailwind v4 layer trap. Don't.
 A `flex flex-wrap justify-between` strip is the wrong shape on a phone: once it
 wraps, each item takes a full row and the slack collects mid-row. Use a grid
 below `sm` and switch to the flex row at `sm:`.
+
+## Information architecture (post P0 restructure, 2026-08-25)
+
+- `/notes` is the canonical notes index, grouped by plot. `/plots` **permanently
+  redirects** to it; `/plots/[plot]` survives as per-plot views. The nav label stays
+  "The plots" pointing at `/notes` — deliberate, don't "fix" the mismatch.
+- `IntroBand` has exactly one call site: `/about`. It renders the **`home`** variant,
+  because `INTRO_ROUTES.about` still uses grey placeholder blocks (`intro-route.ts:180`)
+  where photographs don't exist yet. When real photos land, switch `/about` back to
+  `variant="about"` — that's the only reason the second variant still exists.
+- Two index-row components, `NoteIndexRow` and `ProjectIndexRow`, share a row geometry
+  (lead / title / dotted leader / trailing text) and the `idx*` hover variants. They are
+  deliberate copies, not an abstraction — the third copy, `PlotIndexRow`, was deleted when
+  its consumers went away.
+- `featured: boolean` on both collections drives homepage note ordering and the workshop
+  teaser. Ordering lives in `getRecentNotes` **only** — `getAllNotes`'s sort feeds
+  `getNotesByPlot` and the positional `01..NN` numbering on `/plots/[plot]`, so touching it
+  silently renumbers every plot page.
+
+## Traps that cost real time
+
+- **content-collections transforms return explicit object literals with no spread.** A new
+  schema field needs adding in *three* places: the zod schema, the transform's return
+  object, and the interface in `src/lib/types.ts`. Miss the transform and the field is
+  silently absent at runtime; miss the interface and it's a type error.
+- **`idxRowVariants` is hover-only (`rest`/`hover`).** Components using it set
+  `initial="rest"`, which overrides variant inheritance — so the `StaggerGroup` wrapping
+  `ProjectIndexRow` on `/work` is a **silent no-op**. For a row that must both enter and
+  hover, merge `hidden`/`show`/`hover` into one variant object; `entryCardVariants` and
+  `noteRowVariants` are the working examples.
+- **Removing a `/work/<slug>` route does not fail the build.** `buildSlugIndex` registers
+  project slugs whether or not a route exists, so `[[some-project]]` keeps compiling and
+  `hrefFor` keeps rewriting it to a URL that now 404s. `content.ts` hardcodes the same path
+  independently for backlinks. The failure is silent dead links.
+- **Tailwind v4 + Turbopack dev does not always regenerate newly-introduced utility
+  strings.** Brand-new `sm:` / `supports-[...]` variants can come back `display: none` with
+  the class present in the DOM. `rm -rf .next` and restart `next dev`; a hard reload is not
+  enough. Confirm with a computed-style check, never from the markup.
+- **Don't run two implementer subagents that both `npm run build` in one worktree** — they
+  collide on `.next` and each reads the other's half-finished tree as a failure. Give
+  parallel agents `npx tsc --noEmit` + scoped `eslint`, and run the build yourself after.
+
+## Verifying UI changes
+
+- **Full-page screenshots freeze scroll-driven and lazy content at scroll 0.** The intro
+  band photographs, `whileInView` reveals and `CountUpFigure` all render empty or `0` in a
+  `fullPage` capture. Scroll, then take viewport captures, or you will report bugs that
+  don't exist.
+- Contrast and hit targets must be measured with `getComputedStyle` /
+  `getBoundingClientRect` in a real browser. Tailwind v4 cascade layers mean the classes
+  can read correctly while the computed value is wrong.
+- Check 1440x900 and 390x844 in **both** themes. `next-themes` persists the choice, so
+  reset it explicitly rather than assuming which theme you're in.

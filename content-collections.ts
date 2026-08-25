@@ -142,6 +142,7 @@ const notes = defineCollection({
     excerpt: z.string(),
     margin: z.string().optional(),
     draft: z.boolean().default(false),
+    featured: z.boolean().default(false),
     content: z.string(),
   }),
   transform: async (doc, context): Promise<NoteDoc> => {
@@ -194,6 +195,7 @@ const notes = defineCollection({
       excerpt: doc.excerpt,
       margin: doc.margin ?? "",
       draft: doc.draft,
+      featured: doc.featured,
       mdx,
       linkTargets,
     };
@@ -221,6 +223,7 @@ const projects = defineCollection({
     order: z.number(),
     accent: z.string().optional(),
     draft: z.boolean().default(false),
+    featured: z.boolean().default(false),
     content: z.string(),
   }),
   transform: async (doc, context): Promise<ProjectDoc> => {
@@ -271,6 +274,7 @@ const projects = defineCollection({
       order: doc.order,
       accent: doc.accent ?? WORKSHOP_ACCENT,
       draft: doc.draft,
+      featured: doc.featured,
       mdx,
       linkTargets,
     };

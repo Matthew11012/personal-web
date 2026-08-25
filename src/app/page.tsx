@@ -1,12 +1,13 @@
+import Link from "next/link";
 import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryCard, type HomeEntry } from "@/components/entry-card";
-import { IntroBand } from "@/components/intro-band";
-import { PlotIndexRow } from "@/components/plot-index-row";
+import { IdentityBand } from "@/components/identity-band";
+import { ProjectIndexRow } from "@/components/project-index-row";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
-import { getRecentNotes } from "@/lib/content";
-import { getPlot, PLOTS } from "@/lib/plots";
+import { getAllProjects, getRecentNotes } from "@/lib/content";
+import { getPlot } from "@/lib/plots";
 
 // 24h backstop only — the webhook and cron call revalidatePath("/") when
 // Strava data actually changes, so this timer isn't tracking the training
@@ -22,6 +23,9 @@ const TITLE_CLASSES = [
 const STAGGER_CLASSES = ["stagger-0", "stagger-1", "stagger-2", "stagger-3"];
 
 export default async function HomePage() {
+  const featuredProjects = getAllProjects().filter(
+    (project) => project.featured,
+  );
   const entries: HomeEntry[] = getRecentNotes(4).map((note, i) => {
     const plot = getPlot(note.plotSlug);
     return {
@@ -62,39 +66,47 @@ export default async function HomePage() {
       </div>
 
       <Reveal delay={0.26}>
-        <IntroBand />
+        <IdentityBand />
       </Reveal>
 
-      <div className="mt-[clamp(48px,6vw,80px)]">
-        <MetaStrip
-          border="top"
-          items={["Lately in the garden", "Four latest — all plots"]}
-        />
+      <div className="label-mono mt-[clamp(28px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
+        <span className="text-ink">Lately in the garden</span>
+        <Link href="/notes" className="navlink">
+          All notes →
+        </Link>
       </div>
 
       <StaggerGroup
-        className="mt-[clamp(44px,6vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-x-[clamp(48px,6vw,110px)] gap-y-[clamp(40px,5vw,80px)]"
+        className="mt-[clamp(44px,6vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-x-[clamp(48px,6vw,110px)] gap-y-[clamp(40px,5vw,80px)] supports-[grid-template-rows:subgrid]:gap-y-0"
       >
         {entries.map((entry) => (
           <EntryCard key={entry.slug} entry={entry} />
         ))}
       </StaggerGroup>
 
-      <HomeTrainingBand />
+      <div className="label-mono mt-[clamp(56px,8vw,110px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
+        <span className="text-ink">From the workshop</span>
+        <Link href="/work" className="navlink">
+          All work →
+        </Link>
+      </div>
 
-      <nav
-        aria-label="The plots"
-        className="mt-[clamp(56px,8vw,110px)] border-t border-hair pt-[26px]"
-      >
-        <div className="label-mono mb-2 tracking-[0.18em] text-ink">
-          The plots
-        </div>
-        <div className="flex flex-col">
-          {PLOTS.map((plot) => (
-            <PlotIndexRow key={plot.slug} plot={plot} />
-          ))}
-        </div>
-      </nav>
+      <StaggerGroup className="mt-3 flex flex-col">
+        {featuredProjects.map((project) => (
+          <ProjectIndexRow
+            key={project.slug}
+            project={{
+              slug: project.slug,
+              title: project.title,
+              tagline: project.tagline,
+              period: project.period,
+              accent: project.accent,
+            }}
+          />
+        ))}
+      </StaggerGroup>
+
+      <HomeTrainingBand />
     </div>
   );
 }

@@ -7,10 +7,10 @@ import { ThemeToggle } from "./theme-toggle";
 const NAV = [
   { href: "/", label: "The garden", short: "Garden", match: (p: string) => p === "/" },
   {
-    href: "/plots",
+    href: "/notes",
     label: "The plots",
     short: "Plots",
-    match: (p: string) => p.startsWith("/plots"),
+    match: (p: string) => p.startsWith("/notes") || p.startsWith("/plots"),
   },
   {
     href: "/work",

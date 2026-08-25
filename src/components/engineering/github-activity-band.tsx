@@ -1,8 +1,7 @@
 import { MetaStrip } from "@/components/meta-strip";
 import { GithubContributionChart } from "@/components/engineering/github-contribution-chart";
 import { getGithubContributions } from "@/lib/github";
-
-const ACCENT = "#4f7942";
+import { WORKSHOP_ACCENT } from "@/lib/plots";
 
 /** Engineering-page summary of GitHub activity — a contribution heatmap plus
  * a headline total, switchable between the trailing 12 months and each
@@ -22,7 +21,7 @@ export async function GithubActivityBand() {
   if (ranges.length === 0) return null;
 
   return (
-    <div style={{ ["--acc" as string]: ACCENT }} className="mt-[clamp(44px,6vw,72px)]">
+    <div style={{ ["--acc" as string]: WORKSHOP_ACCENT }} className="mt-[clamp(44px,6vw,72px)]">
       <MetaStrip border="top" items={["Shipping", "Contribution activity — via GitHub"]} />
       <GithubContributionChart ranges={ranges} />
     </div>
