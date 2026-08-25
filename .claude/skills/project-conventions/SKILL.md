@@ -33,9 +33,21 @@ See `src/lib/strava.ts` + `src/components/training/home-training-band.tsx` as th
 `useScroll`/`useTransform`/`useSpring` — scroll-linked values keep updating, so
 gate them yourself with `useReducedMotion()` and pin the end state.
 `src/components/intro-band.tsx` is the worked example (SVG `pathLength` drawn by
-scroll). Its route geometry is hand-authored: the station `x`/`y` percentages and
-the `ROUTE` control points are one unit, and the box has a fixed `h-[...]`
-because the path is authored against it.
+scroll). All of its geometry lives in `src/lib/intro-route.ts` as typed data
+(`INTRO_ROUTES.home` / `.about`, selected by the band's `variant` prop) —
+strands, chapter/thread `x`/`y`, spur control points and `boxH` are ONE UNIT
+authored in a 0-100 space. Move one and the strand passing it has to move too.
+
+Two things about that file that cost real time:
+
+- **`at` is not comparable across strands.** A chapter's `at` is a fraction of
+  *its own strand's* arc length, so the Jakarta strand's values can't be sorted
+  against the spine's. The narrow rail therefore renders in **declared array
+  order** (already chronological), never `.sort((a,b) => a.at - b.at)`.
+- **Track the route box, not the `<section>`.** `useScroll` on the section makes
+  the lede eat ~19% of the range before the line starts drawing, so the year
+  scrubber reads 2023 while the reader is looking at the 2021 chapter. Target
+  the grid wrapper with `offset: ["start start", "end 0.7"]`.
 
 **`vector-effect: non-scaling-stroke` silently breaks `pathLength` drawing.**
 Motion animates `pathLength` via `stroke-dasharray` in path-length units
@@ -44,7 +56,22 @@ non-scaling-stroke is set — so the line renders as a fixed dotted pattern alon
 its whole length instead of one advancing stroke, at every scroll position. The
 two cannot be combined. If a stretched `viewBox` + `preserveAspectRatio="none"`
 is what made non-scaling-stroke necessary, scale the coordinates into pixels in
-JS instead and use a 1:1 `viewBox` (`buildRoute` in intro-band).
+JS instead and use a 1:1 `viewBox` (`buildPath` in `src/lib/intro-route.ts`).
+
+**Two transforms on one element: the second one wins silently.** Motion writes
+`transform` inline, so a `translate`/`scale` Tailwind class on the same element
+is dropped, and so is a `y` from `whileInView` when `style.y` is also set. The
+band nests them instead: an outer `m.div` carries the parallax `style={{ y }}`,
+an inner one carries the rise-in `whileInView`, and the static `pad`/`lift`
+classes sit on a plain wrapper above both.
+
+**Verify route geometry by measuring, not by looking.** Screenshots hide
+near-misses and eyeballing costs several rounds. In the page, walk each path
+with `getPointAtLength` and test against content rects — but measure text with
+`Range.getClientRects()`, not `getBoundingClientRect()` on the element: the
+eyebrow `<span>` is `display:block`, so its element rect spans the whole column
+and both over- and under-reports collisions. Check block-vs-block overlap after
+*every* coordinate move, not just at the end.
 
 Prefer driving scroll-reactive decoration off the same MotionValue as the thing
 it decorates (`useTransform(drawn, [at, at + 0.06], [0, 1])`) rather than off
@@ -62,3 +89,46 @@ and the intro band all import it.
 
 - No `typecheck` script in `package.json` — use `npx tsc --noEmit`.
 - `npm run lint` (ESLint 9 flat config via `eslint-config-next`).
+
+## The intro band's narrow rail (below `lg`)
+
+The rail is a `border-l` on the `<ul>` plus `pl-7`, so a row's own left edge is
+29px from the line. Never eyeball a marker's offset: everything anchors to
+`RAIL_X` (`spine` / `branch`) + `-translate-x-1/2` in `intro-band.tsx`. Tailwind
+v4 emits `translate:` for those utilities, so `getComputedStyle(el).transform`
+reads `none` even when the shift is applied — measure with
+`getBoundingClientRect()`, not the computed transform.
+
+The rail is scroll-scrubbed off its OWN `useScroll` target (the desktop route
+box is `hidden lg:grid`, so its progress is meaningless below `lg`), with
+`offset: ["start 0.5", "end 0.5"]` — both ends on the viewport middle, so
+progress IS the fraction of the rail above the middle line and a mark's
+measured y-fraction compares to it with no correction. Row positions are
+measured from the DOM in a `ResizeObserver` pass (rows are as tall as their
+photographs); until that lands, every `at` defaults to 2 so nothing lights.
+One-shot effects (the marker pulse) key off a crossing counter, never off the
+scroll value — a scrubbed pulse finishes inside one frame when the reader
+flicks. Give the crossing test a hysteresis band; the rail's spring overshoots
+and will otherwise ring the same mark repeatedly.
+
+Rail order is authored data (`railOrder` in `intro-route.ts`), not derived: a
+chapter's `at` is a fraction of its *own* strand's arc length, and the spine's
+and Jakarta's scales aren't comparable, so no sort on `at` is correct.
+
+## Formatting
+
+Prettier is NOT a project dependency and there is no config — do not run
+`npx prettier --write`. It rewrites line endings and reflows untouched code,
+burying the real diff.
+
+## Mono labels
+
+`.label-mono` (globals.css) is 11px uppercase, 10px below 640px. It sets NO
+letter-spacing: tracking is applied per call site with `tracking-[…]` (0.08em
+to 0.26em across ~70 usages) and is what separates an eyebrow from a nav link.
+The class is unlayered, so adding `letter-spacing` to it would silently
+override every one of those call sites — the Tailwind v4 layer trap. Don't.
+
+A `flex flex-wrap justify-between` strip is the wrong shape on a phone: once it
+wraps, each item takes a full row and the slack collects mid-row. Use a grid
+below `sm` and switch to the flex row at `sm:`.
