@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import {
   m,
   useReducedMotion,
@@ -944,15 +943,9 @@ export function IntroBand({ variant = "home" }: { variant?: IntroVariant }) {
         {after.map(renderNarrowRow)}
       </ul>
 
-      {variant !== "about" && (
-        <Link
-          href="/about"
-          className="navlink label-mono inline-flex tracking-[0.18em] text-gardener"
-        >
-          The long version →
-        </Link>
-      )}
-
+      {/* No "The long version ->" link here any more: the band renders only on
+          /about now, where that link pointed at the page you were already on.
+          IdentityBand carries it on the homepage instead. */}
       <CredentialsStrip className="mt-[clamp(28px,4vw,44px)]" />
     </section>
   );
