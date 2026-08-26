@@ -44,7 +44,7 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`navlink label-mono -my-2 py-2 [&::after]:bottom-[3px] tracking-[0.08em] sm:tracking-[0.14em] transition-colors duration-300 ${
+                className={`navlink label-mono -my-2 py-2 [--navlink-bottom:3px] tracking-[0.08em] sm:tracking-[0.14em] transition-colors duration-300 ${
                   active ? "text-ink" : "text-faint hover:text-[#b0573f]"
                 }`}
               >

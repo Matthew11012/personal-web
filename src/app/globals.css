@@ -111,7 +111,13 @@
   content: "";
   position: absolute;
   left: 0;
-  bottom: -5px;
+  /* Indirected through a custom property because this rule is UNLAYERED: in
+     Tailwind v4 that beats every utility regardless of specificity, so an
+     `[&::after]:bottom-*` override on the element is silently ignored. A
+     custom property set by a utility does land, because the pseudo-element
+     inherits it. The header's nav links carry 8px of hit-target padding, so
+     they set --navlink-bottom:3px to keep the underline where it always was. */
+  bottom: var(--navlink-bottom, -5px);
   width: 100%;
   height: 1px;
   background: currentColor;
