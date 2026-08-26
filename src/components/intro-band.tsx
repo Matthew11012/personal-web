@@ -258,9 +258,9 @@ function StationHeading({
         {eyebrow}
       </span>
       {phrase && (
-        <h3 className="idx-title mb-0 mt-2.5 max-w-[18ch] font-normal text-ink">
+        <div className="idx-title mb-0 mt-2.5 max-w-[18ch] font-normal text-ink">
           {phrase}
-        </h3>
+        </div>
       )}
     </div>
   );

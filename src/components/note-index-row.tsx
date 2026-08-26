@@ -38,12 +38,12 @@ export function NoteIndexRow({ note }: { note: NoteIndexSummary }) {
       <span className="label-mono flex shrink-0 items-center gap-2 tracking-[0.1em]">
         <StagePip stage={note.stage} accent={note.accent} />
       </span>
-      <m.span
+      <m.h3
         variants={idxTitleVariants}
         className="idx-title min-w-0 text-ink sm:max-w-[46ch] sm:truncate"
       >
         {note.title}
-      </m.span>
+      </m.h3>
       {/* The leader and the arrow are decoration that only reads at width: on a
           phone the leader collapses to a meaningless stub and the arrow — which
           only appears on hover, so never on touch — lands mid-excerpt. Both are

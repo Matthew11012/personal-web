@@ -31,9 +31,9 @@ export function EntryRow({ entry }: { entry: EntrySummary }) {
       <m.span variants={engNumVariants} className="eng-num">
         {entry.n}
       </m.span>
-      <m.span variants={engTitleVariants} className="eng-title text-ink">
+      <m.h2 variants={engTitleVariants} className="eng-title text-ink">
         {entry.title}
-      </m.span>
+      </m.h2>
       <span className="whitespace-nowrap text-right font-mono text-[11px] leading-[1.7] tracking-[0.05em] text-faint">
         {STAGE_LABEL[entry.stage]}
         <br />
