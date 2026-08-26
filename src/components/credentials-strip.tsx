@@ -14,7 +14,7 @@ export function CredentialsStrip({ className = "" }: { className?: string }) {
         Computer science ×2 — retrieval &amp; applied AI
       </span>
       <span className="text-dim">{AVAILABILITY}</span>
-      <span>Brisbane / Jakarta</span>
+      <span>Brisbane</span>
       <a href={CV.href} download className="navlink text-gardener">
         {CV.label}
       </a>

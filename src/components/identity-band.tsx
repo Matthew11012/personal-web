@@ -20,9 +20,7 @@ export function IdentityBand() {
         <div className="about-body max-w-[52ch] text-ink">
           <p className="mb-4">
             I&rsquo;m Matthew — a grad student and engineer working on
-            retrieval and applied AI, splitting life between Jakarta and
-            Brisbane. Most of what I know I learned twice: once in a lab,
-            once somewhere with a heart-rate monitor on.
+            retrieval and applied AI, based in Brisbane by way of Jakarta.
           </p>
           <Link
             href="/about"
