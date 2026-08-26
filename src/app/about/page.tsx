@@ -33,9 +33,9 @@ export default function AboutPage() {
         <div className="about-body max-w-[62ch] text-ink">
           <p className="mb-6">
             I&rsquo;m Matthew — a grad student and engineer working on
-            retrieval and applied AI, splitting life between Jakarta and
-            Brisbane. Most of what I know I learned twice: once in a lab,
-            once somewhere with a heart-rate monitor on.
+            retrieval and applied AI, based in Brisbane by way of Jakarta.
+            Most of what I know I learned twice: once in a lab, once
+            somewhere with a heart-rate monitor on.
           </p>
           <p className="mb-6">
             This site is a garden, not a blog. Notes go up while they&rsquo;re

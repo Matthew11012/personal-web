@@ -174,6 +174,22 @@ button:active {
   letter-spacing: -0.02em;
 }
 
+/* /about's h1 is a 16-word sentence where display-xl/-lg carry 2-6 words, so it
+   alone overflowed at the shared 48px floor: measured FOUR wrapped lines (184px)
+   in a 342px content box at 390px. 38px takes it to three and returns ~70px
+   above the fold.
+
+   Scoped to a max-width query rather than lowering the clamp floor to 38px:
+   the floor only stops binding once 6.5vw exceeds it, so a 38px floor would
+   ALSO change 585-738px, where 6.5vw computes to 41.6-48px — below the old
+   fixed 48px. That window straddles the sm breakpoint, so desktop would
+   visibly shrink. Same rendered result at 390px, none of the collateral. */
+@media (max-width: 639px) {
+  .display-about {
+    font-size: 38px;
+  }
+}
+
 .lede {
   font-family: var(--font-spectral-italic);
   font-style: italic;
