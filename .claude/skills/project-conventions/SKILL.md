@@ -214,6 +214,25 @@ below `sm` and switch to the flex row at `sm:`.
   so a `span→h2` swap is pixel-neutral *provided* the element sits in a flex or
   grid parent (blockified either way). Verified, don't re-derive.
 
+## SEO/publishing plumbing (P2, 2026-08-26)
+
+- **No `SITE_URL`/`metadataBase` existed before this pass.** `src/lib/site.ts` now owns it
+  (`NEXT_PUBLIC_SITE_URL` env var, placeholder domain fallback) and `layout.tsx`'s
+  `metadataBase` derives from it — anything needing an absolute URL (sitemap, robots, feed,
+  OG images) imports from there, don't re-derive.
+- **`next/og`'s `ImageResponse` can't use `next/font` or CSS variables** — it needs raw font
+  ArrayBuffers. `src/lib/og-fonts.ts` fetches Instrument Serif + JetBrains Mono from the
+  Google Fonts CSS2 API, scoped to the actual text being rendered (keeps the fetch small).
+  It must never throw — wrap in try/catch and return `[]` on failure, so a Fonts API outage
+  degrades to satori's default font instead of 500ing the OG route. Both `opengraph-image.tsx`
+  files share this one helper; don't duplicate the fetch logic.
+- `generateMetadata` on `notes/[slug]/page.tsx` and `work/[slug]/page.tsx` intentionally only
+  set `title`/`description` — no `openGraph`/`alternates` fields on either. Match that when
+  extending, don't "complete" one without the other.
+- Route-handler segment convention: `next/og` image files (`opengraph-image.tsx`) at a
+  dynamic route fall back gracefully by importing and calling the parent/site-level image's
+  render function directly (not by redirecting) when the slug doesn't resolve.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
