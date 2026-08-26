@@ -51,7 +51,7 @@ export default async function NotePage({
       <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-hair pb-3.5 tracking-[0.14em] text-faint">
         <Link
           href="/"
-          className="navlink text-faint underline underline-offset-4"
+          className="text-faint underline underline-offset-4"
         >
           ← The garden
         </Link>
@@ -92,7 +92,7 @@ export default async function NotePage({
         {older && (
           <Link
             href={`/notes/${older.slug}`}
-            className="navlink underline underline-offset-4"
+            className="underline underline-offset-4"
             style={{ color: accent }}
           >
             ← Older: {older.title}
@@ -100,7 +100,7 @@ export default async function NotePage({
         )}
         <Link
           href={`/plots/${note.plotSlug}`}
-          className="navlink underline underline-offset-4"
+          className="underline underline-offset-4"
           style={{ color: accent }}
         >
           More from {plot?.name ?? note.plotSlug}
@@ -108,7 +108,7 @@ export default async function NotePage({
         {newer && (
           <Link
             href={`/notes/${newer.slug}`}
-            className="navlink underline underline-offset-4"
+            className="underline underline-offset-4"
             style={{ color: accent }}
           >
             Newer: {newer.title} →
