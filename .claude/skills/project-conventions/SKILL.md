@@ -371,3 +371,25 @@ and run `next dev -p <port>` there. Still never `rm -rf .next` under a live serv
 **A brand-new arbitrary Tailwind v4 utility did NOT hit the Turbopack regeneration
 trap here** (`auto-cols-[14px]` computed to a real 14px on a fresh server). The trap
 is real but is not universal — check, don't assume either way.
+
+**Sharpening that last note: the variable is server age, not the class.** On a
+*long-running* dev server, editing only a `.tsx` to use a class the bundle has never
+emitted (`gap-x-2`, `sm:contents`) did not regenerate the CSS — the classes were
+absent from the served stylesheet and computed to `column-gap: normal` / no
+`display: contents`. Appending a newline to `globals.css` forced the rebuild and both
+appeared. So: **before measuring a layout in the browser, confirm the utility is
+actually in the served CSS** — otherwise you are measuring the old bundle and will
+"find" a bug that isn't there. Quick check from the page:
+
+```js
+await (await fetch([...document.querySelectorAll('link[rel=stylesheet]')][0].href)).text()
+```
+
+then grep for `.gap-x-2` / `.sm\:contents`. `gap-x-6` and `gap-x-8` are already in the
+bundle (used across `src/app/*/page.tsx`); `gap-x-2` was not.
+
+**`display: contents` is the tool for "merge on mobile, separate on desktop".** The
+credentials strip needs three rows on a phone but four `justify-between` items at
+`sm`. A wrapper with `sm:contents` makes its children rejoin the parent flex at the
+breakpoint — no duplicated markup, no second component. Safe here because the
+children are plain `<span>`s; do not do it to focusable or semantic elements.
