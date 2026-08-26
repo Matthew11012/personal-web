@@ -75,6 +75,14 @@ function levelFill(level: number): string {
  * thinned a single season's worth of data that had ~110px between labels. */
 const DENSE_WEEK_THRESHOLD = 78;
 
+/** Columns of clearance a month marker needs before the next one.
+ *
+ * Below `sm` a column is 14px + a 3px gap, so two columns is 34px of run —
+ * comfortably more than a three-character label at `label-mono`'s 10px, and
+ * wider still on the desktop track. Only the forced opening marker is ever
+ * close enough to matter: real month boundaries are at least four weeks apart. */
+const MIN_MARKER_GAP_WEEKS = 2;
+
 /** One label per week-of-the-grid: the month abbreviation if that week
  * contains the 1st of a month, else null. Identical computation in both
  * grid orientations — only where it's rendered (a row above vs. a column
@@ -96,9 +104,19 @@ function computeMonthMarkers(paddedDates: (string | null)[], weeksCount: number)
   // in, so the leading weeks would sit unlabelled — the reader has to count
   // backwards from the first marker to place them. Label the opening week with
   // its own month unless it already earned a marker.
+  //
+  // But only when there is room for it. A label is ~3 characters wide and a
+  // column is 14px below sm, so a marker needs a couple of columns of
+  // clearance before the next one or the two render as one run-on word
+  // ("AUGSEP"). Real month markers can never collide — months are at least
+  // four weeks apart — so this forced opening label is the only one that can,
+  // and it is also the one we can most afford to drop: the first marker is
+  // then at most two weeks away, close enough to place the leading days.
   if (markers[0] === null) {
+    const nextMarker = markers.findIndex((label) => label !== null);
+    const hasRoom = nextMarker === -1 || nextMarker >= MIN_MARKER_GAP_WEEKS;
     const opening = paddedDates.slice(0, 7).find((date) => date !== null);
-    if (opening) markers[0] = formatMonthLabel(opening);
+    if (hasRoom && opening) markers[0] = formatMonthLabel(opening);
   }
 
   return markers;
@@ -153,10 +171,6 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
   ];
   const weeksCount = paddedDates.length / 7;
   const monthMarkers = computeMonthMarkers(paddedDates, weeksCount);
-  // Same template string used as columns (desktop month header row, above
-  // the heatmap's own week-columns) and as rows (mobile month side column,
-  // beside the heatmap's own week-rows) — one week axis, two orientations.
-  const weeksTrackTemplate = `repeat(${weeksCount}, minmax(0, 1fr))`;
   // Applied to the month track and the grid alike (sm+ only), so capping the
   // cells can't desynchronise the labels from the columns they mark.
   const weeksMaxWidth = weeksCount * MAX_CELL_PX + (weeksCount - 1) * CELL_GAP_PX;
@@ -247,16 +261,28 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
         className="overflow-x-auto sm:overflow-x-visible"
         style={{ overscrollBehaviorX: "contain" }}
       >
-        <div className="flex">
+        {/* w-max below sm is what makes the sticky gutter work. A sticky
+            element is constrained by its containing block, so while this row
+            was the scrollport's width (342px) the gutter ran out of travel at
+            ~310px and sat off-screen at the right-anchored default position.
+            Sizing the row to its content (930px) gives sticky the full range.
+            sm:w-auto restores the flex-1 + max-w desktop layout untouched. */}
+        <div className="flex w-max sm:w-auto">
           {/* Sticky so the day-label gutter below stays aligned with this
               spacer while the weeks scroll underneath it on mobile. bg-bg is
               load-bearing: without it scrolled cells show through. */}
           <div aria-hidden="true" className="sticky left-0 z-10 w-8 shrink-0 bg-bg" />
           <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
+            {/* Must use the SAME column mechanism as the day grid below, not
+                an equivalent-looking one. `minmax(0,1fr)` tracks stretch to
+                fill available width and never overflow, so below sm this row
+                would render ~358px wide while the fixed-14px day grid spans
+                ~898px — the labels would bunch up at the far left of a scroll
+                range whose default position is the far RIGHT, i.e. invisible.
+                One mechanism, one width, both rows scroll together. */}
             <div
               aria-hidden="true"
-              className="grid gap-[3px]"
-              style={{ gridTemplateColumns: weeksTrackTemplate }}
+              className="grid grid-flow-col auto-cols-[14px] gap-[3px] sm:auto-cols-[minmax(0,1fr)]"
             >
               {monthMarkers.map((label, i) => (
                 <div key={i} className="label-mono text-faint">
@@ -267,7 +293,7 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
           </div>
         </div>
 
-        <div className="mt-1 flex">
+        <div className="mt-1 flex w-max sm:w-auto">
           <div aria-hidden="true" className="sticky left-0 z-10 w-8 shrink-0 bg-bg">
             <div className="grid h-full gap-[3px]" style={{ gridTemplateRows: AXIS_TRACK }}>
               {DAY_LABELS.map((label, i) => (
