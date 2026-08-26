@@ -123,12 +123,18 @@
   background: currentColor;
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .navlink:hover::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.navlink:active,
+button:active {
+  transform: scale(0.97);
+  transition: transform 0.12s ease;
 }
 
 /* ---------------------------------------------------------------- */

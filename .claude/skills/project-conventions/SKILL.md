@@ -214,6 +214,98 @@ below `sm` and switch to the flex row at `sm:`.
   so a `span→h2` swap is pixel-neutral *provided* the element sits in a flex or
   grid parent (blockified either way). Verified, don't re-derive.
 
+## SEO/publishing plumbing (P2, 2026-08-26)
+
+- **No `SITE_URL`/`metadataBase` existed before this pass.** `src/lib/site.ts` now owns it
+  (`NEXT_PUBLIC_SITE_URL` env var, placeholder domain fallback) and `layout.tsx`'s
+  `metadataBase` derives from it — anything needing an absolute URL (sitemap, robots, feed,
+  OG images) imports from there, don't re-derive.
+- **`next/og`'s `ImageResponse` can't use `next/font` or CSS variables** — it needs raw font
+  ArrayBuffers. `src/lib/og-fonts.ts` fetches Instrument Serif + JetBrains Mono from the
+  Google Fonts CSS2 API, scoped to the actual text being rendered (keeps the fetch small).
+  It must never throw — wrap in try/catch and return `[]` on failure, so a Fonts API outage
+  degrades to satori's default font instead of 500ing the OG route. Both `opengraph-image.tsx`
+  files share this one helper; don't duplicate the fetch logic.
+- `generateMetadata` on `notes/[slug]/page.tsx` and `work/[slug]/page.tsx` intentionally only
+  set `title`/`description` — no `openGraph`/`alternates` fields on either. Match that when
+  extending, don't "complete" one without the other.
+- Route-handler segment convention: `next/og` image files (`opengraph-image.tsx`) at a
+  dynamic route fall back gracefully by importing and calling the parent/site-level image's
+  render function directly (not by redirecting) when the slug doesn't resolve.
+
+## P3 craft/composition (2026-08-26) — design-review doc goes stale fast
+
+- **Always verify a design-review finding against current code before implementing it.**
+  Two of six §10-15 items (§11 card alignment, §13 `ch`-measure) were already fixed by
+  commits that landed *after* the review's base commit but *before* this branch — the doc
+  never got updated. Caught by direct `Read`/`git show`, not by trusting a scout summary
+  that paraphrased current code. Cost: near-zero (one extra read pass) vs. a wasted
+  implementer round re-fixing something already fixed.
+- **`.navlink`'s hover-only underline (`::after`, `bottom:-5px`) and Tailwind's static
+  `underline underline-offset-4` don't compose** — combining them on one link produces a
+  visible double-line on hover (two different vertical offsets, both visible). If a link
+  needs a persistent underline, drop `navlink` entirely rather than stacking it.
+- **A `Link`/`a` with no explicit color class falls through to the base `a { color:
+  #b0573f }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
+  not to a parent's `--acc`. Any link meant to carry a plot's accent needs its own
+  `style={{ color: accent }}`, matching the convention already used by the "More from"
+  link on note pages.
+- **Block-level `<span>`/`<div>` text can visually overflow its own box with no layout
+  signal in `getBoundingClientRect()`** — a block element's rect reports its box width
+  (which fills the parent), not the rendered text's actual extent, so "does this overflow"
+  math from computed styles alone can be wrong. A screenshot after `scrollIntoView` settled
+  a case where font-size math predicted overflow that didn't actually occur.
+
+## P4 animation timing (2026-08-26)
+
+- **The count-up on training figures (`count-up-figure.tsx`, `COUNT_EASE`) is intentionally
+  kept** — design-review §16 recommended cutting it, but the user explicitly wants the
+  current front-loaded easing (reaches near-final value fast, then settles). Don't remove
+  it in a future pass without re-confirming with the user first.
+- **A `motion` `transition={{ duration, ease }}` value is a plain JS object passed straight
+  to the animation library** — not a Tailwind CSS class, so the "prerendered HTML lies,
+  verify computed style in a browser" trap that applies elsewhere in this repo does NOT
+  apply here. Typecheck/lint plus reading the literal back is sufficient signal for a pure
+  duration/easing constant change.
+
+## P5 motion polish (2026-08-26)
+
+- **`whileTap` beats CSS `:active` on any element motion already controls.** Same
+  "second transform wins silently" trap as hover (P4/scroll-linked-motion section)
+  applies to press states too: `entry-card.tsx`/`entry-row.tsx`/`note-index-row.tsx`/
+  `project-index-row.tsx`'s outer `MotionLink` carries `whileHover`, so a CSS
+  `:active{transform:scale()}` on the same element would silently lose to motion's
+  inline style. Added a `tap` variant (sibling to `hover`) in `motion.ts` instead and
+  wired `whileTap="tap"`. Plain, non-motion-controlled elements (`.navlink`,
+  `theme-toggle.tsx`'s outer `<button>` — only its child pip is motion-driven) got real
+  CSS `:active` rules; the file's existing blanket `prefers-reduced-motion` block
+  already covers new CSS transitions, no per-rule media query needed.
+- **Hover-in duration ≠ entrance duration on the same variants object.** `entryCardVariants`
+  and `noteRowVariants` each carry both a `show` (entrance, 0.7s/0.5s) and a `hover` key —
+  tightening "hover timing" means touching only `hover`, `show` is a different animation
+  that happens to live in the same object. Don't pattern-match on the variable name alone.
+- Hover-in tightened 0.4–0.6s → 0.25s (`entryCardVariants`, `entryRuleVariants`,
+  `entryPipVariants`, `idxRowVariants`, `idxArrowVariants.hover.x` only — not `.opacity`,
+  `noteRowVariants`, `engRowVariants`, `engRuleVariants`). Color-only hovers (all the
+  `*TitleVariants`/`*NumVariants`, 0.35s) and `togglePipVariants` were left alone —
+  color transitions and the theme toggle weren't part of this pass.
+- **`AnimatePresence` in `layout.tsx` alone races the App Router.** `layout.tsx` doesn't
+  remount on navigation, so `usePathname()` read there updates one render *after* the new
+  route's `children` have already landed — for one commit the old `key` shows new content
+  with no animation, THEN the key changes and exit/enter fires on content that's already
+  swapped. Symptom: a visible flash-in → fade-to-blank → fade-in-again on every nav.
+  Fix: put the pathname-keyed `m.div` in `app/template.tsx` instead, which Next.js *does*
+  remount fresh per navigation — `usePathname()` and `children` then arrive atomically.
+  Keep `AnimatePresence` itself in the persistent layout (a plain wrapper, no key logic)
+  so it can see the template instance change. Verified by sampling `main`'s children's
+  computed `opacity`/`filter` via `requestAnimationFrame` across a real click — screenshots
+  are too coarse to catch a ~250ms race, don't trust one for this class of bug.
+- **Even fixed, the `exit` animation on that `m.div` never plays** — the App Router swaps
+  the outgoing page before `AnimatePresence` gets a two-phase removal to intercept, so an
+  old page just holds at rest until the new one is ready. Don't add an `exit` prop back
+  without re-verifying it actually fires; it silently does nothing today. Only `initial`→
+  `animate` (the enter fade+lift) is real.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
