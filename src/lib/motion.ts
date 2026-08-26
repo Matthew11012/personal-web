@@ -26,7 +26,7 @@ export const COUNT_EASE: [number, number, number, number] = [.05,1,.07,1];
 
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
 };
 
 export const wipeIn: Variants = {
@@ -35,7 +35,7 @@ export const wipeIn: Variants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.9, ease: EASE },
+    transition: { duration: 0.4, ease: EASE },
   },
 };
 
