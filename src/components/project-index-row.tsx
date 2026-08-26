@@ -29,12 +29,12 @@ export function ProjectIndexRow({ project }: { project: ProjectSummary }) {
     >
       <span className="flex flex-wrap items-baseline gap-4">
         <span className="font-mono text-xs text-faint">{project.period}</span>
-        <m.span
+        <m.h3
           variants={idxTitleVariants}
           className="idx-title min-w-0 text-ink"
         >
           {project.title}
-        </m.span>
+        </m.h3>
         <m.span
           variants={idxLeadVariants}
           className="min-w-[40px] flex-1 -translate-y-1.5 border-b border-dotted"

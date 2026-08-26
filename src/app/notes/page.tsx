@@ -54,13 +54,15 @@ export default function NotesPage() {
       <div className="mt-3 flex flex-col gap-[clamp(28px,4vw,44px)]">
         {groups.map(({ plot, notes }) => (
           <div key={plot.slug} style={{ ["--acc" as string]: plot.accent }}>
-            <Link
-              href={`/plots/${plot.slug}`}
-              className="navlink label-mono inline-flex gap-2 tracking-[0.14em]"
-              style={{ color: plot.accent }}
-            >
-              §{plot.index} {plot.name} →
-            </Link>
+            <h2>
+              <Link
+                href={`/plots/${plot.slug}`}
+                className="navlink label-mono inline-flex gap-2 tracking-[0.14em]"
+                style={{ color: plot.accent }}
+              >
+                §{plot.index} {plot.name} →
+              </Link>
+            </h2>
             <StaggerGroup className="mt-2 flex flex-col">
               {notes.map((note) => (
                 <NoteIndexRow

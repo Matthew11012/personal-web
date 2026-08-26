@@ -49,12 +49,12 @@ export function EntryCard({ entry }: { entry: HomeEntry }) {
           {entry.plotName} · {STAGE_LABEL[entry.stage]}
         </span>
       </div>
-      <m.div
+      <m.h3
         variants={entryTitleVariants}
         className={`${entry.titleClass} max-w-[14ch] text-ink`}
       >
         {entry.title}
-      </m.div>
+      </m.h3>
       <m.div
         variants={entryRuleVariants}
         style={{ transformOrigin: "left" }}

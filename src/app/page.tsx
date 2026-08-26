@@ -70,7 +70,7 @@ export default async function HomePage() {
       </Reveal>
 
       <div className="label-mono mt-[clamp(28px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
-        <span className="text-ink">Lately in the garden</span>
+        <h2 className="text-ink">Lately in the garden</h2>
         <Link href="/notes" className="navlink">
           All notes →
         </Link>
@@ -85,7 +85,7 @@ export default async function HomePage() {
       </StaggerGroup>
 
       <div className="label-mono mt-[clamp(56px,8vw,110px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
-        <span className="text-ink">From the workshop</span>
+        <h2 className="text-ink">From the workshop</h2>
         <Link href="/work" className="navlink">
           All work →
         </Link>

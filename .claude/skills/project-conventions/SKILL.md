@@ -185,3 +185,44 @@ below `sm` and switch to the flex row at `sm:`.
   can read correctly while the computed value is wrong.
 - Check 1440x900 and 390x844 in **both** themes. `next-themes` persists the choice, so
   reset it explicitly rather than assuming which theme you're in.
+
+## Accessibility invariants (P1, 2026-08-26)
+
+- **`--faint` / `--dim` are text-only tokens** and both are pinned by WCAG 4.5:1,
+  not by taste. Light: `--faint #6a6459` (4.54 bg / 5.12 panel), `--dim #5b564d`.
+  Dark: `--faint #948b78` (5.38 bg / **4.95 panel** — `--panel` is the binding
+  surface in dark mode, `--bg` is not). Lightening either one re-breaks SC 1.4.3
+  across ~64 call sites. Borders use `--hair` / `--rule`; never repurpose these two.
+- **`.navlink::after` reads `bottom: var(--navlink-bottom, -5px)`.** The rule is
+  unlayered, so an `[&::after]:bottom-*` utility on the element is silently
+  ignored — the Tailwind v4 trap, confirmed by measurement. Any `.navlink` that
+  gains vertical padding must set `[--navlink-bottom:<pad − 5px>]`. The header's
+  nav links carry `py-2`, hence `3px`.
+- **Header hit targets are `py-2 -my-2`** (`-mx-2 px-2` too on the theme toggle,
+  whose label is `display:none` below `sm`, leaving a bare 10px pip). The header
+  container is `gap-x-3 gap-y-5`: below ~400px the logo wraps to its own row, and
+  16px of slop across two rows overlaps inside a 12px gap. Measured 26×26 minimum,
+  zero overlaps at 390.
+- **Heading contract**: section labels are `h2`, index/card titles `h3`.
+  `EntryRow` is `/plots/[plot]`'s only consumer and that route has no section
+  label, so its titles are `h2` directly. `MetaStrip` is deliberately NOT a
+  heading — a section label must not be routed through it (`/work`'s "Also built"
+  carries its own `h2` with the same classes for this reason).
+  `createMdxComponents` maps **both** `h2` and `h3` to one renderer: content uses
+  `###` today, but an unmapped `##` emits a bare unstyled `h2`.
+- Preflight resets `margin:0` on `*` and `font-size/weight: inherit` on `h1–h6`,
+  so a `span→h2` swap is pixel-neutral *provided* the element sits in a flex or
+  grid parent (blockified either way). Verified, don't re-derive.
+
+## Verifying in a browser (additions)
+
+- **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
+  silently gives you 501, which is still under `sm` so mobile styles look right
+  while wrap behaviour does not. Use `emulate` with `viewport: "390x844x3,mobile,touch"`.
+- **`html`/`body` carry `transition: background 0.5s`.** Measuring contrast right
+  after toggling `.dark` samples a mid-transition colour — you get a background
+  that matches no token (e.g. `#312c26`) and invented failures. Wait ≥1200ms, and
+  assert `getComputedStyle(document.body).backgroundColor` is the real token first.
+- A dev server whose `.next` was deleted underneath it 500s on every route and
+  does not recover. Don't `rm -rf .next` while one is running — start a second on
+  another port instead.
