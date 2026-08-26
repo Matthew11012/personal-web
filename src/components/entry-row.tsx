@@ -20,6 +20,7 @@ export function EntryRow({ entry }: { entry: EntrySummary }) {
       variants={engRowVariants}
       initial="rest"
       whileHover="hover"
+      whileTap="tap"
       className="relative grid grid-cols-[clamp(48px,7vw,96px)_minmax(0,1fr)_minmax(0,auto)] items-baseline gap-[clamp(16px,2.5vw,32px)] border-t border-rule py-[clamp(22px,3vw,32px)]"
       style={{ color: "inherit" }}
     >

@@ -24,6 +24,7 @@ export function ProjectIndexRow({ project }: { project: ProjectSummary }) {
       variants={idxRowVariants}
       initial="rest"
       whileHover="hover"
+      whileTap="tap"
       className="relative flex flex-col gap-2 py-[clamp(13px,1.6vw,20px)]"
       style={{ ["--acc" as string]: project.accent, color: "inherit" }}
     >
