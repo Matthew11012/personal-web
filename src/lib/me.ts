@@ -7,13 +7,6 @@
 export const GARDENER_ACCENT = "#9a8636";
 
 /**
- * The one actionable fact on the site, stated once. A garden that hides this
- * from a visiting recruiter is being coy at its own expense — but it belongs
- * in the strip that already holds the CV, not in the band's own voice.
- */
-export const AVAILABILITY = "Graduated 2025 — open to work";
-
-/**
  * The contact address. Lives here rather than inline in /about for the same
  * reason the accent and the CV link do: one place, so three call sites can't
  * drift. Public on purpose -- it is the point of a "Find me" list.
