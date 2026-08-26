@@ -48,7 +48,10 @@ export default async function NotePage({
       style={{ ["--acc" as string]: accent }}
     >
       <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-hair pb-3.5 tracking-[0.14em] text-faint">
-        <Link href="/" className="navlink text-faint">
+        <Link
+          href="/"
+          className="navlink text-faint underline underline-offset-4"
+        >
           ← The garden
         </Link>
         <span style={{ color: accent }}>
@@ -87,7 +90,7 @@ export default async function NotePage({
       <div className="label-mono mt-[clamp(40px,6vw,56px)] flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 border-t border-hair pt-5 tracking-[0.12em] text-faint">
         <Link
           href={`/plots/${note.plotSlug}`}
-          className="navlink"
+          className="navlink underline underline-offset-4"
           style={{ color: accent }}
         >
           More from {plot?.name ?? note.plotSlug}
