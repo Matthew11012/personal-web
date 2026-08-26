@@ -233,6 +233,29 @@ below `sm` and switch to the flex row at `sm:`.
   dynamic route fall back gracefully by importing and calling the parent/site-level image's
   render function directly (not by redirecting) when the slug doesn't resolve.
 
+## P3 craft/composition (2026-08-26) — design-review doc goes stale fast
+
+- **Always verify a design-review finding against current code before implementing it.**
+  Two of six §10-15 items (§11 card alignment, §13 `ch`-measure) were already fixed by
+  commits that landed *after* the review's base commit but *before* this branch — the doc
+  never got updated. Caught by direct `Read`/`git show`, not by trusting a scout summary
+  that paraphrased current code. Cost: near-zero (one extra read pass) vs. a wasted
+  implementer round re-fixing something already fixed.
+- **`.navlink`'s hover-only underline (`::after`, `bottom:-5px`) and Tailwind's static
+  `underline underline-offset-4` don't compose** — combining them on one link produces a
+  visible double-line on hover (two different vertical offsets, both visible). If a link
+  needs a persistent underline, drop `navlink` entirely rather than stacking it.
+- **A `Link`/`a` with no explicit color class falls through to the base `a { color:
+  #b0573f }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
+  not to a parent's `--acc`. Any link meant to carry a plot's accent needs its own
+  `style={{ color: accent }}`, matching the convention already used by the "More from"
+  link on note pages.
+- **Block-level `<span>`/`<div>` text can visually overflow its own box with no layout
+  signal in `getBoundingClientRect()`** — a block element's rect reports its box width
+  (which fills the parent), not the rendered text's actual extent, so "does this overflow"
+  math from computed styles alone can be wrong. A screenshot after `scrollIntoView` settled
+  a case where font-size math predicted overflow that didn't actually occur.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
