@@ -22,7 +22,11 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="label-mono flex cursor-pointer items-center gap-2 tracking-[0.08em] sm:tracking-[0.14em] text-faint transition-colors duration-300 hover:text-[#b0573f]"
+      /* Below sm the label is display:none and the 10x10 pip IS the control, so
+         this needs horizontal slop as well as vertical -- py-2 alone would leave
+         a 26x10 target. The negative margins keep the header's height and the
+         nav's spacing exactly as they were. */
+      className="label-mono -mx-2 -my-2 flex cursor-pointer items-center gap-2 px-2 py-2 tracking-[0.08em] sm:tracking-[0.14em] text-faint transition-colors duration-300 hover:text-[#b0573f]"
       aria-label="Toggle dark mode"
     >
       <m.span

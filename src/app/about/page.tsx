@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { IntroBand } from "@/components/intro-band";
 import { Reveal } from "@/components/reveal";
+import { EMAIL } from "@/lib/me";
 
 export default function AboutPage() {
   return (
@@ -62,10 +63,7 @@ export default function AboutPage() {
             <a href="https://github.com/Matthew11012" className="text-gardener">
               GitHub ↗
             </a>
-            <a href="#" className="text-gardener">
-              Are.na ↗
-            </a>
-            <a href="#" className="text-gardener">
+            <a href={`mailto:${EMAIL}`} className="text-gardener">
               Email ↗
             </a>
           </div>

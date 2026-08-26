@@ -6,8 +6,15 @@
   --bg: #e8e2d5;
   --panel: #f4efe6;
   --ink: #221f1b;
-  --dim: #6a6459;
-  --faint: #8a8377;
+  /* WCAG 2.2 SC 1.4.3 (4.5:1, and these are 10-11px so no large-text
+     exemption) is what fixes these two values, not taste. --faint at the old
+     #8a8377 measured 2.91:1 on --bg; the first value on the ramp that clears
+     4.5 is #6a6459 -- which was --dim exactly, so --dim had to move down with
+     it to keep the two tiers distinguishable. Both are text-only tokens
+     (borders use --hair/--rule), so nothing non-text shifted.
+     Measured: --dim 5.64 bg / 6.36 panel, --faint 4.54 bg / 5.12 panel. */
+  --dim: #5b564d;
+  --faint: #6a6459;
   --rule: #cfc7b7;
   --hair: #221f1b;
   --num: #d8c9a8;
@@ -22,7 +29,9 @@
   --panel: #221d17;
   --ink: #ece4d4;
   --dim: #a89f8d;
-  --faint: #837a68;
+  /* --panel, not --bg, is the binding surface in dark mode: the old #837a68
+     managed 4.28:1 on --bg but only 3.94:1 on --panel. #948b78 is 5.38/4.95. */
+  --faint: #948b78;
   --rule: #39332a;
   --hair: #4a4336;
   --num: #463f30;
@@ -102,7 +111,13 @@
   content: "";
   position: absolute;
   left: 0;
-  bottom: -5px;
+  /* Indirected through a custom property because this rule is UNLAYERED: in
+     Tailwind v4 that beats every utility regardless of specificity, so an
+     `[&::after]:bottom-*` override on the element is silently ignored. A
+     custom property set by a utility does land, because the pseudo-element
+     inherits it. The header's nav links carry 8px of hit-target padding, so
+     they set --navlink-bottom:3px to keep the underline where it always was. */
+  bottom: var(--navlink-bottom, -5px);
   width: 100%;
   height: 1px;
   background: currentColor;
