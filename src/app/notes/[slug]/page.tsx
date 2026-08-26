@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXContent } from "@content-collections/mdx/react";
@@ -10,6 +11,21 @@ import { getPlot } from "@/lib/plots";
 
 export function generateStaticParams() {
   return getAllNotes().map((note) => ({ slug: note.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const note = getNote(slug);
+  if (!note) return {};
+
+  return {
+    title: `${note.title} — Matthew Rizky Hartadi`,
+    description: note.excerpt,
+  };
 }
 
 export default async function NotePage({
