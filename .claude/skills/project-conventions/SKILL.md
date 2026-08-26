@@ -268,6 +268,32 @@ below `sm` and switch to the flex row at `sm:`.
   apply here. Typecheck/lint plus reading the literal back is sufficient signal for a pure
   duration/easing constant change.
 
+## P5 motion polish (2026-08-26)
+
+- **`whileTap` beats CSS `:active` on any element motion already controls.** Same
+  "second transform wins silently" trap as hover (P4/scroll-linked-motion section)
+  applies to press states too: `entry-card.tsx`/`entry-row.tsx`/`note-index-row.tsx`/
+  `project-index-row.tsx`'s outer `MotionLink` carries `whileHover`, so a CSS
+  `:active{transform:scale()}` on the same element would silently lose to motion's
+  inline style. Added a `tap` variant (sibling to `hover`) in `motion.ts` instead and
+  wired `whileTap="tap"`. Plain, non-motion-controlled elements (`.navlink`,
+  `theme-toggle.tsx`'s outer `<button>` — only its child pip is motion-driven) got real
+  CSS `:active` rules; the file's existing blanket `prefers-reduced-motion` block
+  already covers new CSS transitions, no per-rule media query needed.
+- **Hover-in duration ≠ entrance duration on the same variants object.** `entryCardVariants`
+  and `noteRowVariants` each carry both a `show` (entrance, 0.7s/0.5s) and a `hover` key —
+  tightening "hover timing" means touching only `hover`, `show` is a different animation
+  that happens to live in the same object. Don't pattern-match on the variable name alone.
+- Hover-in tightened 0.4–0.6s → 0.25s (`entryCardVariants`, `entryRuleVariants`,
+  `entryPipVariants`, `idxRowVariants`, `idxArrowVariants.hover.x` only — not `.opacity`,
+  `noteRowVariants`, `engRowVariants`, `engRuleVariants`). Color-only hovers (all the
+  `*TitleVariants`/`*NumVariants`, 0.35s) and `togglePipVariants` were left alone —
+  color transitions and the theme toggle weren't part of this pass.
+- **`AnimatePresence mode="wait"` means a real blank gap**, not just a smooth blend: exit
+  and enter run sequentially, so a route change has ~2x the transition duration with no
+  page content in `<main>`. Fine for this site's short (~0.4s) transitions but worth
+  knowing before reaching for `mode="wait"` on anything slower.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
