@@ -1,23 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import { AnimatePresence, m } from "motion/react";
-import { EASE } from "@/lib/motion";
+import { AnimatePresence } from "motion/react";
 
+/**
+ * The pathname-keyed element itself lives in `src/app/template.tsx` — Next.js
+ * remounts that fresh per navigation, which is what keeps its key in sync
+ * with its content. This component just needs to persist across navigations
+ * so AnimatePresence can see the old element being removed and animate it out
+ * before the new one mounts.
+ */
 export function PageTransition({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-
-  return (
-    <AnimatePresence mode="wait">
-      <m.div
-        key={pathname}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } }}
-        exit={{ opacity: 0, filter: "blur(3px)", transition: { duration: 0.4, ease: EASE } }}
-      >
-        {children}
-      </m.div>
-    </AnimatePresence>
-  );
+  return <AnimatePresence mode="wait">{children}</AnimatePresence>;
 }

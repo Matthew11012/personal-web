@@ -289,10 +289,22 @@ below `sm` and switch to the flex row at `sm:`.
   `noteRowVariants`, `engRowVariants`, `engRuleVariants`). Color-only hovers (all the
   `*TitleVariants`/`*NumVariants`, 0.35s) and `togglePipVariants` were left alone —
   color transitions and the theme toggle weren't part of this pass.
-- **`AnimatePresence mode="wait"` means a real blank gap**, not just a smooth blend: exit
-  and enter run sequentially, so a route change has ~2x the transition duration with no
-  page content in `<main>`. Fine for this site's short (~0.4s) transitions but worth
-  knowing before reaching for `mode="wait"` on anything slower.
+- **`AnimatePresence` in `layout.tsx` alone races the App Router.** `layout.tsx` doesn't
+  remount on navigation, so `usePathname()` read there updates one render *after* the new
+  route's `children` have already landed — for one commit the old `key` shows new content
+  with no animation, THEN the key changes and exit/enter fires on content that's already
+  swapped. Symptom: a visible flash-in → fade-to-blank → fade-in-again on every nav.
+  Fix: put the pathname-keyed `m.div` in `app/template.tsx` instead, which Next.js *does*
+  remount fresh per navigation — `usePathname()` and `children` then arrive atomically.
+  Keep `AnimatePresence` itself in the persistent layout (a plain wrapper, no key logic)
+  so it can see the template instance change. Verified by sampling `main`'s children's
+  computed `opacity`/`filter` via `requestAnimationFrame` across a real click — screenshots
+  are too coarse to catch a ~250ms race, don't trust one for this class of bug.
+- **Even fixed, the `exit` animation on that `m.div` never plays** — the App Router swaps
+  the outgoing page before `AnimatePresence` gets a two-phase removal to intercept, so an
+  old page just holds at rest until the new one is ready. Don't add an `exit` prop back
+  without re-verifying it actually fires; it silently does nothing today. Only `initial`→
+  `animate` (the enter fade+lift) is real.
 
 ## Verifying in a browser (additions)
 
