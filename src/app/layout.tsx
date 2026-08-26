@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SITE_URL } from "@/lib/site";
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "The Garden — Matthew Rizky Hartadi",
   description:
     "Field notes from a growing mind. Code, competition, and everything in the space between.",
