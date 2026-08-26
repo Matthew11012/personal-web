@@ -59,17 +59,18 @@ export function staggerContainer(
 export const entryCardVariants: Variants = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
-  hover: { y: -6, transition: { duration: 0.45, ease: EASE } },
+  hover: { y: -6, transition: { duration: 0.25, ease: EASE } },
+  tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 
 export const entryRuleVariants: Variants = {
   rest: { scaleX: 0.32 },
-  hover: { scaleX: 1, transition: { duration: 0.6, ease: EASE } },
+  hover: { scaleX: 1, transition: { duration: 0.25, ease: EASE } },
 };
 
 export const entryPipVariants: Variants = {
   rest: { scale: 1 },
-  hover: { scale: 1.4, transition: { duration: 0.45, ease: EASE } },
+  hover: { scale: 1.4, transition: { duration: 0.25, ease: EASE } },
 };
 
 export const entryTitleVariants: Variants = {
@@ -80,7 +81,8 @@ export const entryTitleVariants: Variants = {
 /** Home plot-index row hover choreography. */
 export const idxRowVariants: Variants = {
   rest: { paddingLeft: 0 },
-  hover: { paddingLeft: 24, transition: { duration: 0.4, ease: EASE } },
+  hover: { paddingLeft: 24, transition: { duration: 0.25, ease: EASE } },
+  tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 
 export const idxTitleVariants: Variants = {
@@ -98,7 +100,7 @@ export const idxArrowVariants: Variants = {
   hover: {
     opacity: 1,
     x: 0,
-    transition: { opacity: { duration: 0.35 }, x: { duration: 0.4, ease: EASE } },
+    transition: { opacity: { duration: 0.35 }, x: { duration: 0.25, ease: EASE } },
   },
 };
 
@@ -112,18 +114,20 @@ export const idxArrowVariants: Variants = {
 export const noteRowVariants: Variants = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-  hover: { paddingLeft: 24, transition: { duration: 0.4, ease: EASE } },
+  hover: { paddingLeft: 24, transition: { duration: 0.25, ease: EASE } },
+  tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 
 /** Plot-page entry row hover choreography. */
 export const engRowVariants: Variants = {
   rest: { paddingLeft: 0 },
-  hover: { paddingLeft: 26, transition: { duration: 0.4, ease: EASE } },
+  hover: { paddingLeft: 26, transition: { duration: 0.25, ease: EASE } },
+  tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 
 export const engRuleVariants: Variants = {
   rest: { scaleY: 0 },
-  hover: { scaleY: 1, transition: { duration: 0.45, ease: EASE } },
+  hover: { scaleY: 1, transition: { duration: 0.25, ease: EASE } },
 };
 
 export const engNumVariants: Variants = {

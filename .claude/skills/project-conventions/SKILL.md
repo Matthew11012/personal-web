@@ -268,6 +268,44 @@ below `sm` and switch to the flex row at `sm:`.
   apply here. Typecheck/lint plus reading the literal back is sufficient signal for a pure
   duration/easing constant change.
 
+## P5 motion polish (2026-08-26)
+
+- **`whileTap` beats CSS `:active` on any element motion already controls.** Same
+  "second transform wins silently" trap as hover (P4/scroll-linked-motion section)
+  applies to press states too: `entry-card.tsx`/`entry-row.tsx`/`note-index-row.tsx`/
+  `project-index-row.tsx`'s outer `MotionLink` carries `whileHover`, so a CSS
+  `:active{transform:scale()}` on the same element would silently lose to motion's
+  inline style. Added a `tap` variant (sibling to `hover`) in `motion.ts` instead and
+  wired `whileTap="tap"`. Plain, non-motion-controlled elements (`.navlink`,
+  `theme-toggle.tsx`'s outer `<button>` — only its child pip is motion-driven) got real
+  CSS `:active` rules; the file's existing blanket `prefers-reduced-motion` block
+  already covers new CSS transitions, no per-rule media query needed.
+- **Hover-in duration ≠ entrance duration on the same variants object.** `entryCardVariants`
+  and `noteRowVariants` each carry both a `show` (entrance, 0.7s/0.5s) and a `hover` key —
+  tightening "hover timing" means touching only `hover`, `show` is a different animation
+  that happens to live in the same object. Don't pattern-match on the variable name alone.
+- Hover-in tightened 0.4–0.6s → 0.25s (`entryCardVariants`, `entryRuleVariants`,
+  `entryPipVariants`, `idxRowVariants`, `idxArrowVariants.hover.x` only — not `.opacity`,
+  `noteRowVariants`, `engRowVariants`, `engRuleVariants`). Color-only hovers (all the
+  `*TitleVariants`/`*NumVariants`, 0.35s) and `togglePipVariants` were left alone —
+  color transitions and the theme toggle weren't part of this pass.
+- **`AnimatePresence` in `layout.tsx` alone races the App Router.** `layout.tsx` doesn't
+  remount on navigation, so `usePathname()` read there updates one render *after* the new
+  route's `children` have already landed — for one commit the old `key` shows new content
+  with no animation, THEN the key changes and exit/enter fires on content that's already
+  swapped. Symptom: a visible flash-in → fade-to-blank → fade-in-again on every nav.
+  Fix: put the pathname-keyed `m.div` in `app/template.tsx` instead, which Next.js *does*
+  remount fresh per navigation — `usePathname()` and `children` then arrive atomically.
+  Keep `AnimatePresence` itself in the persistent layout (a plain wrapper, no key logic)
+  so it can see the template instance change. Verified by sampling `main`'s children's
+  computed `opacity`/`filter` via `requestAnimationFrame` across a real click — screenshots
+  are too coarse to catch a ~250ms race, don't trust one for this class of bug.
+- **Even fixed, the `exit` animation on that `m.div` never plays** — the App Router swaps
+  the outgoing page before `AnimatePresence` gets a two-phase removal to intercept, so an
+  old page just holds at rest until the new one is ready. Don't add an `exit` prop back
+  without re-verifying it actually fires; it silently does nothing today. Only `initial`→
+  `animate` (the enter fade+lift) is real.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390

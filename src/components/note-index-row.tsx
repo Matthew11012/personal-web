@@ -32,6 +32,7 @@ export function NoteIndexRow({ note }: { note: NoteIndexSummary }) {
       href={`/notes/${note.slug}`}
       variants={noteRowVariants}
       whileHover="hover"
+      whileTap="tap"
       className="relative flex flex-wrap items-baseline gap-x-4 gap-y-1.5 py-[clamp(13px,1.6vw,20px)] sm:flex-nowrap"
       style={{ color: "inherit" }}
     >

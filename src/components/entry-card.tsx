@@ -34,6 +34,7 @@ export function EntryCard({ entry }: { entry: HomeEntry }) {
       href={`/notes/${entry.slug}`}
       variants={entryCardVariants}
       whileHover="hover"
+      whileTap="tap"
       className={`block supports-[grid-template-rows:subgrid]:grid supports-[grid-template-rows:subgrid]:grid-rows-subgrid supports-[grid-template-rows:subgrid]:row-span-4 ${entry.staggerClass}`}
       style={{ ["--acc" as string]: entry.accent, color: "inherit" }}
     >
