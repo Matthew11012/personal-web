@@ -35,7 +35,8 @@ export function SiteHeader() {
           href="/"
           className="label-mono -my-2 whitespace-nowrap py-2 tracking-[0.1em] sm:tracking-[0.16em] text-ink"
         >
-          Matthew Rizky Hartadi
+          <span className="sm:hidden">Matthew</span>
+          <span className="hidden sm:inline">Matthew Rizky Hartadi</span>
         </Link>
         <nav className="flex flex-wrap items-center gap-4 sm:gap-[clamp(16px,2.4vw,30px)]">
           {NAV.map((item) => {
