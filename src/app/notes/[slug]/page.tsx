@@ -6,7 +6,7 @@ import { Reveal } from "@/components/reveal";
 import { MarginNote } from "@/components/margin-note";
 import { STAGE_LABEL, STAGE_SYMBOL } from "@/components/stage-pip";
 import { createMdxComponents } from "@/components/mdx-components";
-import { getAllNotes, getNote } from "@/lib/content";
+import { getAdjacentNotes, getAllNotes, getNote } from "@/lib/content";
 import { getPlot } from "@/lib/plots";
 
 export function generateStaticParams() {
@@ -41,6 +41,7 @@ export default async function NotePage({
   const plot = getPlot(note.plotSlug);
   const accent = plot?.accent ?? "#b0573f";
   const mdxComponents = createMdxComponents(accent);
+  const { older, newer } = getAdjacentNotes(note);
 
   return (
     <div
@@ -48,7 +49,10 @@ export default async function NotePage({
       style={{ ["--acc" as string]: accent }}
     >
       <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-hair pb-3.5 tracking-[0.14em] text-faint">
-        <Link href="/" className="navlink text-faint">
+        <Link
+          href="/"
+          className="text-faint underline underline-offset-4"
+        >
           ← The garden
         </Link>
         <span style={{ color: accent }}>
@@ -85,13 +89,31 @@ export default async function NotePage({
       </div>
 
       <div className="label-mono mt-[clamp(40px,6vw,56px)] flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 border-t border-hair pt-5 tracking-[0.12em] text-faint">
+        {older && (
+          <Link
+            href={`/notes/${older.slug}`}
+            className="underline underline-offset-4"
+            style={{ color: accent }}
+          >
+            ← Older: {older.title}
+          </Link>
+        )}
         <Link
           href={`/plots/${note.plotSlug}`}
-          className="navlink"
+          className="underline underline-offset-4"
           style={{ color: accent }}
         >
           More from {plot?.name ?? note.plotSlug}
         </Link>
+        {newer && (
+          <Link
+            href={`/notes/${newer.slug}`}
+            className="underline underline-offset-4"
+            style={{ color: accent }}
+          >
+            Newer: {newer.title} →
+          </Link>
+        )}
       </div>
     </div>
   );

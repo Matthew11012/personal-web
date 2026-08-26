@@ -70,6 +70,17 @@ export function getNotesByPlot(plotSlug: string): Note[] {
   return getAllNotes().filter((note) => note.plotSlug === plotSlug);
 }
 
+/** Chronological siblings within the same plot: older (next-oldest planted)
+ * and newer (next-newest planted), for prev/next footer nav. */
+export function getAdjacentNotes(note: Note): { older?: Note; newer?: Note } {
+  const siblings = getNotesByPlot(note.plotSlug);
+  const index = siblings.findIndex((n) => n.slug === note.slug);
+  return {
+    older: siblings[index + 1],
+    newer: index > 0 ? siblings[index - 1] : undefined,
+  };
+}
+
 export function getRecentNotes(count: number): Note[] {
   return [...getAllNotes()]
     .sort(

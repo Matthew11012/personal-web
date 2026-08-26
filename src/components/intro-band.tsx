@@ -734,9 +734,10 @@ export function IntroBand({ variant = "home" }: { variant?: IntroVariant }) {
       >
         <div className="relative">
           <div className="sticky top-[32vh]">
-            <m.span className="block font-mono text-[clamp(40px,5vw,64px)] leading-none tabular-nums text-ink">
+            <m.span className="block font-mono text-[clamp(56px,7vw,96px)] leading-none tabular-nums text-ink">
               {yearText}
             </m.span>
+            <div className="mt-[clamp(10px,1.4vw,16px)] h-px w-8 bg-hair" />
           </div>
         </div>
 
