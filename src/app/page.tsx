@@ -6,6 +6,7 @@ import { EntryCard, type HomeEntry } from "@/components/entry-card";
 import { IdentityBand } from "@/components/identity-band";
 import { ProjectIndexRow } from "@/components/project-index-row";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
+import { ScrollCue } from "@/components/scroll-cue";
 import { getAllProjects, getRecentNotes } from "@/lib/content";
 import { getPlot } from "@/lib/plots";
 
@@ -62,6 +63,9 @@ export default async function HomePage() {
             Code, competition, and everything in the space between. Nothing
             here is finished — that&rsquo;s the point.
           </p>
+        </Reveal>
+        <Reveal delay={0.32} className="mt-[clamp(20px,3vw,32px)]">
+          <ScrollCue />
         </Reveal>
       </div>
 
