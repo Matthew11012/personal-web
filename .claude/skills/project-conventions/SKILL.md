@@ -19,7 +19,7 @@ See `src/lib/strava.ts` + `src/components/training/home-training-band.tsx` as th
 
 ## Chart/heatmap components
 
-- CSS Grid, never SVG — `grid-auto-flow` + a `sm:` breakpoint template swap does the desktop (weeks-as-columns) ↔ mobile (weeks-as-rows) transpose for free.
+- CSS Grid, never SVG — `grid-auto-flow` + a `sm:` breakpoint template swap does the desktop (weeks-as-columns) ↔ mobile (weeks-as-rows) transpose for free. **`github-heatmap.tsx` no longer does this** (see P6 below): the transpose is a height bomb for any range longer than ~12 weeks, because mobile cells are width-derived and `aspect-square`. `training/consistency-heatmap.tsx` still transposes and is likely to have the same defect at a long range — unaudited.
 - Cap cell size (`MAX_CELL_PX`, currently 40) on the desktop axis — an uncapped `1fr` track makes *short* ranges balloon into huge cells.
 - All chart colors go through a `--acc` CSS custom property (`color-mix(in srgb, var(--acc) X%, transparent)`), set inline by the wrapping band component (`style={{ ["--acc" as string]: accent }}`) — never a hardcoded hex in the chart itself. This is what makes charts recolor for free under the `.dark` class (next-themes).
 - Hover/active state drives the shared `src/components/training/chart-inspector.tsx` (`ChartInspector`) readout below the grid, not a floating tooltip — it's already generic (`eyebrow`/`figures`/`rows`/`active` props), reuse it directly rather than building a new readout.
@@ -318,3 +318,56 @@ below `sm` and switch to the flex row at `sm:`.
 - A dev server whose `.next` was deleted underneath it 500s on every route and
   does not recover. Don't `rm -rf .next` while one is running — start a second on
   another port instead.
+
+## P6 mobile density (2026-08-26) — measure before you diagnose
+
+**The mobile height budget, measured at 390x844x3 (light, post-P6).** Keep this
+current; it is the cheapest way to know whether a "feels crowded" report is real
+and where it comes from:
+
+| Page | Total | Dominant block |
+|---|---|---|
+| `/` | 3507px (4.2 vh) | note StaggerGroup 1092px; IdentityBand 634; HomeTrainingBand 634 |
+| `/about` | 4034px (4.8 vh) | **IntroBand 2890px — 70% of the page** |
+| `/notes` | 1914px (2.3 vh) | note rows 1411px |
+| `/work` | 1460px (1.7 vh) | GithubActivityBand 477px (was 2723) |
+
+The lesson that cost the most this run: **three separate "obvious" diagnoses of
+mobile crowding were all wrong, and one browser measurement pass settled it.**
+
+- *Wrong*: "`clamp(0px, Nvw, max)` gaps collapse on mobile." They don't — every
+  spacing clamp on the four pages has a real floor (28–70px). Only `.stagger-1/2/3`
+  goes to 0, and that is deliberate: they are homepage *grid column* offsets, and
+  the stagger is meaningless once the grid is one column. Don't "fix" them.
+- *Wrong*: "display type floors are too big." Only one was — `display-about`, whose
+  h1 is a 16-word sentence where its siblings carry 2–6 words. `display-xl` measured
+  2 lines and `display-lg` 1 line at their floors; they are fine.
+- *Right, and only visible by measuring*: prose across all four pages totals under
+  one viewport. The crowding was two **content bands** eating 3+ viewports each.
+
+So: for any density complaint, run the height budget first. Per-class font-size
+arithmetic predicts wrap counts badly, and gap math tells you nothing about which
+block is actually tall.
+
+**Heatmap mobile layout (`github-heatmap.tsx`).** Weeks-as-columns at every width,
+`auto-cols-[14px]` below `sm` and `auto-cols-[minmax(0,1fr)]` + the
+`--heatmap-max-w` cap at `sm:`, wrapped in `overflow-x-auto sm:overflow-x-visible`
+with `overscrollBehaviorX: contain`. Two things are load-bearing and easy to break:
+
+- The day-label gutter is `sticky left-0 z-10 bg-bg`. **`bg-bg` is not decoration** —
+  without an opaque background the cells scroll visibly under the labels.
+- Initial `scrollLeft = scrollWidth` (right-anchored) is what makes the band land on
+  the most recent weeks instead of a year ago. Re-run it when `days` changes.
+
+The keyboard contract is unchanged and deliberately **semantic, not visual**:
+Left/Right is ±1 week even though weeks are now columns at all widths.
+
+**Running a second dev server is harder than the old note implies.** `next dev`
+refuses a second instance from the same project dir (lockfile keyed by `distDir`,
+and there is no `--dist-dir` CLI flag), and Turbopack rejects `node_modules` reached
+through a junction. What works: copy the working tree + `node_modules` to a temp dir
+and run `next dev -p <port>` there. Still never `rm -rf .next` under a live server.
+
+**A brand-new arbitrary Tailwind v4 utility did NOT hit the Turbopack regeneration
+trap here** (`auto-cols-[14px]` computed to a real 14px on a fresh server). The trap
+is real but is not universal — check, don't assume either way.
