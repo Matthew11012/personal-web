@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import type { ContributionDay } from "@/lib/github";
 import { ChartInspector, type InspectorFigure } from "@/components/training/chart-inspector";
 
@@ -27,11 +27,9 @@ function formatMonthLabel(iso: string): string {
 
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
-// Track sizing shared by the mobile and desktop label tracks so they can be
-// separate grid elements (they must be — one is a header row, one is a side
-// column, in each orientation) and still line up with the heatmap's own
-// tracks without any hand-picked pixel offsets. See the two label-track
-// blocks in the JSX below for how each dimension gets matched.
+// Day-of-week track: 7 equal rows for the side day-label column, sized to
+// line up with the heatmap's own 7 cell rows without any hand-picked pixel
+// offsets. Used at all widths now — see the label-track blocks in the JSX.
 const AXIS_TRACK = "repeat(7, minmax(0, 1fr))";
 
 // Gap between cells, in px. Declared here because the desktop width cap below
@@ -109,21 +107,39 @@ function computeMonthMarkers(paddedDates: (string | null)[], weeksCount: number)
 /** GitHub contribution heatmap: one cell per day, filled by pre-computed
  * relative level.
  *
- * Deliberately a CSS grid, not SVG — the desktop layout (weeks as columns)
- * and the mobile layout (weeks as rows, so nothing overflows a 375px
- * viewport horizontally) are both just `grid-auto-flow` + template swaps at
- * a breakpoint. In SVG the same transpose would be a full re-layout of every
- * rect's x/y. The cell order below is always chronological (Mon..Sun per
- * week) — auto-flow: column reads that as columns-of-7; auto-flow: row (the
- * mobile default) reads the same order as rows-of-7. No reordering needed.
+ * Deliberately a CSS grid, not SVG — weeks as columns, days as rows, at
+ * every width (matching github.com). Below `sm` there's no room for ~53
+ * columns, so instead of transposing (which used to blow the grid out to
+ * ~3000px tall — a 14px-wide mobile cell is still 14px *tall* under
+ * `aspect-square`) the grid keeps its desktop shape and cell size and
+ * scrolls horizontally, anchored to the most recent week on mount. The cell
+ * order is always chronological (Mon..Sun per week); `grid-auto-flow: column`
+ * reads that as columns-of-7 at every width, so nothing is ever reordered.
  *
  * Client component: hovering or arrowing through a day highlights that
  * day's cell and drives the shared ChartInspector readout below the grid —
  * same interaction model as the training charts. */
 export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
-  // Hooks run unconditionally on every render, so this is declared before
+  // Hooks run unconditionally on every render, so these are declared before
   // the days.length guard below rather than after it.
   const [active, setActive] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Anchor initial scroll to the most recent week (the right edge) on
+  // mount/data change. A no-op on desktop, where the container never
+  // overflows so scrollWidth === clientWidth.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, [days]);
+
+  // Keeps the keyboard-focused day in view when arrowing scrolls the active
+  // cell off the visible (mobile, horizontally-scrolled) area.
+  useEffect(() => {
+    if (active === null) return;
+    cellRefs.current[active]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [active]);
 
   if (days.length === 0) return null;
 
@@ -163,12 +179,8 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
 
   // Single tab stop for the whole grid, not one per day — 300+ individually
   // tabbable cells would trap keyboard users. Arrow keys are 2D here:
-  // left/right step by a week (±7), up/down step by a day (±1). This mapping
-  // matches the desktop orientation (weeks as columns, so left/right really
-  // does move sideways); under the mobile transpose (weeks as rows) the same
-  // keys move visually up/down instead of sideways. That's an accepted
-  // trade — the keys stay tied to "a week" and "a day" rather than to
-  // whichever axis happens to be horizontal — not an oversight.
+  // left/right step by a week (±7), up/down step by a day (±1) — matching
+  // the grid's orientation (weeks as columns) at every width now.
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     switch (event.key) {
       case "ArrowRight":
@@ -222,97 +234,100 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
   return (
     // --heatmap-max-w caps the desktop grid so short ranges don't inflate
     // their cells (see MAX_CELL_PX). It's a custom property rather than an
-    // inline max-width because the cap must apply at sm+ only — on mobile
-    // the week axis runs vertically, where the column count is always 7 and
-    // the cells never inflate.
+    // inline max-width because the cap must apply at sm+ only — below sm
+    // cells are a flat 14px instead, and the grid is meant to overflow its
+    // container and scroll rather than be capped.
     <div className="mt-4" style={{ ["--heatmap-max-w" as string]: `${weeksMaxWidth}px` }}>
-      <div className="flex">
-        <div aria-hidden="true" className="w-8 shrink-0" />
-        <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
-          <div
-            aria-hidden="true"
-            className="grid gap-[3px] sm:hidden"
-            style={{ gridTemplateColumns: AXIS_TRACK }}
-          >
-            {DAY_LABELS.map((label, i) => (
-              <div key={i} className="label-mono text-center text-faint">
-                {label}
-              </div>
-            ))}
-          </div>
-          <div
-            aria-hidden="true"
-            className="hidden gap-[3px] sm:grid"
-            style={{ gridTemplateColumns: weeksTrackTemplate }}
-          >
-            {monthMarkers.map((label, i) => (
-              <div key={i} className="label-mono text-faint">
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-1 flex">
-        <div aria-hidden="true" className="w-8 shrink-0">
-          <div className="grid h-full gap-[3px] sm:hidden" style={{ gridTemplateRows: weeksTrackTemplate }}>
-            {monthMarkers.map((label, i) => (
-              <div key={i} className="label-mono flex items-center text-faint">
-                {label}
-              </div>
-            ))}
-          </div>
-          <div className="hidden h-full gap-[3px] sm:grid" style={{ gridTemplateRows: AXIS_TRACK }}>
-            {DAY_LABELS.map((label, i) => (
-              <div key={i} className="label-mono flex items-center text-faint">
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
-          {/* Single tab stop for the whole grid; the visual grid itself is
-              aria-hidden below, with the group's aria-label and the
-              sr-only paragraph carrying the accessible description. */}
-          <div
-            tabIndex={0}
-            role="group"
-            aria-label={`GitHub contributions over the last ${n} days. Use left and right arrow keys to inspect the previous or next week, up and down for the previous or next day, Home and End to jump to the first or last day, Escape to clear.`}
-            onKeyDown={handleKeyDown}
-            onMouseLeave={() => setActive(null)}
-            onBlur={() => setActive(null)}
-            // No outline-none here: the :focus-visible ring in globals.css
-            // is the only signal this grid is keyboard-operable at all.
-          >
-            {/* Tracks are `auto`, never `1fr`: the container has no explicit
-                height, and an empty div has no intrinsic height, so
-                fr-sized rows collapse to zero and the grid renders
-                invisible. The cells carry `aspect-square`, which gives
-                each row its height from the column width — and keeps the
-                cells square in both orientations. */}
+      {/* Wraps the month-label row and the day grid together so they scroll
+          in lockstep below sm — two independent overflow-x-auto elements
+          would drift out of sync on a swipe. overscroll-behavior-x: contain
+          stops a swipe at the scroll edge from bubbling into page scroll. */}
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto sm:overflow-x-visible"
+        style={{ overscrollBehaviorX: "contain" }}
+      >
+        <div className="flex">
+          {/* Sticky so the day-label gutter below stays aligned with this
+              spacer while the weeks scroll underneath it on mobile. bg-bg is
+              load-bearing: without it scrolled cells show through. */}
+          <div aria-hidden="true" className="sticky left-0 z-10 w-8 shrink-0 bg-bg" />
+          <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
             <div
               aria-hidden="true"
-              className="grid auto-rows-auto grid-cols-[repeat(7,minmax(0,1fr))] gap-[3px] sm:grid-flow-col sm:auto-cols-[minmax(0,1fr)] sm:grid-cols-none sm:grid-rows-[repeat(7,auto)]"
+              className="grid gap-[3px]"
+              style={{ gridTemplateColumns: weeksTrackTemplate }}
             >
-              {Array.from({ length: leadingPad }, (_, i) => (
-                <div key={`pad-start-${i}`} className="aspect-square" />
+              {monthMarkers.map((label, i) => (
+                <div key={i} className="label-mono text-faint">
+                  {label}
+                </div>
               ))}
-              {days.map((day, i) => (
-                <div
-                  key={day.date}
-                  className={
-                    "aspect-square transition-[background-color] duration-300 ease-out" +
-                    (day.level === 0 ? " border border-rule" : "")
-                  }
-                  style={cellStyle(day.level, activeIndex === i)}
-                  onMouseEnter={() => setActive(i)}
-                />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-1 flex">
+          <div aria-hidden="true" className="sticky left-0 z-10 w-8 shrink-0 bg-bg">
+            <div className="grid h-full gap-[3px]" style={{ gridTemplateRows: AXIS_TRACK }}>
+              {DAY_LABELS.map((label, i) => (
+                <div key={i} className="label-mono flex items-center text-faint">
+                  {label}
+                </div>
               ))}
-              {Array.from({ length: trailingPad }, (_, i) => (
-                <div key={`pad-end-${i}`} className="aspect-square" />
-              ))}
+            </div>
+          </div>
+
+          <div className="min-w-0 flex-1 sm:max-w-[var(--heatmap-max-w)]">
+            {/* Single tab stop for the whole grid; the visual grid itself is
+                aria-hidden below, with the group's aria-label and the
+                sr-only paragraph carrying the accessible description. */}
+            <div
+              tabIndex={0}
+              role="group"
+              aria-label={`GitHub contributions over the last ${n} days. Use left and right arrow keys to inspect the previous or next week, up and down for the previous or next day, Home and End to jump to the first or last day, Escape to clear.`}
+              onKeyDown={handleKeyDown}
+              onMouseLeave={() => setActive(null)}
+              onBlur={() => setActive(null)}
+              // No outline-none here: the :focus-visible ring in globals.css
+              // is the only signal this grid is keyboard-operable at all.
+            >
+              {/* Tracks are `auto`, never `1fr`: the container has no explicit
+                  height, and an empty div has no intrinsic height, so
+                  fr-sized rows collapse to zero and the grid renders
+                  invisible. The cells carry `aspect-square`, which gives
+                  each row its height from the column width. Below `sm` that
+                  width is a flat 14px (no container-width cap to lean on —
+                  the grid is meant to overflow and scroll instead): 7 rows x
+                  14px + 6 gaps x 3px = 116px tall, ~53 weeks wide ~= 898px —
+                  two orders of magnitude shorter than the old transposed
+                  layout's ~3000px. At sm+ the width is capped `1fr`
+                  (MAX_CELL_PX) as before. */}
+              <div
+                aria-hidden="true"
+                className="grid grid-flow-col auto-cols-[14px] grid-rows-[repeat(7,auto)] gap-[3px] sm:auto-cols-[minmax(0,1fr)]"
+              >
+                {Array.from({ length: leadingPad }, (_, i) => (
+                  <div key={`pad-start-${i}`} className="aspect-square" />
+                ))}
+                {days.map((day, i) => (
+                  <div
+                    key={day.date}
+                    ref={(el) => {
+                      cellRefs.current[i] = el;
+                    }}
+                    className={
+                      "aspect-square transition-[background-color] duration-300 ease-out" +
+                      (day.level === 0 ? " border border-rule" : "")
+                    }
+                    style={cellStyle(day.level, activeIndex === i)}
+                    onMouseEnter={() => setActive(i)}
+                  />
+                ))}
+                {Array.from({ length: trailingPad }, (_, i) => (
+                  <div key={`pad-end-${i}`} className="aspect-square" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
