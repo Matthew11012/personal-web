@@ -256,6 +256,18 @@ below `sm` and switch to the flex row at `sm:`.
   math from computed styles alone can be wrong. A screenshot after `scrollIntoView` settled
   a case where font-size math predicted overflow that didn't actually occur.
 
+## P4 animation timing (2026-08-26)
+
+- **The count-up on training figures (`count-up-figure.tsx`, `COUNT_EASE`) is intentionally
+  kept** — design-review §16 recommended cutting it, but the user explicitly wants the
+  current front-loaded easing (reaches near-final value fast, then settles). Don't remove
+  it in a future pass without re-confirming with the user first.
+- **A `motion` `transition={{ duration, ease }}` value is a plain JS object passed straight
+  to the animation library** — not a Tailwind CSS class, so the "prerendered HTML lies,
+  verify computed style in a browser" trap that applies elsewhere in this repo does NOT
+  apply here. Typecheck/lint plus reading the literal back is sufficient signal for a pure
+  duration/easing constant change.
+
 ## Verifying in a browser (additions)
 
 - **Chrome on Windows won't size a window below ~501px.** `resize_page` to 390
