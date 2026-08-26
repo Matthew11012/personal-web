@@ -13,6 +13,13 @@ export const GARDENER_ACCENT = "#9a8636";
  */
 export const AVAILABILITY = "Graduated 2025 — open to work";
 
+/**
+ * The contact address. Lives here rather than inline in /about for the same
+ * reason the accent and the CV link do: one place, so three call sites can't
+ * drift. Public on purpose -- it is the point of a "Find me" list.
+ */
+export const EMAIL = "matthewrizkyhartadi@gmail.com";
+
 export const CV = {
   href: "/MatthewRizkyHartadi_CV.pdf",
   /* Weight is stated so a reader knows what they're about to download. Update
