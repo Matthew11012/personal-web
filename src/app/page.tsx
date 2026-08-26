@@ -45,11 +45,7 @@ export default async function HomePage() {
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(40px,6vw,80px)]">
       <MetaStrip
-        items={[
-          "A place to think out loud",
-          "A Digital Garden — Est. 2026",
-          "Brisbane / Jakarta",
-        ]}
+        items={["A Digital Garden — Est. 2026"]}
       />
 
       <div className="py-[clamp(48px,8vw,96px)]">

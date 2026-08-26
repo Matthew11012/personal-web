@@ -9,9 +9,11 @@ export const GARDENER_ACCENT = "#9a8636";
 /**
  * The one actionable fact on the site, stated once. A garden that hides this
  * from a visiting recruiter is being coy at its own expense — but it belongs
- * in the strip that already holds the CV, not in the band's own voice.
+ * in the strip that already holds the CV, not in the band's own voice. The
+ * graduation year is deliberately not here: on a phone it pushed this past
+ * one line, and the CV carries the date for anyone who wants it.
  */
-export const AVAILABILITY = "Graduated 2025 — open to work";
+export const AVAILABILITY = "Open to work";
 
 /**
  * The contact address. Lives here rather than inline in /about for the same
