@@ -16,24 +16,30 @@ async function loadGoogleFont(family: string, weight: number, text: string) {
   throw new Error(`failed to load font data for ${family}`);
 }
 
+/** Never throws — a Google Fonts outage should degrade the OG image to
+ * satori's default font, not 500 the route. */
 export async function loadOgFonts(text: string) {
-  const [instrumentSerif, jetbrainsMono] = await Promise.all([
-    loadGoogleFont("Instrument Serif", 400, text),
-    loadGoogleFont("JetBrains Mono", 400, text),
-  ]);
+  try {
+    const [instrumentSerif, jetbrainsMono] = await Promise.all([
+      loadGoogleFont("Instrument Serif", 400, text),
+      loadGoogleFont("JetBrains Mono", 400, text),
+    ]);
 
-  return [
-    {
-      name: "Instrument Serif",
-      data: instrumentSerif,
-      weight: 400 as const,
-      style: "normal" as const,
-    },
-    {
-      name: "JetBrains Mono",
-      data: jetbrainsMono,
-      weight: 400 as const,
-      style: "normal" as const,
-    },
-  ];
+    return [
+      {
+        name: "Instrument Serif",
+        data: instrumentSerif,
+        weight: 400 as const,
+        style: "normal" as const,
+      },
+      {
+        name: "JetBrains Mono",
+        data: jetbrainsMono,
+        weight: 400 as const,
+        style: "normal" as const,
+      },
+    ];
+  } catch {
+    return [];
+  }
 }
