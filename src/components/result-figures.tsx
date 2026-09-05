@@ -19,7 +19,7 @@ export function ResultFigures({
   if (results.length === 0) return null;
 
   return (
-    <div className="mt-[clamp(20px,2.5vw,28px)] flex flex-col gap-5 border-b border-hair pb-[clamp(20px,2.5vw,28px)] sm:flex-row sm:flex-wrap sm:gap-0">
+    <div className="mt-[clamp(20px,2.5vw,28px)] flex flex-col gap-5 border-b border-hair pb-[clamp(20px,2.5vw,28px)] sm:flex-row sm:flex-wrap sm:gap-2">
       {results.map((result, index) => (
         <div
           key={index}

@@ -31,7 +31,7 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
     <div className="grid grid-cols-1 items-center gap-x-[clamp(32px,6vw,96px)] gap-y-10 py-[clamp(48px,8vw,96px)] md:grid-cols-[3fr_2fr]">
       <div>
         <Reveal as="wipein" delay={0.06}>
-          <h1 className="display-xl max-w-[15ch] text-ink">{headline}</h1>
+          <h1 className="display-lg max-w-[15ch] text-ink">{headline}</h1>
         </Reveal>
         <Reveal delay={0.16} className="mt-[clamp(28px,4vw,44px)]">
           <p className="lede max-w-[34ch] text-dim">{lede}</p>
