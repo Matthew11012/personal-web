@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
-import { StaggerGroup } from "@/components/stagger-group";
 import { HomeHero } from "@/components/home-hero";
 import { IdentityBand } from "@/components/identity-band";
 import { PlotSpine, type PlotSpineItem } from "@/components/plot-spine";
-import { ProjectIndexRow } from "@/components/project-index-row";
+import { FeaturedProject } from "@/components/featured-project";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
-import { getAllProjects, getFeaturedWork, getPlotSpineData } from "@/lib/content";
+import { getFeaturedWork, getPlotSpineData } from "@/lib/content";
 
 // 24h backstop only — the webhook and cron call revalidatePath("/") when
 // Strava data actually changes, so this timer isn't tracking the training
@@ -15,9 +14,6 @@ import { getAllProjects, getFeaturedWork, getPlotSpineData } from "@/lib/content
 export const revalidate = 86400;
 
 export default async function HomePage() {
-  const featuredProjects = getAllProjects().filter(
-    (project) => project.featured,
-  );
   const { flagship } = getFeaturedWork();
   const heroProof = flagship?.results[0];
   const plotSpineItems: PlotSpineItem[] = getPlotSpineData().map(
@@ -59,10 +55,6 @@ export default async function HomePage() {
         }
       />
 
-      <Reveal delay={0.26}>
-        <IdentityBand />
-      </Reveal>
-
       <div className="label-mono mt-[clamp(28px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
         <h2 className="text-ink">The four plots</h2>
         <Link href="/notes" className="navlink">
@@ -72,27 +64,23 @@ export default async function HomePage() {
 
       <PlotSpine plots={plotSpineItems} />
 
-      <div className="label-mono mt-[clamp(56px,8vw,110px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
-        <h2 className="text-ink">From the workshop</h2>
-        <Link href="/work" className="navlink">
-          All work →
-        </Link>
-      </div>
+      {flagship && (
+        <>
+          <FeaturedProject project={flagship} size="primary" />
+          <div className="mt-[clamp(20px,2.5vw,28px)]">
+            <Link
+              href="/work"
+              className="navlink label-mono tracking-[0.18em] text-faint"
+            >
+              See all work →
+            </Link>
+          </div>
+        </>
+      )}
 
-      <StaggerGroup className="mt-3 flex flex-col">
-        {featuredProjects.map((project) => (
-          <ProjectIndexRow
-            key={project.slug}
-            project={{
-              slug: project.slug,
-              title: project.title,
-              tagline: project.tagline,
-              period: project.period,
-              accent: project.accent,
-            }}
-          />
-        ))}
-      </StaggerGroup>
+      <Reveal>
+        <IdentityBand />
+      </Reveal>
 
       <HomeTrainingBand />
     </div>

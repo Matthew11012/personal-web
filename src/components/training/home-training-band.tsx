@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MetaStrip } from "@/components/meta-strip";
 import { ResultFigures } from "@/components/result-figures";
 import { HomeWeeklyVolume } from "@/components/training/home-weekly-volume";
 import { getPlot } from "@/lib/plots";
@@ -52,7 +51,13 @@ export async function HomeTrainingBand() {
 
   return (
     <div style={{ ["--acc" as string]: accent }} className="mt-[clamp(56px,8vw,110px)]">
-      <MetaStrip border="top" items={["In training", "Last 12 weeks — via Strava"]} />
+      {/* Hand-rolled rather than MetaStrip: this closer needs both sides
+          text-faint (no ink-on-first-item emphasis) so it reads as ambient,
+          not a peer section headline. */}
+      <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.16em] text-faint">
+        <span>In training</span>
+        <span>Last 12 weeks — via Strava</span>
+      </div>
       <ResultFigures results={results} countUp />
       <HomeWeeklyVolume buckets={buckets} />
       <div className="mt-[clamp(20px,2.5vw,28px)]">

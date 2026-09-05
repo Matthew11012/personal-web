@@ -51,33 +51,6 @@ export function staggerContainer(
   };
 }
 
-/**
- * Home entry-card: entrance (hidden/show, inherited from the grid's
- * staggerChildren parent) merged with the hover lift, so the same element
- * can both fade up on mount and lift on hover without prop conflicts.
- */
-export const entryCardVariants: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
-  hover: { y: -6, transition: { duration: 0.25, ease: EASE } },
-  tap: { scale: 0.97, transition: { duration: 0.12 } },
-};
-
-export const entryRuleVariants: Variants = {
-  rest: { scaleX: 0.32 },
-  hover: { scaleX: 1, transition: { duration: 0.25, ease: EASE } },
-};
-
-export const entryPipVariants: Variants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.4, transition: { duration: 0.25, ease: EASE } },
-};
-
-export const entryTitleVariants: Variants = {
-  rest: { color: "var(--ink)" },
-  hover: { color: "var(--acc)", transition: { duration: 0.35 } },
-};
-
 /** Home plot-index row hover choreography. */
 export const idxRowVariants: Variants = {
   rest: { paddingLeft: 0 },
