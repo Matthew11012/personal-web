@@ -549,6 +549,13 @@ It animates `y` + opacity, which `MotionConfig reducedMotion="user"` covers
 (unlike `clip-path`), and fires on `whileInView` — unlike `Reveal`, which is
 mount-triggered.
 
+`viewport={{ once: true }}` does **not** strand a heading that was already
+scrolled past at mount. A review raised this; measured directly by reloading
+`/` at `scrollY 2200` (hero h1 above the viewport): the words sit translated
+122px inside their masks, and go to `transform: none` the moment the heading
+scrolls back into view. IntersectionObserver delivers an initial `false` and
+keeps watching; `once` only stops watching after the first *hit*.
+
 ### `/work` index (post-P8)
 
 `IndexPreview` owns hover state because the hovered row and the reacting frame
