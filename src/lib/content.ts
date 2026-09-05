@@ -1,5 +1,6 @@
 import { allNotes, allProjects } from "content-collections";
-import type { Backlink, Note, NoteDoc, Project, ProjectDoc } from "./types";
+import { PLOTS } from "./plots";
+import type { Backlink, Note, NoteDoc, Plot, Project, ProjectDoc } from "./types";
 
 /** Drafts are excluded from production output, visible in dev. */
 function isVisible(doc: { draft: boolean }): boolean {
@@ -79,6 +80,24 @@ export function getAdjacentNotes(note: Note): { older?: Note; newer?: Note } {
     older: siblings[index + 1],
     newer: index > 0 ? siblings[index - 1] : undefined,
   };
+}
+
+/** Every plot in PLOTS order, paired with its latest note (newest planted,
+ * `getNotesByPlot` is already sorted that way) and its total note count —
+ * the data source for the homepage's four-plot scroll-spine. A plot with no
+ * visible notes yet gets an undefined `latestNote` rather than being
+ * dropped, so the spine always shows all four plots. */
+export interface PlotSpineEntry {
+  plot: Plot;
+  noteCount: number;
+  latestNote?: Note;
+}
+
+export function getPlotSpineData(): PlotSpineEntry[] {
+  return PLOTS.map((plot) => {
+    const notes = getNotesByPlot(plot.slug);
+    return { plot, noteCount: notes.length, latestNote: notes[0] };
+  });
 }
 
 export function getRecentNotes(count: number): Note[] {

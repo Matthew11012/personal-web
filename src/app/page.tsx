@@ -2,26 +2,17 @@ import Link from "next/link";
 import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
-import { EntryCard, type HomeEntry } from "@/components/entry-card";
 import { HomeHero } from "@/components/home-hero";
 import { IdentityBand } from "@/components/identity-band";
+import { PlotSpine, type PlotSpineItem } from "@/components/plot-spine";
 import { ProjectIndexRow } from "@/components/project-index-row";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
-import { getAllProjects, getFeaturedWork, getRecentNotes } from "@/lib/content";
-import { getPlot } from "@/lib/plots";
+import { getAllProjects, getFeaturedWork, getPlotSpineData } from "@/lib/content";
 
 // 24h backstop only — the webhook and cron call revalidatePath("/") when
 // Strava data actually changes, so this timer isn't tracking the training
 // schedule. It only covers the cron dying silently.
 export const revalidate = 86400;
-
-const TITLE_CLASSES = [
-  "entry-title-1",
-  "entry-title-2",
-  "entry-title-3",
-  "entry-title-4",
-];
-const STAGGER_CLASSES = ["stagger-0", "stagger-1", "stagger-2", "stagger-3"];
 
 export default async function HomePage() {
   const featuredProjects = getAllProjects().filter(
@@ -29,20 +20,23 @@ export default async function HomePage() {
   );
   const { flagship } = getFeaturedWork();
   const heroProof = flagship?.results[0];
-  const entries: HomeEntry[] = getRecentNotes(4).map((note, i) => {
-    const plot = getPlot(note.plotSlug);
-    return {
-      slug: note.slug,
-      n: String(i + 1).padStart(2, "0"),
-      plotName: plot?.short ?? note.plotSlug,
-      stage: note.stage,
-      accent: plot?.accent ?? "#b0573f",
-      title: note.title,
-      titleClass: TITLE_CLASSES[i % TITLE_CLASSES.length],
-      staggerClass: STAGGER_CLASSES[i % STAGGER_CLASSES.length],
-      excerpt: note.excerpt,
-    };
-  });
+  const plotSpineItems: PlotSpineItem[] = getPlotSpineData().map(
+    ({ plot, noteCount, latestNote }) => ({
+      slug: plot.slug,
+      name: plot.name,
+      accent: plot.accent,
+      index: plot.index,
+      noteCount,
+      latestNote: latestNote
+        ? {
+            slug: latestNote.slug,
+            title: latestNote.title,
+            stage: latestNote.stage,
+            date: latestNote.plantedLabel,
+          }
+        : undefined,
+    }),
+  );
 
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(40px,6vw,80px)]">
@@ -70,19 +64,13 @@ export default async function HomePage() {
       </Reveal>
 
       <div className="label-mono mt-[clamp(28px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
-        <h2 className="text-ink">Lately in the garden</h2>
+        <h2 className="text-ink">The four plots</h2>
         <Link href="/notes" className="navlink">
           All notes →
         </Link>
       </div>
 
-      <StaggerGroup
-        className="mt-[clamp(44px,6vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-x-[clamp(48px,6vw,110px)] gap-y-[clamp(40px,5vw,80px)] supports-[grid-template-rows:subgrid]:gap-y-0"
-      >
-        {entries.map((entry) => (
-          <EntryCard key={entry.slug} entry={entry} />
-        ))}
-      </StaggerGroup>
+      <PlotSpine plots={plotSpineItems} />
 
       <div className="label-mono mt-[clamp(56px,8vw,110px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
         <h2 className="text-ink">From the workshop</h2>
