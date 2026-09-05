@@ -10,10 +10,26 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useRef } from "react";
+import { PlotMark } from "./plot-mark";
 import { StagePip } from "./stage-pip";
 import type { Stage } from "@/lib/types";
 
 const MotionLink = m.create(Link);
+
+/* The pan's geometry, solved once rather than measured at runtime. Each
+   panel is PANEL_VW wide with no gap between them (a gap would break the
+   percentage math below), so the track is PANEL_COUNT * PANEL_VW wide. The
+   visible width is always 100vw, so the travel needed is
+   (trackVw - 100)vw, and a CSS percentage translateX resolves against the
+   element's OWN width, so that travel expressed as a percentage of the
+   track's width is (travelVw / trackVw) * 100. Changing PANEL_VW or
+   PANEL_COUNT keeps this correct without touching the numbers by hand. */
+const PANEL_VW = 62;
+const PANEL_COUNT = 4;
+const TRACK_VW = PANEL_VW * PANEL_COUNT;
+const TRAVEL_VW = TRACK_VW - 100;
+const TRAVEL_PCT = (TRAVEL_VW / TRACK_VW) * 100;
+const OUTER_HEIGHT_VH = 100 + TRAVEL_VW;
 
 /** Serializable view model the server page hands the client spine — a slim
  * projection of PlotSpineEntry (src/lib/content.ts), not the raw Plot/Note
@@ -95,28 +111,31 @@ function PlotEntry({
   );
 }
 
-/** One plot inside the desktop scrub. Every derived value (how "active" this
- * plot is, its opacity/scale/title color) comes off the shared scroll
- * MotionValue via useTransform — nothing here calls setState on scroll, so
- * the four plots re-emphasise every frame with zero React re-renders. */
-function ScrubPlotEntry({
+/** One plot's panel inside the horizontal pan. Every derived value (how
+ * "active" this panel is, its opacity/scale/title color) comes off the
+ * shared scroll MotionValue via useTransform — nothing here calls setState
+ * on scroll, so the four panels re-emphasise every frame with zero React
+ * re-renders. The emphasis lives on THIS element (the panel), never on the
+ * track: the track already carries the pan's own `x` transform, and a
+ * second inline transform on the same node would silently replace it. */
+function PanPanel({
   item,
   index,
-  total,
   progress,
+  onFocusPanel,
 }: {
   item: PlotSpineItem;
   index: number;
-  total: number;
   progress: MotionValue<number>;
+  /** Fired when focus enters this panel, so the pan can bring it into
+   * view. See the handler in PanSection for why this is required. */
+  onFocusPanel: (index: number) => void;
 }) {
-  const step = 1 / total;
+  const step = 1 / PANEL_COUNT;
   const center = (index + 0.5) * step;
-  /* A triangular pulse centred on this plot's slice of the scroll range:
-     1 when the reader is centred on it, falling linearly to 0 a full slice
-     away either side. Neighbouring plots' pulses overlap, which is what
-     makes the crossfade read as one plot handing off to the next rather
-     than a hard cut. */
+  /* A triangular pulse centred on this panel's slice of the scroll range:
+     1 when the panel is nearest the viewport's centre, falling linearly to
+     0 a full slice away either side. */
   const activeAmount = useTransform(progress, (p) =>
     Math.max(0, 1 - Math.abs(p - center) / step),
   );
@@ -126,7 +145,7 @@ function ScrubPlotEntry({
      raw accents fail WCAG contrast as display text on --bg (light) and are
      marginal on dark, so the readable text stays on the neutral tokens (both
      AA-safe) and the plot's colour identity rides the decorative accent bar in
-     PlotEntry instead. */
+     PlotEntry (and now the PlotMark) instead. */
   const titleColor = useTransform(
     activeAmount,
     (v) =>
@@ -135,26 +154,39 @@ function ScrubPlotEntry({
   const accentEmphasis = useTransform(activeAmount, [0, 1], [0.3, 1]);
 
   return (
-    <m.div
-      style={{ opacity, scale, transformOrigin: "left center" }}
-      className="border-t border-hair pt-[clamp(18px,2.4vw,28px)] first:border-t-0 first:pt-0"
+    <div
+      style={{ width: `${PANEL_VW}vw` }}
+      className="flex flex-shrink-0 items-center px-[clamp(20px,3.2vw,48px)]"
+      onFocus={() => onFocusPanel(index)}
     >
-      <PlotEntry item={item} titleColor={titleColor} accentEmphasis={accentEmphasis} />
-    </m.div>
+      <m.div style={{ opacity, scale, transformOrigin: "left center" }}>
+        <PlotMark
+          slug={item.slug}
+          accent={item.accent}
+          className="mb-[clamp(16px,2.4vw,28px)] h-[clamp(90px,10vw,140px)] w-[clamp(90px,10vw,140px)]"
+        />
+        <PlotEntry
+          item={item}
+          titleColor={titleColor}
+          accentEmphasis={accentEmphasis}
+        />
+      </m.div>
+    </div>
   );
 }
 
-/** Desktop-only sticky-pin scrub: a tall wrapper gives scroll something to
- * consume, the inner sticky box stays pinned in the viewport for that whole
- * distance, and each plot's emphasis walks across it. Mirrors IntroBand's
- * useScroll/useSpring/useTransform recipe (src/components/intro-band.tsx) —
- * same shape, new content. Rendered only when motion isn't reduced; the
- * `hidden md:block` on top of that collapses it to zero height below md, so
- * mobile never pays for this section's scroll distance. */
-function ScrubSection({ items }: { items: PlotSpineItem[] }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
+/** Desktop-only pinned horizontal pan: a tall wrapper gives scroll something
+ * to consume, the inner sticky box stays pinned in the viewport for that
+ * whole distance, and the track of four panels slides left underneath it.
+ * Mirrors IntroBand's useScroll/useSpring/useTransform recipe
+ * (src/components/intro-band.tsx) — same spring constants, new content and a
+ * horizontal `x` instead of a drawn path. Rendered only when motion isn't
+ * reduced; the `hidden md:block` on top of that collapses it to zero height
+ * below md, so mobile never pays for this section's scroll distance. */
+function PanSection({ items }: { items: PlotSpineItem[] }) {
+  const outerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
+    target: outerRef,
     offset: ["start start", "end end"],
   });
   const progress = useSpring(scrollYProgress, {
@@ -162,19 +194,49 @@ function ScrubSection({ items }: { items: PlotSpineItem[] }) {
     damping: 30,
     restDelta: 0.001,
   });
+  const x = useTransform(progress, [0, 1], ["0%", `-${TRAVEL_PCT.toFixed(2)}%`]);
+
+  /* Keyboard access. All four panels are always in the DOM, but panels 2-4
+     are translated outside the viewport, and the sticky wrapper is
+     overflow-hidden (it has to be, or the off-screen panels give the
+     document a horizontal scrollbar). That combination defeats the
+     browser's native scroll-into-view-on-focus: there is no scrollable
+     ancestor that can satisfy the request horizontally, so tabbing into a
+     link on panel 3 would focus something the reader cannot see.
+
+     Since the pan's horizontal position is a pure function of vertical
+     scroll, the fix is to scroll the page to the offset where the focused
+     panel is centred. Focus then drives the pan exactly the way the mouse
+     wheel does. Only fires on focus, so it never fights the reader's own
+     scrolling. PanSection renders only when motion is not reduced, so
+     smooth behaviour here is safe. */
+  const revealPanel = (index: number) => {
+    const el = outerRef.current;
+    if (!el) return;
+    const travel = el.offsetHeight - window.innerHeight;
+    if (travel <= 0) return;
+    const ratio = PANEL_COUNT > 1 ? index / (PANEL_COUNT - 1) : 0;
+    window.scrollTo({ top: el.offsetTop + travel * ratio, behavior: "smooth" });
+  };
 
   return (
-    <div ref={sectionRef} className="relative hidden h-[320vh] md:block">
-      <div className="sticky top-0 flex h-screen flex-col justify-center gap-[clamp(18px,2.6vw,32px)]">
-        {items.map((item, i) => (
-          <ScrubPlotEntry
-            key={item.slug}
-            item={item}
-            index={i}
-            total={items.length}
-            progress={progress}
-          />
-        ))}
+    <div
+      ref={outerRef}
+      className="relative hidden md:block"
+      style={{ height: `${OUTER_HEIGHT_VH}vh` }}
+    >
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <m.div className="flex" style={{ x }}>
+          {items.map((item, i) => (
+            <PanPanel
+              key={item.slug}
+              item={item}
+              index={i}
+              progress={progress}
+              onFocusPanel={revealPanel}
+            />
+          ))}
+        </m.div>
       </div>
     </div>
   );
@@ -199,12 +261,14 @@ function CompactList({
 }
 
 /**
- * The homepage's four-plot scroll-spine: the headline scroll interaction on
- * desktop, a plain static list everywhere motion shouldn't drive layout.
+ * The homepage's four-plot pan: the headline scroll interaction on desktop
+ * pins the viewport and pans a track of four panels horizontally instead of
+ * scrubbing emphasis down a 320vh vertical stack, plus a plain static list
+ * everywhere motion shouldn't drive layout.
  *
  * `useScroll`/`useTransform` aren't covered by MotionConfig's
  * `reducedMotion="user"`, so reduced motion is gated by hand here exactly
- * like IntroBand: when reduced, the whole scrub section is skipped (not
+ * like IntroBand: when reduced, the whole pan section is skipped (not
  * just visually hidden — no tall wrapper exists at all) and CompactList
  * renders unconditionally instead of only below md.
  */
@@ -213,7 +277,7 @@ export function PlotSpine({ plots }: { plots: PlotSpineItem[] }) {
 
   return (
     <div className="mt-[clamp(44px,6vw,72px)]">
-      {!reduced && <ScrubSection items={plots} />}
+      {!reduced && <PanSection items={plots} />}
       <CompactList items={plots} className={reduced ? "" : "md:hidden"} />
     </div>
   );
