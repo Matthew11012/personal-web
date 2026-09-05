@@ -29,7 +29,26 @@ const PANEL_COUNT = 4;
 const TRACK_VW = PANEL_VW * PANEL_COUNT;
 const TRAVEL_VW = TRACK_VW - 100;
 const TRAVEL_PCT = (TRAVEL_VW / TRACK_VW) * 100;
-const OUTER_HEIGHT_VH = 50 + TRAVEL_VW;
+const OUTER_HEIGHT_VH = 150 + TRAVEL_VW;
+
+/** The scroll progress at which panel `index` sits centred in the viewport.
+ * The panel's untranslated left edge is index * PANEL_VW, the track has
+ * shifted left by TRAVEL_VW * progress, and centring wants the panel's
+ * midpoint at 50vw. Clamped, and the clamp is the point: panel 0 is already
+ * centred when the pan begins and the last one still is when it ends, so
+ * their centres are exactly 0 and 1. Emphasis (PanPanel) and keyboard focus
+ * (revealPanel) both read this, so what looks active and what focus scrolls
+ * to can never disagree. */
+function panelCenter(index: number) {
+  return clamp01((index * PANEL_VW + PANEL_VW / 2 - 50) / TRAVEL_VW);
+}
+
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+/** Half-width, in progress, of the crossfade between two adjacent panels. */
+const HANDOVER = 0.08;
 
 /** Serializable view model the server page hands the client spine — a slim
  * projection of PlotSpineEntry (src/lib/content.ts), not the raw Plot/Note
@@ -143,14 +162,25 @@ function PanPanel({
    * view. See the handler in PanSection for why this is required. */
   onFocusPanel: (index: number) => void;
 }) {
-  const step = 1 / PANEL_COUNT;
-  const center = (index + 0.5) * step;
-  /* A triangular pulse centred on this panel's slice of the scroll range:
-     1 when the panel is nearest the viewport's centre, falling linearly to
-     0 a full slice away either side. */
-  const activeAmount = useTransform(progress, (p) =>
-    Math.max(0, 1 - Math.abs(p - center) / step),
-  );
+  /* Full emphasis for as long as this panel is the active one, rather than a
+     pulse peaking at a single instant. The handover points are the midpoints
+     between this panel's centre and its neighbours', and emphasis crossfades
+     over a HANDOVER band around each. The first and last panels have no
+     neighbour on one side, so they hold at full from the moment the pan
+     starts and until it ends - previously panel 0 opened at half emphasis,
+     peaked, and was already dark while it was still the panel on screen. */
+  const center = panelCenter(index);
+  const enter =
+    index > 0 ? (center + panelCenter(index - 1)) / 2 : Number.NEGATIVE_INFINITY;
+  const leave =
+    index < PANEL_COUNT - 1
+      ? (center + panelCenter(index + 1)) / 2
+      : Number.POSITIVE_INFINITY;
+  const activeAmount = useTransform(progress, (p) => {
+    const rising = clamp01((p - enter + HANDOVER) / (2 * HANDOVER));
+    const falling = clamp01((p - leave + HANDOVER) / (2 * HANDOVER));
+    return rising * (1 - falling);
+  });
   const opacity = useTransform(activeAmount, [0, 1], [0.55, 1]);
   const scale = useTransform(activeAmount, [0, 1], [0.97, 1]);
   /* Active plot title crossfades --faint -> --ink, never the plot accent: the
@@ -228,18 +258,10 @@ function PanSection({ items }: { items: PlotSpineItem[] }) {
     if (!el) return;
     const travel = el.offsetHeight - window.innerHeight;
     if (travel <= 0) return;
-    /* Solve for the progress that centres this panel, in vw. The panel's
-       untranslated left edge is index * PANEL_VW; the track has shifted left
-       by TRAVEL_VW * progress; centring wants the panel's midpoint at 50vw.
-       Clamped because the first and last panels cannot centre without
-       overscrolling past the pinned range. Derived rather than approximated
-       with index/(PANEL_COUNT-1) so it stays correct if the panel width or
-       count is ever retuned. */
-    const ratio = Math.min(
-      1,
-      Math.max(0, (index * PANEL_VW + PANEL_VW / 2 - 50) / TRAVEL_VW),
-    );
-    window.scrollTo({ top: el.offsetTop + travel * ratio, behavior: "smooth" });
+    window.scrollTo({
+      top: el.offsetTop + travel * panelCenter(index),
+      behavior: "smooth",
+    });
   };
 
   return (
