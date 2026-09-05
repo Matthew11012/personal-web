@@ -12,7 +12,7 @@ export function CredentialsStrip({ className = "" }: { className?: string }) {
     <div
       className={`label-mono flex flex-col gap-y-2 border-t border-hair pt-3.5 tracking-[0.1em] text-dim sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-8 sm:tracking-[0.18em] ${className}`}
     >
-      <span className="text-ink">Computer science — applied AI</span>
+      <span className="text-ink">Computer science, applied AI</span>
       <span className="flex flex-wrap gap-x-2 sm:contents">
         <span className="text-dim">{AVAILABILITY}</span>
         <span aria-hidden="true" className="sm:hidden">

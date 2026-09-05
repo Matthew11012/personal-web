@@ -26,5 +26,5 @@ export const CV = {
   href: "/MatthewRizkyHartadi_CV.pdf",
   /* Weight is stated so a reader knows what they're about to download. Update
      it here when the PDF is regenerated. */
-  label: "CV — PDF, 91 KB ↓",
+  label: "CV - PDF, 91 KB ↓",
 } as const;

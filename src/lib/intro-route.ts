@@ -134,7 +134,7 @@ const PORTRAIT: Figure = {
 const HACKATHON: Figure = {
   src: "/me/hackathon.jpg",
   alt: "Matthew presenting UQuizzle on stage at UQ",
-  caption: "UQuizzle — UQ Hackathon",
+  caption: "UQuizzle, UQ Hackathon",
   shape: "frame",
   narrow: "w-[min(100%,300px)]",
   /* Capped at 300 so it still clears the box edge on a 1024px viewport,
@@ -146,7 +146,7 @@ const HACKATHON: Figure = {
 const RIDING: Figure = {
   src: "/me/riding.jpg",
   alt: "Matthew at a lookout with two road bikes, the city below",
-  caption: "On the bike — Brisbane",
+  caption: "On the bike, Brisbane",
   /* A disc, not a rectangle. The one curve on a page built from hairlines and
      right angles, and it earns it: the subject is a wheel. */
   shape: "frame",
@@ -158,7 +158,7 @@ const RIDING: Figure = {
 const UI_GRAD: Figure = {
   src: "/me/ui-grad.jpg",
   alt: "Matthew in Universitas Indonesia graduation robes with his parents, the UI rectorate building behind them",
-  caption: "With my parents — Depok",
+  caption: "With my parents, Depok",
   shape: "frame",
   narrow: "w-[min(78%,240px)]",
   /* Narrower than the landscape figures: it is 3:4, so matching their width
@@ -170,7 +170,7 @@ const UI_GRAD: Figure = {
 const UQ_GRAD: Figure = {
   src: "/me/uq-grad.jpg",
   alt: "Matthew and three friends in academic gowns under the sandstone cloisters of UQ's Great Court",
-  caption: "The Great Court — UQ, Brisbane",
+  caption: "The Great Court - UQ, Brisbane",
   shape: "frame",
   narrow: "w-[min(100%,300px)]",
   width: "lg:w-[clamp(220px,26vw,350px)]",

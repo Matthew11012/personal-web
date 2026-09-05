@@ -90,7 +90,7 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
         const volume = activeBucket[row.key];
         return {
           label: row.label,
-          hours: volume.seconds > 0 ? formatHours(volume.seconds) : "—",
+          hours: volume.seconds > 0 ? formatHours(volume.seconds) : "-",
           distance: volume.seconds > 0 ? formatDistanceKmCompact(volume.metres) : "",
           tint: row.tint,
         };

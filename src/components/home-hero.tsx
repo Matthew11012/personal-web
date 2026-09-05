@@ -67,7 +67,12 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
           gives useScroll a target to measure against. Parallax `y` lives on
           the outer m.div below, entrance lives on the inner one: the two
           transforms would silently collide on a single element. */}
-      <div ref={mediaRef}>
+      {/* max-w caps the media's HEIGHT, which is what actually matters here:
+          aspect-ratio derives height from width, so an uncapped 4/5 slot in
+          this column measured 467x583 and pushed the CTA 24px below a 781px
+          viewport. The hero has to fit without scrolling. 400px wide is a
+          500px tall portrait, which clears it with room to spare. */}
+      <div ref={mediaRef} className="w-full max-w-[clamp(240px,26vw,400px)]">
         <m.div style={reduced ? undefined : { y }}>
           <Reveal delay={0.32}>
             <AssetSlot

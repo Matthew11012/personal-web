@@ -23,6 +23,7 @@ export default async function HomePage() {
       name: plot.name,
       accent: plot.accent,
       index: plot.index,
+      tagline: plot.tagline,
       noteCount,
       latestNote: latestNote
         ? {

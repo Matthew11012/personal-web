@@ -39,6 +39,11 @@ export interface PlotSpineItem {
   name: string;
   accent: string;
   index: string;
+  /** The plot's one-sentence framing, from src/lib/plots.ts. Rendered only
+   * in the desktop pan, where each panel is a full viewport and needs the
+   * content; CompactList deliberately omits it to keep the mobile page
+   * height within budget. */
+  tagline: string;
   noteCount: number;
   latestNote?: {
     slug: string;
@@ -58,6 +63,7 @@ function PlotEntry({
   item,
   titleColor,
   accentEmphasis = 1,
+  showTagline = false,
 }: {
   item: PlotSpineItem;
   titleColor: MotionValue<string> | string;
@@ -68,6 +74,9 @@ function PlotEntry({
    * (e.g. life ochre is ~2.8:1), so the title stays --ink/--faint and the
    * colour rides a bar where low contrast is acceptable decoration. */
   accentEmphasis?: MotionValue<number> | number;
+  /** Desktop pan only. Each panel is a full viewport, so without it the
+   * content occupies a thin band in a lot of empty space. */
+  showTagline?: boolean;
 }) {
   return (
     <div>
@@ -89,6 +98,9 @@ function PlotEntry({
       >
         <h3 className="idx-title max-w-[18ch]">{item.name}</h3>
       </MotionLink>
+      {showTagline && (
+        <p className="tagline mt-3 max-w-[34ch] text-dim">{item.tagline}</p>
+      )}
       {item.latestNote ? (
         <Link
           href={`/notes/${item.latestNote.slug}`}
@@ -169,6 +181,7 @@ function PanPanel({
           item={item}
           titleColor={titleColor}
           accentEmphasis={accentEmphasis}
+          showTagline
         />
       </m.div>
     </div>
@@ -220,9 +233,15 @@ function PanSection({ items }: { items: PlotSpineItem[] }) {
   };
 
   return (
+    /* Full-bleed, cancelling the page wrapper's own px-[clamp(24px,6vw,120px)].
+       Not decoration: the travel percentage assumes the track starts at x=0,
+       but inside the padded wrapper it starts one padding-width in, so the
+       last panel finished ~106px past the right edge with its content
+       clipped. Escaping the padding makes the arithmetic exact. Panels carry
+       their own padding, so nothing sits flush against the viewport. */
     <div
       ref={outerRef}
-      className="relative hidden md:block"
+      className="relative -mx-[clamp(24px,6vw,120px)] hidden md:block"
       style={{ height: `${OUTER_HEIGHT_VH}vh` }}
     >
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">

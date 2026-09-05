@@ -8,9 +8,9 @@ import { getNotesByPlot } from "@/lib/content";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "The Plots — Matthew Rizky Hartadi",
+    title: "The Plots - Matthew Rizky Hartadi",
     description:
-      "Every note across the garden's four plots — engineering, taekwondo, triathlon, and life.",
+      "Every note across the garden's four plots: engineering, taekwondo, triathlon, and life.",
   };
 }
 
