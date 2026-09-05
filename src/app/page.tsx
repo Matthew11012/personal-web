@@ -49,8 +49,6 @@ export default async function HomePage() {
             ? {
                 figure: heroProof.figure,
                 caption: heroProof.caption,
-                href: `/work/${flagship.slug}`,
-                linkLabel: "Read the build",
               }
             : undefined
         }

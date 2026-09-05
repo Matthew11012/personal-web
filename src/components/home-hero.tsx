@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { m, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
+import { AssetSlot } from "@/components/asset-slot";
 import { CountUpFigure } from "@/components/count-up-figure";
 import { MagneticLink } from "@/components/magnetic-link";
 import { Reveal } from "@/components/reveal";
@@ -9,8 +12,6 @@ import { AVAILABILITY } from "@/lib/me";
 export interface HomeHeroProof {
   figure: string;
   caption: string;
-  href: string;
-  linkLabel: string;
 }
 
 export interface HomeHeroProps {
@@ -23,10 +24,19 @@ export interface HomeHeroProps {
 }
 
 /** The homepage hero as an asymmetric split: headline, lede and the single
- * primary CTA anchor the left column; the right carries one animated proof
- * figure sourced from the flagship project, so the hero's "tech" claim stays
- * in sync with /work rather than repeating a hand-picked number here. */
+ * primary CTA anchor the left column; the right carries a working-portrait
+ * media slot with a small proof figure beneath it, sourced from the flagship
+ * project, so the hero's "tech" claim stays in sync with /work rather than
+ * repeating a hand-picked number here. */
 export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion() ?? false;
+  const { scrollYProgress } = useScroll({
+    target: mediaRef,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [-16, 16]);
+
   return (
     <div className="grid grid-cols-1 items-center gap-x-[clamp(32px,6vw,96px)] gap-y-10 py-[clamp(48px,8vw,96px)] md:grid-cols-[3fr_2fr]">
       <div>
@@ -53,24 +63,31 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
         </Reveal>
       </div>
 
-      {proof && (
-        <Reveal delay={0.32}>
-          <div className="md:border-l md:border-hair md:pl-[clamp(24px,3vw,40px)]">
-            <div className="result-num text-ink">
-              <CountUpFigure text={proof.figure} />
-            </div>
-            <div className="label-mono mt-2 tracking-[0.1em] text-faint">
-              {proof.caption}
-            </div>
-            <Link
-              href={proof.href}
-              className="navlink label-mono mt-4 inline-flex gap-2 tracking-[0.14em] text-gardener"
-            >
-              {proof.linkLabel} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </Reveal>
-      )}
+      {/* Static wrapper carries no transform of its own — the ref only
+          gives useScroll a target to measure against. Parallax `y` lives on
+          the outer m.div below, entrance lives on the inner one: the two
+          transforms would silently collide on a single element. */}
+      <div ref={mediaRef}>
+        <m.div style={reduced ? undefined : { y }}>
+          <Reveal delay={0.32}>
+            <AssetSlot
+              ratio="4/5"
+              label="Working portrait"
+              dimensions="1600x2000"
+            />
+          </Reveal>
+          {proof && (
+            <Reveal delay={0.4} className="mt-6">
+              <div className="result-num text-ink">
+                <CountUpFigure text={proof.figure} />
+              </div>
+              <div className="label-mono mt-2 tracking-[0.1em] text-faint">
+                {proof.caption}
+              </div>
+            </Reveal>
+          )}
+        </m.div>
+      </div>
     </div>
   );
 }
