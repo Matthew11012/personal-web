@@ -22,6 +22,10 @@
      clear 4.5:1 on --bg — the raw hex (#9a8636) only manages 2.79:1 in light
      mode. Text-only: decorative uses (rail, SVG stroke) keep the raw hex. */
   --gardener: #6f6020;
+  /* Sitewide default link colour. Theme-invariant on purpose — same values
+     in :root and .dark. */
+  --link: #b0573f;
+  --link-hover: #8f4227;
 }
 
 .dark {
@@ -37,6 +41,8 @@
   --num: #463f30;
   /* The raw #9a8636 already clears ~5.6:1 against dark --bg. */
   --gardener: #9a8636;
+  --link: #b0573f;
+  --link-hover: #8f4227;
 }
 
 @theme inline {
@@ -49,8 +55,10 @@
   --color-hair: var(--hair);
   --color-num: var(--num);
   --color-gardener: var(--gardener);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
 
-  --font-display: var(--font-instrument-serif);
+  --font-display: var(--font-display-serif);
   --font-body: var(--font-spectral);
   --font-mono: var(--font-jetbrains-mono);
 }
@@ -68,12 +76,12 @@
   }
 
   a {
-    color: #b0573f;
+    color: var(--link);
     text-decoration: none;
   }
 
   a:hover {
-    color: #8f4227;
+    color: var(--link-hover);
   }
 
   /* Restrained keyboard-only focus ring — a hairline outline in the
@@ -95,7 +103,7 @@
 }
 
 ::selection {
-  background: #b0573f;
+  background: var(--link);
   color: #f4efe6;
 }
 
@@ -146,7 +154,10 @@ button:active {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(56px, 10.5vw, 168px);
-  line-height: 0.88;
+  /* Libre Caslon Display's larger x-height narrows the margin below 0.9 that
+     Instrument Serif tolerated at 0.88 -- descenders on real headline copy
+     (g/y/p/q/j) risk clipping. Raised to display-lg's already-safe 0.92. */
+  line-height: 0.92;
   letter-spacing: -0.02em;
 }
 
@@ -247,9 +258,12 @@ button:active {
   float: left;
   font-family: var(--font-display);
   font-size: 82px;
-  line-height: 0.72;
+  /* Libre Caslon Display's larger x-height sits taller in its em box than
+     Instrument Serif's; the old 0.72 line-height was tuned to that box and
+     clips the new face's cap. Loosened to give the glyph room. */
+  line-height: 0.78;
   padding: 6px 14px 0 0;
-  color: var(--acc, #b0573f);
+  color: var(--acc, var(--link));
 }
 
 .entry-title-1 {
@@ -357,18 +371,4 @@ button:active {
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-}
-
-/* staggered home-grid margin offsets */
-.stagger-0 {
-  margin-top: 0;
-}
-.stagger-1 {
-  margin-top: clamp(0px, 3vw, 48px);
-}
-.stagger-2 {
-  margin-top: clamp(0px, 5vw, 110px);
-}
-.stagger-3 {
-  margin-top: clamp(0px, 4vw, 80px);
 }

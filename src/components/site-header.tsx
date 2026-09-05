@@ -46,7 +46,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={`navlink label-mono -my-2 py-2 [--navlink-bottom:3px] tracking-[0.08em] sm:tracking-[0.14em] transition-colors duration-300 ${
-                  active ? "text-ink" : "text-faint hover:text-[#b0573f]"
+                  active ? "text-ink" : "text-faint hover:text-link-hover"
                 }`}
               >
                 {/* The article is a desktop flourish: "The" three times over is 12

@@ -7,12 +7,12 @@ import { FeaturedProject } from "@/components/featured-project";
 import { GithubActivityBand } from "@/components/engineering/github-activity-band";
 import { getFeaturedWork } from "@/lib/content";
 
-// 24h ISR — the GitHub activity band fetches live data on each revalidation.
+// 24h ISR - the GitHub activity band fetches live data on each revalidation.
 export const revalidate = 86400;
 
 export function generateMetadata(): Metadata {
   return {
-    title: "The Workshop — Matthew Rizky Hartadi",
+    title: "The Workshop - Matthew Rizky Hartadi",
     description:
       "Projects explained, not hosted. What got built, and what it took.",
   };

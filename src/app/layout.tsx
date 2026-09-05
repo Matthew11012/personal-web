@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Spectral, JetBrains_Mono } from "next/font/google";
+import { Libre_Caslon_Display, Spectral, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
@@ -7,11 +7,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { PageTransition } from "@/components/page-transition";
 import { SITE_URL } from "@/lib/site";
 
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
+const displaySerif = Libre_Caslon_Display({
   weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
+  style: "normal",
+  subsets: ["latin"],
+  variable: "--font-display-serif",
   display: "swap",
 });
 
@@ -40,7 +40,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "The Garden — Matthew Rizky Hartadi",
+  title: "The Garden - Matthew Rizky Hartadi",
   description:
     "Field notes from a growing mind. Code, competition, and everything in the space between.",
 };
@@ -54,11 +54,11 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${instrumentSerif.variable} ${spectral.variable} ${spectralItalic.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${displaySerif.variable} ${spectral.variable} ${spectralItalic.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">
-        {/* CountUpFigure ships its number twice — a zero frame the client
-            counts up, and the real figure — because the count has to start
+        {/* CountUpFigure ships its number twice - a zero frame the client
+            counts up, and the real figure - because the count has to start
             from zero in the prerendered HTML to avoid flashing the true value
             first. With scripts off nothing ever counts, so swap to the real
             figure. Written as raw HTML rather than a JSX <style> child so
