@@ -35,13 +35,20 @@ export function SideRail() {
          candidates from the source text, and a utility written flush against
          a `${` is not one of them, so the class silently never gets
          generated. */
-      className={`pointer-events-none fixed left-0 top-0 z-30 hidden h-screen w-[var(--rail-w)] flex-col items-center justify-between py-[clamp(18px,2.4vw,32px)] transition-colors duration-300 lg:flex ${
+      /* It paints its own ground rather than sitting transparent over
+         whatever it happens to be above. Transparent looks identical almost
+         everywhere - the ground it would show through is the same one its
+         tokens came from - but the rail is a full viewport tall while the
+         band is decided at the header, so at a boundary its lower half would
+         sit over the other ground with the wrong tokens, at around 3:1. An
+         opaque rail can never disagree with itself, and it costs nothing:
+         everywhere but a crossing it is the exact colour behind it.
+
+         The interpolation is its own leading-space segment because Tailwind
+         does not extract a class written flush against a `${`. */
+      className={`pointer-events-none fixed left-0 top-0 z-30 hidden h-screen w-[var(--rail-w)] flex-col items-center justify-between bg-bg py-[clamp(18px,2.4vw,32px)] transition-colors duration-300 lg:flex ${
         band === "invert" ? "invert-band" : ""
       }`}
-      /* The band class paints a ground; the rail must not, or it would draw a
-         --rail-w stripe of flat colour over the page's own texture and, on the
-         pan, over the panels themselves. */
-      style={{ background: "transparent" }}
     >
       {/* Where you are. The wordmark deliberately isn't repeated here - the
           header states it in full a couple of centimetres away, and three
