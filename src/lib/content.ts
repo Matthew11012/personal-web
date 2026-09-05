@@ -106,3 +106,30 @@ export function getAllProjects(): Project[] {
 export function getProject(slug: string): Project | undefined {
   return getAllProjects().find((project) => project.slug === slug);
 }
+
+/** Slugs promoted to a large case-study treatment on /work — chosen
+ * explicitly rather than derived from `featured` frontmatter (run.md's
+ * invariant: flagship is picked by slug, no content-collections schema
+ * change) so a future project marked `featured: true` doesn't silently
+ * bump one of these out of the lead position. */
+const FEATURED_WORK_SLUGS = ["mandareen", "uquizzle"] as const;
+
+/** The flagship project, its runner-up, and everything else — the split
+ * /work's restructure leads with. Falls back gracefully (an undefined
+ * flagship/runnerUp, not a throw) if a slug is ever renamed, consistent
+ * with this module's other slug lookups. */
+export function getFeaturedWork(): {
+  flagship?: Project;
+  runnerUp?: Project;
+  rest: Project[];
+} {
+  const projects = getAllProjects();
+  const [flagshipSlug, runnerUpSlug] = FEATURED_WORK_SLUGS;
+  return {
+    flagship: projects.find((project) => project.slug === flagshipSlug),
+    runnerUp: projects.find((project) => project.slug === runnerUpSlug),
+    rest: projects.filter(
+      (project) => project.slug !== flagshipSlug && project.slug !== runnerUpSlug,
+    ),
+  };
+}

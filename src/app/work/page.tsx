@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { ProjectIndexRow } from "@/components/project-index-row";
+import { FeaturedProject } from "@/components/featured-project";
 import { GithubActivityBand } from "@/components/engineering/github-activity-band";
-import { getAllProjects } from "@/lib/content";
+import { getFeaturedWork } from "@/lib/content";
 
 // 24h ISR — the GitHub activity band fetches live data on each revalidation.
 export const revalidate = 86400;
@@ -18,9 +19,7 @@ export function generateMetadata(): Metadata {
 }
 
 export default function WorkPage() {
-  const projects = getAllProjects();
-  const featuredProjects = projects.filter((project) => project.featured);
-  const stubProjects = projects.filter((project) => !project.featured);
+  const { flagship, runnerUp, rest } = getFeaturedWork();
 
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(36px,5vw,64px)]">
@@ -47,50 +46,30 @@ export default function WorkPage() {
         </p>
       </div>
 
-      {/* h2, not a div: this is the section label the ProjectIndexRow h3s sit
-          under. Without it /work goes h1 -> h3. */}
-      <h2 className="label-mono mt-[22px] tracking-[0.14em] text-faint">
-        {featuredProjects.length} case{" "}
-        {featuredProjects.length === 1 ? "study" : "studies"}
-      </h2>
+      {flagship && <FeaturedProject project={flagship} size="primary" />}
+      {runnerUp && <FeaturedProject project={runnerUp} size="secondary" />}
 
-      <StaggerGroup className="mt-3 flex flex-col">
-        {featuredProjects.map((project) => (
-          <ProjectIndexRow
-            key={project.slug}
-            project={{
-              slug: project.slug,
-              title: project.title,
-              tagline: project.tagline,
-              period: project.period,
-              accent: project.accent,
-            }}
-          />
-        ))}
-      </StaggerGroup>
-
-      {stubProjects.length > 0 && (
-        <div className="mt-[clamp(36px,5vw,52px)]">
+      {rest.length > 0 && (
+        <div className="mt-[clamp(44px,6vw,72px)]">
+          {/* h2, not a div: this is the section label the ProjectIndexRow h3s
+              sit under. Without it /work goes h1 -> h3. */}
           <h2 className="label-mono border-b border-hair pb-3.5 tracking-[0.18em] text-ink">
             Also built
           </h2>
-          <ul className="mt-3 divide-y divide-hair">
-            {stubProjects.map((project) => (
-              <li key={project.slug}>
-                <Link
-                  href={`/work/${project.slug}`}
-                  className="navlink flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-2.5 text-dim"
-                >
-                  <h3 className="font-body text-[15px] text-ink">
-                    {project.title}
-                  </h3>
-                  <span className="label-mono text-[11px] tracking-[0.1em] text-faint">
-                    {project.period}
-                  </span>
-                </Link>
-              </li>
+          <StaggerGroup className="mt-3 flex flex-col">
+            {rest.map((project) => (
+              <ProjectIndexRow
+                key={project.slug}
+                project={{
+                  slug: project.slug,
+                  title: project.title,
+                  tagline: project.tagline,
+                  period: project.period,
+                  accent: project.accent,
+                }}
+              />
             ))}
-          </ul>
+          </StaggerGroup>
         </div>
       )}
 
