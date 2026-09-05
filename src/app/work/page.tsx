@@ -5,6 +5,7 @@ import { StaggerGroup } from "@/components/stagger-group";
 import { ProjectIndexRow } from "@/components/project-index-row";
 import { FeaturedProject } from "@/components/featured-project";
 import { ProjectGallery, getProjectGallery } from "@/components/project-gallery";
+import { BleedType } from "@/components/bleed-type";
 import { GithubActivityBand } from "@/components/engineering/github-activity-band";
 import { getFeaturedWork } from "@/lib/content";
 
@@ -68,10 +69,19 @@ export default function WorkPage() {
           narrow container. */}
       {flagship && flagshipGallery && (
         <div
-          className="-mx-[clamp(24px,6vw,120px)] mt-[clamp(32px,4vw,56px)] px-[clamp(24px,6vw,120px)]"
+          className="relative -mx-[clamp(24px,6vw,120px)] mt-[clamp(32px,4vw,56px)] overflow-hidden px-[clamp(24px,6vw,120px)] py-[clamp(24px,3vw,44px)]"
           style={{ ["--acc" as string]: flagship.accent }}
         >
-          <ProjectGallery plates={flagshipGallery} />
+          {/* The page's title again, at a scale that can only be read as
+              texture, running off the left edge with the plates scrolling
+              over it. The h1 above is untouched and is still the only copy of
+              this word that anything but an eye will find. */}
+          <BleedType className="-left-[0.09em] top-[-0.16em] text-[clamp(150px,23vw,400px)]">
+            Workshop
+          </BleedType>
+          <div className="relative">
+            <ProjectGallery plates={flagshipGallery} />
+          </div>
         </div>
       )}
 

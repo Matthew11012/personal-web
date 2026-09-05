@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useRef } from "react";
+import { BleedType } from "./bleed-type";
 import { PlotMark } from "./plot-mark";
 import { StagePip } from "./stage-pip";
 import type { Stage } from "@/lib/types";
@@ -205,10 +206,21 @@ function PanPanel({
          shift of the whole track rather than a ragged first panel, and it
          costs no width: box-sizing is border-box, so the panel stays 42vw and
          the travel arithmetic is untouched. */
-      className="flex flex-shrink-0 items-center px-[clamp(20px,3.2vw,48px)] lg:pl-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]"
+      className="relative flex flex-shrink-0 items-center px-[clamp(20px,3.2vw,48px)] lg:pl-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]"
       onFocus={() => onFocusPanel(index)}
     >
-      <m.div style={{ opacity, scale, transformOrigin: "left center" }}>
+      {/* The plot's number at a scale that reads as ground rather than text,
+          cropped by the sticky wrapper as the track slides past it. It is not
+          clipped to the panel: panels have no overflow of their own, so a
+          numeral runs under its neighbour and the pan crops it at the viewport
+          edge, which is the whole effect. */}
+      <BleedType className="left-[clamp(20px,3.2vw,48px)] top-1/2 -translate-y-[58%] text-[clamp(200px,26vw,420px)] opacity-40 lg:left-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]">
+        {item.index}
+      </BleedType>
+      <m.div
+        className="relative"
+        style={{ opacity, scale, transformOrigin: "left center" }}
+      >
         <PlotMark
           slug={item.slug}
           accent={item.accent}
