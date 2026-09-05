@@ -88,15 +88,29 @@ function TransitionFigure({ figure }: { figure: string }) {
     return <span ref={ref}>{figure}</span>;
   }
 
-  const shown = reducedMotion ? parsed.after : display;
-
   return (
     <span ref={ref} className="inline-flex flex-wrap items-baseline gap-3">
-      <span className="text-faint line-through decoration-1">{parsed.before}</span>
+      <span aria-hidden="true" className="text-faint line-through decoration-1">
+        {parsed.before}
+      </span>
       <span aria-hidden="true" className="text-faint">
         →
       </span>
-      <span>{shown}</span>
+      {/* The live (animated) value: the server sends the `before` start frame
+          and the client tweens it down to `after`. Hidden under reduced-motion
+          (CSS) and no-JS (the noscript in layout.tsx), where .countup-static
+          carries the true final value instead — mirrors CountUpFigure so the
+          flagship metric is never understated in prerendered or script-off
+          HTML. */}
+      <span className="countup-live" aria-hidden="true">
+        {display}
+      </span>
+      <span className="countup-static" aria-hidden="true">
+        {parsed.after}
+      </span>
+      <span className="sr-only">
+        {parsed.before} to {parsed.after}
+      </span>
     </span>
   );
 }

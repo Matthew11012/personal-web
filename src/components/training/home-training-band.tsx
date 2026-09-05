@@ -56,7 +56,7 @@ export async function HomeTrainingBand() {
           not a peer section headline. */}
       <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.16em] text-faint">
         <span>In training</span>
-        <span>Last 12 weeks — via Strava</span>
+        <span>Last 12 weeks, via Strava</span>
       </div>
       <ResultFigures results={results} countUp />
       <HomeWeeklyVolume buckets={buckets} />

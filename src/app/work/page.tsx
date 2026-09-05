@@ -14,7 +14,7 @@ export function generateMetadata(): Metadata {
   return {
     title: "The Workshop — Matthew Rizky Hartadi",
     description:
-      "Projects explained, not hosted — what got built, and what it took.",
+      "Projects explained, not hosted. What got built, and what it took.",
   };
 }
 
@@ -42,7 +42,7 @@ export default function WorkPage() {
           </Reveal>
         </div>
         <p className="tagline mb-1.5 max-w-[34ch] text-dim">
-          Projects explained, not hosted — what got built, and what it took.
+          Projects explained, not hosted. What got built, and what it took.
         </p>
       </div>
 
