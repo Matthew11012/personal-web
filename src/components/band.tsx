@@ -38,9 +38,9 @@ export function Band({
   return (
     <div
       data-band={invert ? "invert" : "base"}
-      className={`-mx-[clamp(24px,6vw,120px)] px-[clamp(24px,6vw,120px)] transition-colors duration-500${
-        invert ? " invert-band" : ""
-      }${className ? ` ${className}` : ""}`}
+      className={`-mx-[clamp(24px,6vw,120px)] px-[clamp(24px,6vw,120px)] transition-colors duration-500 ${
+        invert ? "invert-band" : ""
+      } ${className}`}
     >
       {children}
     </div>

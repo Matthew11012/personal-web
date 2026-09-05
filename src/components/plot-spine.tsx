@@ -198,7 +198,14 @@ function PanPanel({
   return (
     <div
       style={{ width: `${PANEL_VW}vw` }}
-      className="flex flex-shrink-0 items-center px-[clamp(20px,3.2vw,48px)]"
+      /* The extra left padding from lg up is the side rail's clearance. The
+         pan is the one thing on the page that deliberately escapes the wrapper
+         padding the rail hides in, so it is the one thing that has to make
+         room for it by hand. Every panel gets it, so this reads as a uniform
+         shift of the whole track rather than a ragged first panel, and it
+         costs no width: box-sizing is border-box, so the panel stays 42vw and
+         the travel arithmetic is untouched. */
+      className="flex flex-shrink-0 items-center px-[clamp(20px,3.2vw,48px)] lg:pl-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]"
       onFocus={() => onFocusPanel(index)}
     >
       <m.div style={{ opacity, scale, transformOrigin: "left center" }}>

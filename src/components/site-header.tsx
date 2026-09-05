@@ -4,23 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { useActiveBand } from "@/lib/use-active-band";
-
-const NAV = [
-  { href: "/", label: "The garden", short: "Garden", match: (p: string) => p === "/" },
-  {
-    href: "/notes",
-    label: "The plots",
-    short: "Plots",
-    match: (p: string) => p.startsWith("/notes") || p.startsWith("/plots"),
-  },
-  {
-    href: "/work",
-    label: "The workshop",
-    short: "Workshop",
-    match: (p: string) => p.startsWith("/work"),
-  },
-  { href: "/about", label: "About", short: "About", match: (p: string) => p === "/about" },
-];
+import { NAV } from "@/lib/nav";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -34,8 +18,8 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-20 border-b border-rule bg-bg transition-colors duration-300${
-        band === "invert" ? " invert-band" : ""
+      className={`sticky top-0 z-20 border-b border-rule bg-bg transition-colors duration-300 ${
+        band === "invert" ? "invert-band" : ""
       }`}
     >
       {/* gap-y is 20px, not the 12px of gap-x: below ~400px the logo wraps onto

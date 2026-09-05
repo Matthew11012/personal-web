@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PageTransition } from "@/components/page-transition";
 import { AmbientLayer } from "@/components/ambient-layer";
+import { SideRail } from "@/components/side-rail";
 import { SITE_URL } from "@/lib/site";
 
 const displaySerif = Libre_Caslon_Display({
@@ -73,6 +74,9 @@ export default function RootLayout({
         />
         <AmbientLayer />
         <Providers>
+          {/* z-30: above the page and the sticky header at z-20, below the
+              AmbientLayer at z-[60]. */}
+          <SideRail />
           <SiteHeader />
           <main className="flex-1">
             <PageTransition>{children}</PageTransition>
