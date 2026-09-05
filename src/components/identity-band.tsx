@@ -7,14 +7,25 @@ import { CredentialsStrip } from "@/components/credentials-strip";
     hero/spine/featured sections above it), body copy toned down to --dim.
     Same content and voice, none of the scroll machinery.
 
-    A plain hairline stands in for the eyebrow it does not have. */
+    The one card on the homepage, and it is a card because it is the one block
+    that changes subject: everything above it is work, this is the person who
+    did it. A --panel ground on --bg is the site's existing raised surface
+    (the same one AssetSlot uses), so the shift reads as a step forward rather
+    than a new colour.
+
+    It replaced a hairline rule, which was doing the wrong job here. The
+    portrait column is ~300px tall against three lines of copy, so the row was
+    always going to leave a gap; open on the page that gap read as a hole
+    below the text, and inside a bounded plate it reads as the plate's own
+    breathing room. items-center rather than items-start for the same reason -
+    it splits the difference instead of stacking it all underneath. */
 export function IdentityBand() {
   return (
     <section
       aria-label="About Matthew"
-      className="mt-[clamp(24px,4vw,56px)] border-t border-hair pt-[clamp(28px,4vw,48px)]"
+      className="mt-[clamp(24px,4vw,56px)] rounded-[var(--corner)] border border-hair bg-panel p-[clamp(24px,3.4vw,44px)]"
     >
-      <div className="grid grid-cols-1 gap-[clamp(24px,4vw,40px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(110px,13vw,140px))] md:items-start">
+      <div className="grid grid-cols-1 gap-[clamp(24px,4vw,40px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(110px,13vw,140px))] md:items-center">
         <div className="about-body max-w-[52ch] text-dim">
           <p className="mb-4">
             I&rsquo;m Matthew, a grad student and engineer working on

@@ -27,6 +27,20 @@ export type ProjectIndexCardData = Pick<
  * `onActivate` fires on pointer and on focus, so the preview follows a
  * keyboard reader down the list exactly as it follows a pointer. The row keeps
  * its own whileHover on top of that.
+ *
+ * The hover ground is the row's only statement of its own bounds. The whole
+ * block is one link and there is nothing in the resting state to say where it
+ * starts and stops, so a reader aiming at a 200px target has to guess at it.
+ * The negative margin exactly cancels the padding, so the plate grows outward
+ * into the gutter and every line of type stays on the column it was already
+ * on - the row gains a shape without moving.
+ *
+ * That bleed is 8px and fixed rather than a clamp, because this column is the
+ * leftmost thing on the page and the rail is fixed above it at z-30. The gap
+ * the plate has to live in is the page gutter minus the rail, which is
+ * narrowest at the lg breakpoint: 61px less 51px, so 10px. A clamp scaled to
+ * the viewport overran that and slid the plate's left corners under the rail,
+ * where they read as a square cut rather than a corner.
  */
 export function ProjectIndexRow({
   project,
@@ -45,7 +59,7 @@ export function ProjectIndexRow({
       whileTap="tap"
       onMouseEnter={onActivate}
       onFocus={onActivate}
-      className={`group flex flex-col gap-4 ${className}`}
+      className={`group -mx-2 flex flex-col gap-4 rounded-[var(--corner)] px-2 py-[clamp(14px,1.8vw,22px)] transition-colors duration-300 hover:bg-panel ${className}`}
       style={{ ["--acc" as string]: project.accent, color: "inherit" }}
     >
       <div>
