@@ -105,8 +105,13 @@ function PlotEntry({
         className="mb-3 block h-[3px] w-10"
         style={{ backgroundColor: item.accent, opacity: accentEmphasis }}
       />
+      {/* Chapter framing. The four plots are a complete set of peers read in
+          order, so numbering them earns the word: "01" alone was an index,
+          "Chapter 01" is a position in a sequence. Arabic rather than roman so
+          it matches the oversized numeral behind the panel exactly - two
+          numbering schemes on one panel would read as two different facts. */}
       <div className="label-mono flex items-center gap-3 tracking-[0.2em] text-faint">
-        <span>{item.index}</span>
+        <span>Chapter {item.index}</span>
         <span>
           {item.noteCount} note{item.noteCount === 1 ? "" : "s"} planted
         </span>

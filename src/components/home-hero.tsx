@@ -5,6 +5,8 @@ import { m, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { AssetSlot } from "@/components/asset-slot";
 import { CountUpFigure } from "@/components/count-up-figure";
+import { LineReveal } from "@/components/line-reveal";
+import { LocalClock } from "@/components/local-clock";
 import { MagneticLink } from "@/components/magnetic-link";
 import { Reveal } from "@/components/reveal";
 import { AVAILABILITY } from "@/lib/me";
@@ -40,9 +42,12 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
   return (
     <div className="grid grid-cols-1 items-center gap-x-[clamp(32px,6vw,96px)] gap-y-10 py-[clamp(48px,8vw,96px)] md:grid-cols-[3fr_2fr]">
       <div>
-        <Reveal as="wipein" delay={0.06}>
-          <h1 className="display-lg max-w-[15ch] text-ink">{headline}</h1>
-        </Reveal>
+        <LineReveal
+          as="h1"
+          text={headline}
+          delay={0.06}
+          className="display-lg max-w-[15ch] text-ink"
+        />
         <Reveal delay={0.16} className="mt-[clamp(28px,4vw,44px)]">
           <p className="lede max-w-[34ch] text-dim">{lede}</p>
         </Reveal>
@@ -59,6 +64,7 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
             <span className="label-mono tracking-[0.14em] text-faint">
               {AVAILABILITY}
             </span>
+            <LocalClock className="label-mono tracking-[0.14em] text-faint" />
           </div>
         </Reveal>
       </div>

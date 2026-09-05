@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LineReveal } from "@/components/line-reveal";
 import { Reveal } from "@/components/reveal";
 import { IndexPreview } from "@/components/index-preview";
 import { FeaturedProject } from "@/components/featured-project";
@@ -46,9 +47,11 @@ export default function WorkPage() {
               Selected work
             </div>
           </Reveal>
-          <Reveal as="wipein">
-            <h1 className="display-lg text-pretty text-ink">The workshop</h1>
-          </Reveal>
+          <LineReveal
+            as="h1"
+            text="The workshop"
+            className="display-lg text-pretty text-ink"
+          />
         </div>
         <p className="tagline mb-1.5 max-w-[34ch] text-dim">
           Projects explained, not hosted. What got built, and what it took.

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { animate, useInView, useReducedMotion } from "motion/react";
 import { CountUpFigure } from "@/components/count-up-figure";
 import { MagneticLink } from "@/components/magnetic-link";
+import { LineReveal } from "@/components/line-reveal";
 import { Reveal } from "@/components/reveal";
 import { COUNT_EASE } from "@/lib/motion";
 import type { Project } from "@/lib/types";
@@ -149,11 +150,12 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
             <span>{project.role}</span>
             <span>{project.period}</span>
           </div>
-          <Reveal as="wipein" delay={0.05}>
-            <h2 className="display-lg mt-3 max-w-[16ch] text-pretty text-ink">
-              {project.title}
-            </h2>
-          </Reveal>
+          <LineReveal
+            as="h2"
+            text={project.title}
+            delay={0.05}
+            className="display-lg mt-3 max-w-[16ch] text-pretty text-ink"
+          />
           <Reveal delay={0.12}>
             <p className="lede mt-4 max-w-[46ch] text-dim">{project.tagline}</p>
           </Reveal>

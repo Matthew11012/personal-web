@@ -39,6 +39,25 @@ export const wipeIn: Variants = {
   },
 };
 
+/** LineReveal's per-word rise. The y is in em so it scales with the heading:
+ * a display-lg word has to travel further than a body-sized one to read as the
+ * same gesture, and a fixed pixel offset would under-move the first and
+ * over-move the second. */
+export const lineWordVariants: Variants = {
+  hidden: { y: "1.05em" },
+  show: { y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+/** The container for the above. The stagger is per word, so it is deliberately
+ * short - at the 0.08 used for section-level groups a six-word headline would
+ * take half a second just to start its last word. */
+export function lineWordsContainer(delayChildren = 0): Variants {
+  return {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.045, delayChildren } },
+  };
+}
+
 export function staggerContainer(
   staggerChildren = 0.08,
   delayChildren = 0.1,
