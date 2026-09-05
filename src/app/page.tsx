@@ -3,11 +3,11 @@ import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { StaggerGroup } from "@/components/stagger-group";
 import { EntryCard, type HomeEntry } from "@/components/entry-card";
+import { HomeHero } from "@/components/home-hero";
 import { IdentityBand } from "@/components/identity-band";
 import { ProjectIndexRow } from "@/components/project-index-row";
 import { HomeTrainingBand } from "@/components/training/home-training-band";
-import { ScrollCue } from "@/components/scroll-cue";
-import { getAllProjects, getRecentNotes } from "@/lib/content";
+import { getAllProjects, getFeaturedWork, getRecentNotes } from "@/lib/content";
 import { getPlot } from "@/lib/plots";
 
 // 24h backstop only — the webhook and cron call revalidatePath("/") when
@@ -27,6 +27,8 @@ export default async function HomePage() {
   const featuredProjects = getAllProjects().filter(
     (project) => project.featured,
   );
+  const { flagship } = getFeaturedWork();
+  const heroProof = flagship?.results[0];
   const entries: HomeEntry[] = getRecentNotes(4).map((note, i) => {
     const plot = getPlot(note.plotSlug);
     return {
@@ -48,22 +50,20 @@ export default async function HomePage() {
         items={["A Digital Garden — Est. 2026"]}
       />
 
-      <div className="py-[clamp(48px,8vw,96px)]">
-        <Reveal as="wipein" delay={0.06}>
-          <h1 className="display-xl max-w-[15ch] text-ink">
-            Field notes from a growing mind.
-          </h1>
-        </Reveal>
-        <Reveal delay={0.16} className="mt-[clamp(28px,4vw,44px)]">
-          <p className="lede max-w-[34ch] text-dim">
-            Code, competition, and everything in the space between. Nothing
-            here is finished — that&rsquo;s the point.
-          </p>
-        </Reveal>
-        <Reveal delay={0.32} className="mt-[clamp(20px,3vw,32px)]">
-          <ScrollCue />
-        </Reveal>
-      </div>
+      <HomeHero
+        headline="Field notes from a growing mind."
+        lede="Code, competition, and everything in the space between. Nothing here is finished — that's the point."
+        proof={
+          flagship && heroProof
+            ? {
+                figure: heroProof.figure,
+                caption: heroProof.caption,
+                href: `/work/${flagship.slug}`,
+                linkLabel: "Read the build",
+              }
+            : undefined
+        }
+      />
 
       <Reveal delay={0.26}>
         <IdentityBand />
