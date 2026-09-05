@@ -7,12 +7,13 @@ import { CredentialsStrip } from "@/components/credentials-strip";
     hero/spine/featured sections above it), body copy toned down to --dim.
     Same content and voice, none of the scroll machinery.
 
-    Separation and padding come from the <Band> that wraps it on the homepage
-    - its colour boundary is the section break, so the hairline rule this
-    used to carry would be a second, weaker one drawn just inside it. */
+    A plain hairline stands in for the eyebrow it does not have. */
 export function IdentityBand() {
   return (
-    <section aria-label="About Matthew">
+    <section
+      aria-label="About Matthew"
+      className="mt-[clamp(24px,4vw,56px)] border-t border-hair pt-[clamp(28px,4vw,48px)]"
+    >
       <div className="grid grid-cols-1 gap-[clamp(24px,4vw,40px)] md:grid-cols-[minmax(0,1fr)_minmax(0,clamp(110px,13vw,140px))] md:items-start">
         <div className="about-body max-w-[52ch] text-dim">
           <p className="mb-4">
