@@ -327,7 +327,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
   return [
     {
       key: "start",
-      stamp: "2021 — Universitas Indonesia",
+      stamp: "2021, Universitas Indonesia",
       phrase: "Four years of computer science, in Jakarta",
       strand: "spine",
       at: 0,
@@ -335,7 +335,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
       y: 1,
       mark: "dot",
       figure: withFigures
-        ? placeholder("Universitas Indonesia — Depok", "aspect-[3/2]")
+        ? placeholder("Universitas Indonesia, Depok", "aspect-[3/2]")
         : undefined,
       pad: "pl-8",
       lift: "-translate-y-[1.1em]",
@@ -343,7 +343,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
     },
     {
       key: "fork",
-      stamp: "2024 — the double degree",
+      stamp: "2024, the double degree",
       phrase: "The year the road split in two",
       strand: "spine",
       at: FORK_AT,
@@ -357,7 +357,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
     },
     {
       key: "uq",
-      stamp: "Jul 2025 — UQ, Data Science",
+      stamp: "Jul 2025 - UQ, Data Science",
       phrase: "",
       strand: "spine",
       at: 0.47,
@@ -371,7 +371,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
     },
     {
       key: "ui",
-      stamp: "Sep 2025 — UI, Computer Science",
+      stamp: "Sep 2025 - UI, Computer Science",
       phrase: "",
       strand: "jakarta",
       /* On the JAKARTA strand's own arc length, not the spine's. */
@@ -387,7 +387,7 @@ function chapters(withFigures: boolean): readonly Chapter[] {
     },
     {
       key: "now",
-      stamp: "Now — Brisbane",
+      stamp: "Now, Brisbane",
       phrase: "Back to one road, working out where it goes",
       strand: "spine",
       at: REJOIN_AT,
