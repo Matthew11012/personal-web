@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PageTransition } from "@/components/page-transition";
+import { AmbientLayer } from "@/components/ambient-layer";
 import { SITE_URL } from "@/lib/site";
 
 const displaySerif = Libre_Caslon_Display({
@@ -70,6 +71,7 @@ export default function RootLayout({
               "<style>.countup-live{display:none}.countup-static{display:inline}</style>",
           }}
         />
+        <AmbientLayer />
         <Providers>
           <SiteHeader />
           <main className="flex-1">
