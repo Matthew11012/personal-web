@@ -55,7 +55,7 @@ export function IndexPreview({
       </StaggerGroup>
 
       <div aria-hidden="true" className="hidden lg:col-span-5 lg:block">
-        <div className="sticky top-[92px]">
+        <div className="sticky top-[clamp(28px,5vw,64px)]">
           {/* Keyed on the slug, so each change remounts and fades in. Opacity
               is covered by MotionConfig's reducedMotion, unlike a
               scroll-driven value, so this needs no manual gate. */}

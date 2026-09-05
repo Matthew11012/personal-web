@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { m } from "motion/react";
 import { togglePipVariants } from "@/lib/motion";
 
-export function ThemeToggle() {
+export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -40,9 +40,15 @@ export function ThemeToggle() {
           aria-label, so dropping the word costs nothing to a screen reader —
           and a display:none span is not a flex item, so the gap-2 collapses
           with it. */}
-      <span className="hidden sm:inline">
-        {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
-      </span>
+      {/* compact is the rail, where the column is ~52px wide and the word
+          would not fit. The button's aria-label already names the control, so
+          dropping the word costs a screen reader nothing, and a display:none
+          span is not a flex item, so the gap-2 collapses with it. */}
+      {!compact && (
+        <span className="hidden sm:inline">
+          {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
+        </span>
+      )}
     </button>
   );
 }

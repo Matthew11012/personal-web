@@ -8,8 +8,12 @@ import { NAV } from "@/lib/nav";
 export function SiteHeader() {
   const pathname = usePathname();
 
+  // lg:hidden, because from lg up the SideRail is the primary nav, and two
+  // navs pinned to the same corner is exactly the collision this replaced.
+  // Below lg there is no rail, so this is the only nav and it stays a full
+  // top bar rather than retreating behind a hamburger.
   return (
-    <header className="sticky top-0 z-20 border-b border-rule bg-bg">
+    <header className="sticky top-0 z-20 border-b border-rule bg-bg lg:hidden">
       {/* gap-y is 20px, not the 12px of gap-x: below ~400px the logo wraps onto
           its own row, and the -my-2 hit slop on both rows eats 16px of any
           vertical gap. At gap-3 the two activation boxes would overlap by 4px,

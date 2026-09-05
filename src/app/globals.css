@@ -27,11 +27,14 @@
   --link: #b0573f;
   --link-hover: #8f4227;
 
-  /* Width of the fixed identity rail. Sized to sit inside the page
-     wrapper's existing px-[clamp(24px,6vw,120px)] gutter, so the rail
-     overlays padding that is already empty and nothing has to be inset
-     for it. */
-  --rail-w: clamp(44px, 4.5vw, 72px);
+  /* Width of the fixed rail that carries the primary nav from lg up. Sized
+     to sit inside the page wrapper's existing px-[clamp(24px,6vw,120px)]
+     gutter, so the rail overlays padding that is already empty and nothing
+     has to be inset for it. The two clamps are deliberately paired: 5vw is
+     always less than 6vw and 76px is always less than 120px, so the rail is
+     narrower than the gutter at every width the rail is shown at - 51px
+     against 61px at the lg breakpoint, where the margin is tightest. */
+  --rail-w: clamp(52px, 5vw, 76px);
 
   /* The site's one corner-radius scale. Two steps, and two is the whole
      system: --corner for anything that encloses content (image frames,
