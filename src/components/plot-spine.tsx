@@ -24,12 +24,12 @@ const MotionLink = m.create(Link);
    element's OWN width, so that travel expressed as a percentage of the
    track's width is (travelVw / trackVw) * 100. Changing PANEL_VW or
    PANEL_COUNT keeps this correct without touching the numbers by hand. */
-const PANEL_VW = 62;
+const PANEL_VW = 42;
 const PANEL_COUNT = 4;
 const TRACK_VW = PANEL_VW * PANEL_COUNT;
 const TRAVEL_VW = TRACK_VW - 100;
 const TRAVEL_PCT = (TRAVEL_VW / TRACK_VW) * 100;
-const OUTER_HEIGHT_VH = 100 + TRAVEL_VW;
+const OUTER_HEIGHT_VH = 50 + TRAVEL_VW;
 
 /** Serializable view model the server page hands the client spine — a slim
  * projection of PlotSpineEntry (src/lib/content.ts), not the raw Plot/Note
@@ -228,7 +228,17 @@ function PanSection({ items }: { items: PlotSpineItem[] }) {
     if (!el) return;
     const travel = el.offsetHeight - window.innerHeight;
     if (travel <= 0) return;
-    const ratio = PANEL_COUNT > 1 ? index / (PANEL_COUNT - 1) : 0;
+    /* Solve for the progress that centres this panel, in vw. The panel's
+       untranslated left edge is index * PANEL_VW; the track has shifted left
+       by TRAVEL_VW * progress; centring wants the panel's midpoint at 50vw.
+       Clamped because the first and last panels cannot centre without
+       overscrolling past the pinned range. Derived rather than approximated
+       with index/(PANEL_COUNT-1) so it stays correct if the panel width or
+       count is ever retuned. */
+    const ratio = Math.min(
+      1,
+      Math.max(0, (index * PANEL_VW + PANEL_VW / 2 - 50) / TRAVEL_VW),
+    );
     window.scrollTo({ top: el.offsetTop + travel * ratio, behavior: "smooth" });
   };
 

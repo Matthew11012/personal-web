@@ -66,7 +66,7 @@ export default async function HomePage() {
 
       {flagship && (
         <>
-          <FeaturedProject project={flagship} size="primary" />
+          <FeaturedProject project={flagship} />
           <div className="mt-[clamp(20px,2.5vw,28px)]">
             <MagneticLink>
               <Link

@@ -24,8 +24,8 @@ export default function WorkPage() {
   const flagshipGallery = flagship ? getProjectGallery(flagship.slug) : undefined;
 
   // The runner-up (UQuizzle) plus everything else, as one mixed-rhythm
-  // project index - the old size="secondary" FeaturedProject block and the
-  // hairline "Also built" list are both gone, replaced by this single grid.
+  // project index - the old second FeaturedProject block and the hairline
+  // "Also built" list are both gone, replaced by this single grid.
   // Bookended with a media cell (the two most visually distinct products -
   // a live browser-extension overlay and a 1,600-person conference app),
   // typographic-only cells in between: giving every cell an AssetSlot would
@@ -57,7 +57,7 @@ export default function WorkPage() {
         </p>
       </div>
 
-      {flagship && <FeaturedProject project={flagship} size="primary" />}
+      {flagship && <FeaturedProject project={flagship} />}
 
       {/* Full-bleed: the page's one band that escapes the px-[clamp(...)]
           wrapper, negative-margined by exactly that clamp and re-padded

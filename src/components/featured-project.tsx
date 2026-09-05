@@ -5,10 +5,9 @@ import Link from "next/link";
 import { animate, useInView, useReducedMotion } from "motion/react";
 import { CountUpFigure } from "@/components/count-up-figure";
 import { MagneticLink } from "@/components/magnetic-link";
-import { ResultFigures } from "@/components/result-figures";
 import { Reveal } from "@/components/reveal";
 import { COUNT_EASE } from "@/lib/motion";
-import type { Project, ResultFigure as ResultFigureData } from "@/lib/types";
+import type { Project } from "@/lib/types";
 
 // Mirrors CountUpFigure's own token shape (see count-up-figure.tsx) — kept as
 // a private copy rather than an import: it's a one-line regex, and importing
@@ -117,30 +116,17 @@ function TransitionFigure({ figure }: { figure: string }) {
 
 export interface FeaturedProjectProps {
   project: Project;
-  /** "primary" is the large, Mandareen-scale treatment; "secondary" is the
-   * lighter one notch down (UQuizzle) — same component, not two forks, so
-   * the two features can't drift out of the same visual language. */
-  size?: "primary" | "secondary";
-  /** Defaults to the project's own frontmatter results; overridable so a
-   * future call site (the homepage) can show a shorter cut. */
-  figures?: ResultFigureData[];
 }
 
-/** A project promoted out of the compact index into a large, standalone
- * case-study block. "primary" (Mandareen) gets the full display type scale
- * and the bespoke proof figures below; "secondary" (UQuizzle) is deliberately
- * one notch down — a smaller display class, a narrower column pulled to one
- * side, and its figures rendered through the plain ResultFigures the project
- * detail page already uses, rather than a second bespoke figure treatment.
- * That asymmetry between the two blocks (full-width grid vs. a narrower,
- * offset column) is the composition's variance, not a coat of centered
- * boilerplate repeated twice. */
-export function FeaturedProject({
-  project,
-  size = "primary",
-  figures = project.results,
-}: FeaturedProjectProps) {
-  const isPrimary = size === "primary";
+/** The single flagship project, promoted out of the compact index into a
+ * standalone case-study block: full display type scale beside the bespoke
+ * proof figures. Exactly one project gets this treatment per page (/ and
+ * /work each render it once for the same flagship), so it carries no size
+ * variants — the page's rhythm now comes from the gallery band and the
+ * mixed-span index grid around it rather than from a second, quieter copy of
+ * this same block. */
+export function FeaturedProject({ project }: FeaturedProjectProps) {
+  const figures = project.results;
 
   const cta = (
     <Link
@@ -152,65 +138,48 @@ export function FeaturedProject({
     </Link>
   );
 
-  const body = (
-    <div>
-      <div className="label-mono flex flex-wrap gap-x-4 gap-y-1 tracking-[0.08em] text-faint">
-        <span>{project.role}</span>
-        <span>{project.period}</span>
-      </div>
-      <Reveal as="wipein" delay={0.05}>
-        <h2
-          className={`${isPrimary ? "display-lg" : "display-note"} mt-3 max-w-[16ch] text-pretty text-ink`}
-        >
-          {project.title}
-        </h2>
-      </Reveal>
-      <Reveal delay={0.12}>
-        <p
-          className={`${isPrimary ? "lede" : "tagline"} mt-4 max-w-[46ch] text-dim`}
-        >
-          {project.tagline}
-        </p>
-      </Reveal>
-      <Reveal delay={0.18}>
-        {isPrimary ? <MagneticLink>{cta}</MagneticLink> : cta}
-      </Reveal>
-    </div>
-  );
-
   return (
     <section
-      className={isPrimary ? "mt-[clamp(44px,6vw,72px)]" : "mt-[clamp(56px,7vw,96px)]"}
+      className="mt-[clamp(44px,6vw,72px)]"
       style={{ ["--acc" as string]: project.accent }}
     >
-      {isPrimary ? (
-        <div className="grid grid-cols-1 gap-x-[clamp(32px,5vw,72px)] gap-y-10 lg:grid-cols-[3fr_2fr]">
-          {body}
-          {figures.length > 0 && (
-            <div className="flex flex-col gap-8 lg:mt-16">
-              {figures.map((figure, index) => (
-                <div key={index}>
-                  <div className="result-num">
-                    {splitTransition(figure.figure) ? (
-                      <TransitionFigure figure={figure.figure} />
-                    ) : (
-                      <CountUpFigure text={figure.figure} />
-                    )}
-                  </div>
-                  <div className="label-mono mt-2 tracking-[0.1em] text-faint">
-                    {figure.caption}
-                  </div>
+      <div className="grid grid-cols-1 gap-x-[clamp(32px,5vw,72px)] gap-y-10 lg:grid-cols-[3fr_2fr]">
+        <div>
+          <div className="label-mono flex flex-wrap gap-x-4 gap-y-1 tracking-[0.08em] text-faint">
+            <span>{project.role}</span>
+            <span>{project.period}</span>
+          </div>
+          <Reveal as="wipein" delay={0.05}>
+            <h2 className="display-lg mt-3 max-w-[16ch] text-pretty text-ink">
+              {project.title}
+            </h2>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <p className="lede mt-4 max-w-[46ch] text-dim">{project.tagline}</p>
+          </Reveal>
+          <Reveal delay={0.18}>
+            <MagneticLink>{cta}</MagneticLink>
+          </Reveal>
+        </div>
+        {figures.length > 0 && (
+          <div className="flex flex-col gap-8 lg:mt-16">
+            {figures.map((figure, index) => (
+              <div key={index}>
+                <div className="result-num">
+                  {splitTransition(figure.figure) ? (
+                    <TransitionFigure figure={figure.figure} />
+                  ) : (
+                    <CountUpFigure text={figure.figure} />
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="max-w-[52ch] lg:ml-auto">
-          {body}
-          <ResultFigures results={figures} countUp />
-        </div>
-      )}
+                <div className="label-mono mt-2 tracking-[0.1em] text-faint">
+                  {figure.caption}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
