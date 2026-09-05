@@ -51,10 +51,20 @@ export function staggerContainer(
   };
 }
 
-/** Home plot-index row hover choreography. */
+/**
+ * /work project-index card: entrance (hidden/show, inherited from a
+ * StaggerGroup parent) merged with hover/tap into ONE variants object, the
+ * same fix noteRowVariants already models below. The old shape here was
+ * rest/hover only, and ProjectIndexRow set initial="rest" on it - which
+ * overrides variant inheritance from a parent, so the StaggerGroup wrapping
+ * it on /work was a silent no-op and the cards never staggered in. A card
+ * grid also reads better as a small lift on hover than the old indent, which
+ * was built for a dotted-leader row layout this component no longer uses.
+ */
 export const idxRowVariants: Variants = {
-  rest: { paddingLeft: 0 },
-  hover: { paddingLeft: 24, transition: { duration: 0.25, ease: EASE } },
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  hover: { y: -4, transition: { duration: 0.25, ease: EASE } },
   tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 
