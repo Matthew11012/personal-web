@@ -26,6 +26,12 @@
      in :root and .dark. */
   --link: #b0573f;
   --link-hover: #8f4227;
+
+  /* Width of the fixed identity rail. Sized to sit inside the page
+     wrapper's existing px-[clamp(24px,6vw,120px)] gutter, so the rail
+     overlays padding that is already empty and nothing has to be inset
+     for it. */
+  --rail-w: clamp(44px, 4.5vw, 72px);
 }
 
 .dark {
@@ -41,6 +47,58 @@
   --num: #463f30;
   /* The raw #9a8636 already clears ~5.6:1 against dark --bg. */
   --gardener: #9a8636;
+  --link: #b0573f;
+  --link-hover: #8f4227;
+}
+
+/* ---------------------------------------------------------------- */
+/* Colour bands.                                                     */
+/*                                                                   */
+/* A band is a section that flips to the OPPOSITE ground of whatever */
+/* theme the page is in: ink bands on a paper page, paper bands on   */
+/* an ink page. Because :root and .dark above are pure token         */
+/* redefinition, a band needs no new colours of its own - it just    */
+/* redeclares the same eleven tokens on itself and every descendant  */
+/* inherits. The contrast ratios documented above therefore carry    */
+/* over unchanged; there is no per-band contrast work.               */
+/*                                                                   */
+/* Relative, not absolute, on purpose: an absolute scheme (hero      */
+/* always dark) would quietly make the theme toggle a no-op on half  */
+/* the homepage.                                                     */
+/*                                                                   */
+/* The band paints its own ground rather than relying on a `bg-bg`   */
+/* utility, because this rule is unlayered and would beat the        */
+/* utility anyway. The transition matches `html, body` so a theme    */
+/* toggle crossfades the band in step with the page around it.       */
+/* ---------------------------------------------------------------- */
+.invert-band {
+  --bg: #191510;
+  --panel: #221d17;
+  --ink: #ece4d4;
+  --dim: #a89f8d;
+  --faint: #948b78;
+  --rule: #39332a;
+  --hair: #4a4336;
+  --num: #463f30;
+  --gardener: #9a8636;
+  --link: #b0573f;
+  --link-hover: #8f4227;
+
+  background: var(--bg);
+  color: var(--ink);
+  transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+.dark .invert-band {
+  --bg: #e8e2d5;
+  --panel: #f4efe6;
+  --ink: #221f1b;
+  --dim: #5b564d;
+  --faint: #6a6459;
+  --rule: #cfc7b7;
+  --hair: #221f1b;
+  --num: #d8c9a8;
+  --gardener: #6f6020;
   --link: #b0573f;
   --link-hover: #8f4227;
 }
