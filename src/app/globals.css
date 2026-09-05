@@ -68,8 +68,12 @@
 /*                                                                   */
 /* The band paints its own ground rather than relying on a `bg-bg`   */
 /* utility, because this rule is unlayered and would beat the        */
-/* utility anyway. The transition matches `html, body` so a theme    */
-/* toggle crossfades the band in step with the page around it.       */
+/* utility anyway. It deliberately declares NO transition: the same  */
+/* class dresses the header, whose band changes on scroll and wants  */
+/* a fast swap, and a page section, whose band changes only on a     */
+/* theme toggle and wants the page's own 0.5s. Each call site sets   */
+/* its own `transition-colors duration-*`, which works precisely     */
+/* because this rule leaves the property alone.                      */
 /* ---------------------------------------------------------------- */
 .invert-band {
   --bg: #191510;
@@ -86,7 +90,6 @@
 
   background: var(--bg);
   color: var(--ink);
-  transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .dark .invert-band {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
+import { useActiveBand } from "@/lib/use-active-band";
 
 const NAV = [
   { href: "/", label: "The garden", short: "Garden", match: (p: string) => p === "/" },
@@ -23,9 +24,20 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  /* The header is opaque and sits on top of the page, so over an inverted
+     band it would otherwise be a slab of the wrong ground cutting across it.
+     Taking the band's own tokens makes it read as part of whatever it is
+     over. 300ms, not the band's 500ms: this one swaps mid-scroll, and the
+     longer fade would leave the label text on a half-mixed ground - and so
+     below its measured contrast - for noticeably longer. */
+  const band = useActiveBand();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-rule bg-bg">
+    <header
+      className={`sticky top-0 z-20 border-b border-rule bg-bg transition-colors duration-300${
+        band === "invert" ? " invert-band" : ""
+      }`}
+    >
       {/* gap-y is 20px, not the 12px of gap-x: below ~400px the logo wraps onto
           its own row, and the -my-2 hit slop on both rows eats 16px of any
           vertical gap. At gap-3 the two activation boxes would overlap by 4px,

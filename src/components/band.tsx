@@ -17,6 +17,11 @@ import type { ReactNode } from "react";
  *    colour tokens to the opposite of the page theme. Descendants inherit, so
  *    nothing inside needs to know it is in a band.
  *
+ * The 500ms colour transition matches `html, body`, so a theme toggle
+ * crossfades the band in step with the page around it. .invert-band itself
+ * declares no transition - the header reuses that class and needs a faster
+ * one.
+ *
  * `data-band` is the hook the header and rail observe (use-active-band.ts) to
  * recolour themselves as a band passes under them. Base bands carry it too:
  * the observer needs to know when a band has ENDED, not only when one began.
@@ -33,7 +38,7 @@ export function Band({
   return (
     <div
       data-band={invert ? "invert" : "base"}
-      className={`-mx-[clamp(24px,6vw,120px)] px-[clamp(24px,6vw,120px)]${
+      className={`-mx-[clamp(24px,6vw,120px)] px-[clamp(24px,6vw,120px)] transition-colors duration-500${
         invert ? " invert-band" : ""
       }${className ? ` ${className}` : ""}`}
     >
