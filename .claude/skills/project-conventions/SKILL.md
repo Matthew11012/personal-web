@@ -461,3 +461,112 @@ Giving every cell an `AssetSlot` would read as four grey boxes.
 
 `/work` and `/work/[slug]` both have OG image routes now, cloning the
 `notes/[slug]` pattern. Remember Next 16's `params: Promise<...>` must be awaited.
+
+## P8 colour bands, rail and composition patterns (2026-09-05)
+
+### A colour band is eleven CSS variables, not a theme
+
+`globals.css:3` declares `@custom-variant dark (&:where(.dark, .dark *))` and
+the `.dark` block is *pure token redefinition*. So `.invert-band` is just a
+class that redeclares the same eleven tokens (`--bg --panel --ink --dim
+--faint --rule --hair --num --gardener --link --link-hover`) to the opposite
+set, plus `.dark .invert-band` for the mirror. Descendants inherit; the
+measured 4.5:1 ratios carry over unchanged, so **there is no per-band contrast
+work**. Verified in-browser both themes: rail label 4.54/5.38, header link
+12.71/14.37.
+
+This works only because the tree styles through tokens. There are **zero
+`dark:` utilities in `src/`** — a `dark:` variant inside a band would read the
+page theme, not the band. Re-run `grep -rn "dark:" src/` before adding one.
+
+`.invert-band` declares **no `transition`**. The same class dresses a page
+section (changes only on a theme toggle, wants 500ms) and the header/rail
+(changes mid-scroll, wants 300ms). Each call site sets its own
+`transition-colors duration-*`.
+
+### Full-bleed nests, it does not double
+
+`Band` (`src/components/band.tsx`) is `-mx-[clamp(24px,6vw,120px)]` **plus the
+same value back as `px-`**. A child that wants true edge-to-edge cancels the
+inner padding with its own `-mx-`, which is exactly what `PanSection` already
+did — so wrapping the pan in a Band needed **no change to plot-spine's
+geometry**. Verified: pan left 0, width = viewport, track = 168vw.
+
+### `useActiveBand` (src/lib/use-active-band.ts)
+
+One IntersectionObserver over `[data-band]` whose root is squeezed to a strip
+the header's own height (`rootMargin: 0 0 -(vh - headerH) 0`). Three things
+that are not optional and will silently rot if changed:
+
+- The header height is **measured**, not hardcoded — it wraps to two rows below
+  ~400px — and re-measured on `resize`.
+- The state is **stamped with `pathname`** and read back as `"base"` when they
+  disagree. The App Router swaps the page subtree without unmounting the
+  header, so a plain value keeps the previous page's band, forever on a page
+  with no bands.
+- Last intersecting element in document order wins, which is the *incoming*
+  band at a crossing.
+
+### The rail fits in padding that already exists — except in the pan
+
+`--rail-w: clamp(44px,4.5vw,72px)` against a page gutter of
+`px-[clamp(24px,6vw,120px)]` (61px at a 1024 viewport). Nothing is inset for
+the rail, which matters: insetting would put every pan panel on
+`calc(100vw - var(--rail-w))` and reopen the travel arithmetic.
+
+The pan is the exception, because it deliberately escapes that gutter — its
+panel content sat at 33px under a 47px rail. Panels carry
+`lg:pl-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]`; `box-sizing: border-box`
+means the panel stays 42vw and the arithmetic is untouched.
+
+The rail paints **its own opaque ground**. Transparent looks identical almost
+everywhere, but the rail is a viewport tall while its band is decided at the
+header, so at a boundary its lower half sits over the other ground with the
+wrong tokens (~3:1 measured).
+
+### Pan end-state overhang is the scrollbar, and predates the bands
+
+At a 1442px client width the last panel finishes 15px past the right edge —
+exactly the scrollbar. `vw` units include the scrollbar; the element does not.
+Hidden inside the last panel's trailing padding. Do not "fix" it by changing
+`TRAVEL_PCT`.
+
+### `LineReveal` is per word, deliberately
+
+`src/components/line-reveal.tsx`. Line splitting needs DOM measurement, a
+resize listener and a hidden copy of the text to measure against, for an
+effect indistinguishable at display sizes. Two non-obvious constraints:
+
+- The word mask is **`inline-block`, never `inline-flex`**. An inline-flex mask
+  makes every word a flex container and `innerText` — what a copy of a
+  selection actually yields — inserts a line break between them, so the
+  headline pastes one word per line. `textContent` looks fine either way, so
+  check `innerText`.
+- The mask carries `pb-[0.14em] mb-[-0.14em]` so `overflow-hidden` does not
+  slice descenders.
+
+It animates `y` + opacity, which `MotionConfig reducedMotion="user"` covers
+(unlike `clip-path`), and fires on `whileInView` — unlike `Reveal`, which is
+mount-triggered.
+
+### `/work` index (post-P8)
+
+`IndexPreview` owns hover state because the hovered row and the reacting frame
+are siblings; `ProjectIndexRow` is typographic only now and takes `onActivate`
+(pointer *and* focus). The frame is **sticky in its own column**, not fixed —
+fixed would join the header and rail in the z-index conversation for nothing.
+The two bookend `AssetSlot`s are gone; the frame is where the four covers in
+`ASSETS.md` land, with no code change needed.
+
+### Known follow-up, not fixed
+
+`Reveal` (`src/components/reveal.tsx:27`) is **mount-triggered**
+(`initial="hidden" animate="show"`), not scroll-triggered, so on a 14-viewport
+homepage most reveals fire unseen. Fixing it changes timing across ~40 call
+sites.
+
+### Height budget
+
+Homepage at 390x844 is **3581px** after this run, up from a 3425px baseline —
+the two bands' vertical padding. No horizontal document scroll at any width
+tested; the rail is `display:none` below `lg`.
