@@ -41,12 +41,25 @@ export interface PlotSpineItem {
 function PlotEntry({
   item,
   titleColor,
+  accentEmphasis = 1,
 }: {
   item: PlotSpineItem;
   titleColor: MotionValue<string> | string;
+  /** Drives the decorative accent bar's opacity — a MotionValue in the scrub
+   * (brightens as the plot becomes active), a plain 1 in the static list. The
+   * plot's colour identity lives here, on a non-text marker, rather than on the
+   * title: the raw plot accents fail WCAG contrast as display text on --bg
+   * (e.g. life ochre is ~2.8:1), so the title stays --ink/--faint and the
+   * colour rides a bar where low contrast is acceptable decoration. */
+  accentEmphasis?: MotionValue<number> | number;
 }) {
   return (
     <div>
+      <m.span
+        aria-hidden="true"
+        className="mb-3 block h-[3px] w-10"
+        style={{ backgroundColor: item.accent, opacity: accentEmphasis }}
+      />
       <div className="label-mono flex items-center gap-3 tracking-[0.2em] text-faint">
         <span>{item.index}</span>
         <span>
@@ -107,24 +120,26 @@ function ScrubPlotEntry({
   const activeAmount = useTransform(progress, (p) =>
     Math.max(0, 1 - Math.abs(p - center) / step),
   );
-  const opacity = useTransform(activeAmount, [0, 1], [0.4, 1]);
+  const opacity = useTransform(activeAmount, [0, 1], [0.55, 1]);
   const scale = useTransform(activeAmount, [0, 1], [0.97, 1]);
-  /* color-mix over two real colors (the plot's own accent and the site's
-     --faint token) rather than an opacity fade, so an inactive plot reads as
-     genuinely neutral text — the same "dimmed" treatment text-faint gives
-     everywhere else — not just a washed-out accent. */
+  /* Active plot title crossfades --faint -> --ink, never the plot accent: the
+     raw accents fail WCAG contrast as display text on --bg (light) and are
+     marginal on dark, so the readable text stays on the neutral tokens (both
+     AA-safe) and the plot's colour identity rides the decorative accent bar in
+     PlotEntry instead. */
   const titleColor = useTransform(
     activeAmount,
     (v) =>
-      `color-mix(in srgb, ${item.accent} ${Math.round(v * 100)}%, var(--faint) ${Math.round((1 - v) * 100)}%)`,
+      `color-mix(in srgb, var(--ink) ${Math.round(v * 100)}%, var(--faint) ${Math.round((1 - v) * 100)}%)`,
   );
+  const accentEmphasis = useTransform(activeAmount, [0, 1], [0.3, 1]);
 
   return (
     <m.div
       style={{ opacity, scale, transformOrigin: "left center" }}
       className="border-t border-hair pt-[clamp(18px,2.4vw,28px)] first:border-t-0 first:pt-0"
     >
-      <PlotEntry item={item} titleColor={titleColor} />
+      <PlotEntry item={item} titleColor={titleColor} accentEmphasis={accentEmphasis} />
     </m.div>
   );
 }
@@ -177,7 +192,7 @@ function CompactList({
   return (
     <div className={`flex flex-col gap-[clamp(28px,5vw,44px)] ${className}`}>
       {items.map((item) => (
-        <PlotEntry key={item.slug} item={item} titleColor={item.accent} />
+        <PlotEntry key={item.slug} item={item} titleColor="var(--ink)" />
       ))}
     </div>
   );
