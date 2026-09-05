@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
-import { StaggerGroup } from "@/components/stagger-group";
-import { ProjectIndexRow } from "@/components/project-index-row";
+import { IndexPreview } from "@/components/index-preview";
 import { FeaturedProject } from "@/components/featured-project";
 import { ProjectGallery, getProjectGallery } from "@/components/project-gallery";
 import { BleedType } from "@/components/bleed-type";
@@ -24,13 +23,11 @@ export default function WorkPage() {
   const { flagship, runnerUp, rest } = getFeaturedWork();
   const flagshipGallery = flagship ? getProjectGallery(flagship.slug) : undefined;
 
-  // The runner-up (UQuizzle) plus everything else, as one mixed-rhythm
-  // project index - the old second FeaturedProject block and the hairline
-  // "Also built" list are both gone, replaced by this single grid.
-  // Bookended with a media cell (the two most visually distinct products -
-  // a live browser-extension overlay and a 1,600-person conference app),
-  // typographic-only cells in between: giving every cell an AssetSlot would
-  // read as four grey boxes before real covers exist.
+  // The runner-up (UQuizzle) plus everything else, as one project index: a
+  // column of typographic rows beside a single preview frame that follows
+  // whichever row the reader is on. The old second FeaturedProject block and
+  // the hairline "Also built" list are both long gone, and so now are the two
+  // bookend AssetSlots - one honest placeholder beats a grid of grey boxes.
   const indexProjects = [...(runnerUp ? [runnerUp] : []), ...rest];
 
   return (
@@ -92,27 +89,16 @@ export default function WorkPage() {
           <h2 className="label-mono border-b border-hair pb-3.5 tracking-[0.18em] text-ink">
             More from the workshop
           </h2>
-          <StaggerGroup className="mt-[clamp(20px,2.5vw,32px)] grid grid-cols-1 gap-x-[clamp(20px,3vw,40px)] gap-y-[clamp(32px,4vw,48px)] sm:grid-cols-12">
-            {indexProjects.map((project, index) => (
-              <ProjectIndexRow
-                key={project.slug}
-                project={{
-                  slug: project.slug,
-                  title: project.title,
-                  tagline: project.tagline,
-                  period: project.period,
-                  accent: project.accent,
-                  cover: project.cover,
-                }}
-                variant={index === 0 || index === indexProjects.length - 1 ? "media" : "text"}
-                className={
-                  index === 0 || index === indexProjects.length - 1
-                    ? "sm:col-span-7"
-                    : "sm:col-span-5 sm:self-center"
-                }
-              />
-            ))}
-          </StaggerGroup>
+          <IndexPreview
+            projects={indexProjects.map((project) => ({
+              slug: project.slug,
+              title: project.title,
+              tagline: project.tagline,
+              period: project.period,
+              accent: project.accent,
+              cover: project.cover,
+            }))}
+          />
         </div>
       )}
 

@@ -1,9 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { m } from "motion/react";
-import { AssetSlot } from "@/components/asset-slot";
 import { idxRowVariants, idxTitleVariants } from "@/lib/motion";
 import type { Project } from "@/lib/types";
 
@@ -18,25 +16,25 @@ export type ProjectIndexCardData = Pick<
 >;
 
 /**
- * One cell of the /work project-index grid, replacing the old dotted-leader
- * row (see NoteIndexRow for that still-live pattern on /notes). Two variants,
- * chosen by the caller per cell so the grid can mix media and type-only
- * sizes rather than repeating one card four times:
+ * One row of the /work project index, replacing the old dotted-leader row
+ * (see NoteIndexRow for that still-live pattern on /notes).
  *
- * - "media": renders `project.cover` via next/image when frontmatter sets
- *   one, otherwise an AssetSlot at the same 16/9 ratio ASSETS.md specifies
- *   for these covers. The day a `.mdx` adds `cover`, this cell switches to
- *   the real image with no code change here.
- * - "text": typographic only - title, tagline, period, accent. No AssetSlot,
- *   so a page with zero real covers doesn't read as a wall of grey boxes.
+ * Typographic only. The media half of this cell - a cover when the frontmatter
+ * had one, an AssetSlot when it didn't - has moved out to the shared preview
+ * frame in IndexPreview, so a page with no real covers shows one honest
+ * placeholder instead of a grid of grey boxes.
+ *
+ * `onActivate` fires on pointer and on focus, so the preview follows a
+ * keyboard reader down the list exactly as it follows a pointer. The row keeps
+ * its own whileHover on top of that.
  */
 export function ProjectIndexRow({
   project,
-  variant = "text",
+  onActivate,
   className = "",
 }: {
   project: ProjectIndexCardData;
-  variant?: "media" | "text";
+  onActivate?: () => void;
   className?: string;
 }) {
   return (
@@ -45,27 +43,11 @@ export function ProjectIndexRow({
       variants={idxRowVariants}
       whileHover="hover"
       whileTap="tap"
+      onMouseEnter={onActivate}
+      onFocus={onActivate}
       className={`group flex flex-col gap-4 ${className}`}
       style={{ ["--acc" as string]: project.accent, color: "inherit" }}
     >
-      {variant === "media" &&
-        (project.cover ? (
-          <Image
-            src={project.cover.src}
-            alt={project.cover.alt}
-            width={1600}
-            height={900}
-            sizes="(min-width: 640px) 55vw, 100vw"
-            className="h-auto w-full border border-hair"
-            style={{ aspectRatio: project.cover.ratio }}
-          />
-        ) : (
-          <AssetSlot
-            ratio="16/9"
-            label={`${project.title} cover`}
-            dimensions="1600x900"
-          />
-        ))}
       <div>
         <div className="label-mono tracking-[0.08em] text-faint">
           {project.period}
