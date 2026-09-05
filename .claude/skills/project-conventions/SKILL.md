@@ -596,3 +596,50 @@ bordered on all four sides or filled and report any left at `0px`:
 
 The only legitimate hits are the GitHub heatmap's `bg-bg` sticky label masks —
 page-coloured scroll backdrops, not containers.
+
+## P9 the rail is the nav from lg up (2026-09-05)
+
+`SideRail` (`src/components/side-rail.tsx`) is the **primary navigation** at
+`lg` and above, not decoration. `SiteHeader` is `lg:hidden` and exists only
+below `lg`, where there is no rail. Exactly one of the two is in the
+accessibility tree at any width - verify with a snapshot, not by reading
+classes.
+
+They used to both render: the rail fixed at `y0 h100vh z-30`, the header
+sticky at `y0 h49 z-20`, so the rail's label sat on the wordmark. Two pieces
+of chrome claiming one corner is not a z-index problem; stacking only picks
+which one loses.
+
+**The rail's width is coupled to the page gutter.** `--rail-w` is
+`clamp(52px, 5vw, 76px)` against the page wrapper's
+`px-[clamp(24px,6vw,120px)]`. The two clamps are paired on purpose so the rail
+is strictly narrower than the gutter at every width it is shown at. The margin
+is tightest at exactly 1024: **61px gutter less 51px rail is 10px.** Anything
+that bleeds left out of the leftmost content column has to fit in that 10px or
+it slides under the rail and its left corners render as a square cut. A
+viewport-scaled clamp will not fit; use a fixed value of 8px or less. This is
+why `ProjectIndexRow`'s hover plate uses `-mx-2 px-2` and not a clamp.
+
+Nothing is inset for the rail. `PlotSpine`'s panels pad themselves past it
+with `lg:pl-[calc(var(--rail-w)+...)]`; the pan still resolves `PANEL_VW`
+against `100vw` and its travel arithmetic is untouched. Do not "fix" this by
+insetting the page.
+
+Rail labels are `[writing-mode:vertical-rl]` with **no rotation**, so the
+column reads in the same direction as the DOM order and the page.
+
+## P9b where a container is allowed (2026-09-05)
+
+The homepage has exactly one card: `IdentityBand`, `--panel` ground, `border
+border-hair`, `rounded-[var(--corner)]`. It earns it by changing subject - the
+rest of the page is work, that block is the person. `HomeTrainingBand`
+directly below it deliberately keeps a plain hairline; two identical plates
+stacked is a card kit, not a hierarchy.
+
+`--panel` is the site's one raised surface (`#f4efe6` on `#e8e2d5` light,
+`#221d17` on `#191510` dark) and `--dim`/`--faint` are already pinned against
+it, so text on a new panel needs no fresh contrast work.
+
+Sweep for missed containers by walking the rendered DOM for boxes over 40x24
+that are filled or fully bordered and still at `borderTopLeftRadius: 0px` -
+grepping for `rounded-` misses anything styled indirectly.
