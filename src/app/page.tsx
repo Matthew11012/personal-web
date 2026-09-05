@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MagneticLink } from "@/components/magnetic-link";
 import { MetaStrip } from "@/components/meta-strip";
+import { Band } from "@/components/band";
 import { Reveal } from "@/components/reveal";
 import { HomeHero } from "@/components/home-hero";
 import { IdentityBand } from "@/components/identity-band";
@@ -55,14 +56,20 @@ export default async function HomePage() {
         }
       />
 
-      <div className="label-mono mt-[clamp(28px,4vw,48px)] flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 border-t border-hair pt-3.5 tracking-[0.18em] text-dim">
-        <h2 className="text-ink">The four plots</h2>
-        <Link href="/notes" className="navlink">
-          All notes →
-        </Link>
-      </div>
+      {/* The plots band. Its own ground is what separates it from the hero
+          above and the featured project below, so the hairline rule this
+          heading used to carry would now be drawing a line one pixel inside
+          a colour boundary that already reads as one. */}
+      <Band invert className="mt-[clamp(32px,5vw,64px)] py-[clamp(40px,6vw,72px)]">
+        <div className="label-mono flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1.5 tracking-[0.18em] text-dim">
+          <h2 className="text-ink">The four plots</h2>
+          <Link href="/notes" className="navlink">
+            All notes →
+          </Link>
+        </div>
 
-      <PlotSpine plots={plotSpineItems} />
+        <PlotSpine plots={plotSpineItems} />
+      </Band>
 
       {flagship && (
         <>
@@ -80,9 +87,11 @@ export default async function HomePage() {
         </>
       )}
 
-      <Reveal>
-        <IdentityBand />
-      </Reveal>
+      <Band invert className="mt-[clamp(32px,5vw,64px)] py-[clamp(40px,6vw,72px)]">
+        <Reveal>
+          <IdentityBand />
+        </Reveal>
+      </Band>
 
       <HomeTrainingBand />
     </div>
