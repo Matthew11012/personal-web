@@ -221,7 +221,7 @@ below `sm` and switch to the flex row at `sm:`.
   `metadataBase` derives from it — anything needing an absolute URL (sitemap, robots, feed,
   OG images) imports from there, don't re-derive.
 - **`next/og`'s `ImageResponse` can't use `next/font` or CSS variables** — it needs raw font
-  ArrayBuffers. `src/lib/og-fonts.ts` fetches Instrument Serif + JetBrains Mono from the
+  ArrayBuffers. `src/lib/og-fonts.ts` fetches Libre Caslon Display + JetBrains Mono from the
   Google Fonts CSS2 API, scoped to the actual text being rendered (keeps the fetch small).
   It must never throw — wrap in try/catch and return `[]` on failure, so a Fonts API outage
   degrades to satori's default font instead of 500ing the OG route. Both `opengraph-image.tsx`
@@ -246,7 +246,7 @@ below `sm` and switch to the flex row at `sm:`.
   visible double-line on hover (two different vertical offsets, both visible). If a link
   needs a persistent underline, drop `navlink` entirely rather than stacking it.
 - **A `Link`/`a` with no explicit color class falls through to the base `a { color:
-  #b0573f }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
+  var(--link) }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
   not to a parent's `--acc`. Any link meant to carry a plot's accent needs its own
   `style={{ color: accent }}`, matching the convention already used by the "More from"
   link on note pages.
@@ -371,3 +371,93 @@ and run `next dev -p <port>` there. Still never `rm -rf .next` under a live serv
 **A brand-new arbitrary Tailwind v4 utility did NOT hit the Turbopack regeneration
 trap here** (`auto-cols-[14px]` computed to a real 14px on a fresh server). The trap
 is real but is not universal — check, don't assume either way.
+
+## P7 visual overhaul (2026-09-05) — the imagery layer
+
+**The display face is Libre Caslon Display**, via `--font-display-serif` in
+`layout.tsx`. Weight 400 / style normal only; there is no italic cut and none is
+needed (every italic on the site is Spectral). **Changing the display face is a
+5-file change, not 1**: `src/lib/og-fonts.ts` fetches the family *by its literal
+name* from the Google Fonts CSS2 API, and both `opengraph-image.tsx` files
+hardcode the same string as a `fontFamily`. A missed rename degrades every social
+card to satori's default **silently** — no build error, no runtime error. Verify a
+font rename by rendering an actual OG PNG, not by reading the diff.
+
+**Where the site's images live.** `public/mandareen/` (18 screenshots, dark UI,
+intrinsic 2551x1375) is the only real product imagery; `src/components/project-gallery.tsx`
+owns them as **static imports** in a `PROJECT_GALLERIES` map keyed by project slug,
+so `next/image` derives width/height/blurDataURL and the band has zero CLS. Add a
+project's plates there, not in MDX. `ASSETS.md` at the repo root is the standing
+list of what is still missing (path, dimensions, aspect, page, required subject) —
+update it when a slot is filled or added.
+
+**Dark screenshots on warm paper: frame, never bleed.** Plates sit on `--panel`
+with a `--rule` hairline and the caption below in `.margin-copy` (Spectral, not
+`.label-mono` — that class is 11px *uppercase* and destroys a full-sentence
+caption). Never run a dark screenshot full-bleed and never tint it toward the
+project accent: the first breaks the page's theme lock, the second misrepresents a
+real product. Plates are `min(720px,88vw)`; at 420px a 2551px-wide screenshot is
+illegible.
+
+**`AssetSlot` (`src/components/asset-slot.tsx`) is the honest placeholder** — a
+plain server component that reserves an exact `aspect-ratio` and names the intended
+subject and dimensions. It carries no motion on purpose; the caller supplies the
+reveal/parallax so composition is tuned before the real asset lands, and swapping
+in `next/image` is one line.
+
+**`aspect-ratio` derives height from *width*, so cap the width to control the
+height.** An uncapped `4/5` slot in the hero's right column measured 467x583 and
+pushed the primary CTA 24px below a 781px viewport. `max-w-[clamp(240px,26vw,400px)]`
+on the wrapper is load-bearing, not styling.
+
+## The homepage horizontal pan (`plot-spine.tsx`)
+
+Geometry is **solved from constants, never measured at runtime**: `PANEL_VW` ×
+`PANEL_COUNT` is the track width, and because a CSS percentage `translateX`
+resolves against the element's *own* width, the travel is
+`(trackVw - 100) / trackVw * 100` percent. Retuning `PANEL_VW` keeps everything
+correct with no hand-edited numbers.
+
+Two things are load-bearing:
+
+- **The section must be full-bleed** (`-mx-[clamp(24px,6vw,120px)]`, cancelling the
+  page wrapper's padding). The travel math assumes the track starts at `x=0`; inside
+  the padded wrapper it starts one padding-width in, and the last panel finished
+  ~106px past the right edge with its content clipped.
+- **Keyboard focus needs an explicit scroll handler.** All four panels are in the
+  DOM but three are translated outside an `overflow-hidden` sticky box, so no
+  ancestor can satisfy the browser's native scroll-into-view horizontally — tabbing
+  into panel 3 focuses something invisible. `revealPanel` converts a panel index to
+  the page offset that centres it, since the pan's x is a pure function of scroll y.
+
+The pan renders only when motion is not reduced (the whole tall wrapper is absent,
+not just hidden) and is `hidden md:block` on top of that, so mobile pays nothing.
+`CompactList` is the fallback for both cases. This section is **shorter** than the
+320vh vertical scrub it replaced.
+
+## Ambient layer and plot marks
+
+`src/components/ambient-layer.tsx` is mounted once as the first child of `<body>`:
+`fixed inset-0 pointer-events-none z-[60]`, an `feTurbulence` grain at 0.04 plus a
+radial warm wash at 0.025, no animation. **`z-[60]` is deliberate — it must sit
+*above* the sticky header**, which is opaque; below it, the grain stops at a hard
+line across the top of every page.
+
+`src/components/plot-mark.tsx` draws one abstract SVG mark per plot, sharing a
+corner-tick frame with a unique interior glyph. Reduced motion needs a **manual**
+branch returning plain `<path>` elements: `pathLength` is neither a transform nor
+opacity, so `MotionConfig reducedMotion="user"` does not cover it — and simply
+skipping the animation would leave `initial={{ pathLength: 0 }}` rendering the mark
+permanently blank.
+
+## `/work` and `FeaturedProject` shape (post-P7)
+
+`FeaturedProject` has **no size variants**. Exactly one project (the flagship) gets
+it, once per page, on both `/` and `/work`; the old `size="secondary"` block was
+deleted along with the hairline "Also built" list. `/work`'s rhythm now comes from
+alternating widths — narrow flagship, full-bleed `ProjectGallery` band, then a
+`grid-cols-12` index with 7/5/5/7 spans where only the wide cells carry media.
+Giving every cell an `AssetSlot` would read as four grey boxes.
+
+`/work` and `/work/[slug]` both have OG image routes now, cloning the
+`notes/[slug]` pattern. Remember Next 16's `params: Promise<...>` must be awaited.
