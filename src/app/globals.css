@@ -32,6 +32,24 @@
      overlays padding that is already empty and nothing has to be inset
      for it. */
   --rail-w: clamp(44px, 4.5vw, 72px);
+
+  /* The site's one corner-radius scale. Two steps, and two is the whole
+     system: --corner for anything that encloses content (image frames,
+     gallery plates, asset slots, chart panels), --corner-sm for small
+     elements whose own height makes the larger value read as a lozenge
+     (pips, bars, chips, inline swatches). Anything genuinely circular keeps
+     rounded-full and is not part of this scale.
+
+     Hairline RULES - border-t/b/l/r on their own - take no radius. They are
+     lines, not boxes; rounding one end of a line does nothing but soften
+     where it meets the type.
+
+     Named --corner rather than --radius deliberately: Tailwind v4 owns the
+     `--radius-*` namespace for its own `rounded-*` scale, and redeclaring
+     `--radius-sm` here on :root would quietly retarget `rounded-sm` sitewide.
+     Call sites use `rounded-[var(--corner)]`. */
+  --corner: 10px;
+  --corner-sm: 6px;
 }
 
 .dark {
@@ -67,6 +85,7 @@
   --font-display: var(--font-display-serif);
   --font-body: var(--font-spectral);
   --font-mono: var(--font-jetbrains-mono);
+
 }
 
 @layer base {
