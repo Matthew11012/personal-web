@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MagneticLink } from "@/components/magnetic-link";
 import { MetaStrip } from "@/components/meta-strip";
 import { Reveal } from "@/components/reveal";
 import { HomeHero } from "@/components/home-hero";
@@ -37,12 +38,12 @@ export default async function HomePage() {
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(40px,6vw,80px)]">
       <MetaStrip
-        items={["A Digital Garden — Est. 2026"]}
+        items={["A Digital Garden, Est. 2026"]}
       />
 
       <HomeHero
         headline="Field notes from a growing mind."
-        lede="Code, competition, and everything in the space between. Nothing here is finished — that's the point."
+        lede="Code, competition, and everything in the space between. Nothing here is finished. That's the point."
         proof={
           flagship && heroProof
             ? {
@@ -68,12 +69,14 @@ export default async function HomePage() {
         <>
           <FeaturedProject project={flagship} size="primary" />
           <div className="mt-[clamp(20px,2.5vw,28px)]">
-            <Link
-              href="/work"
-              className="navlink label-mono tracking-[0.18em] text-faint"
-            >
-              See all work →
-            </Link>
+            <MagneticLink>
+              <Link
+                href="/work"
+                className="navlink label-mono tracking-[0.18em] text-faint"
+              >
+                See all work →
+              </Link>
+            </MagneticLink>
           </div>
         </>
       )}

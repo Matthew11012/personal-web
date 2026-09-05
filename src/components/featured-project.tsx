@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { animate, useInView, useReducedMotion } from "motion/react";
 import { CountUpFigure } from "@/components/count-up-figure";
+import { MagneticLink } from "@/components/magnetic-link";
 import { ResultFigures } from "@/components/result-figures";
 import { Reveal } from "@/components/reveal";
 import { COUNT_EASE } from "@/lib/motion";
@@ -127,6 +128,16 @@ export function FeaturedProject({
 }: FeaturedProjectProps) {
   const isPrimary = size === "primary";
 
+  const cta = (
+    <Link
+      href={`/work/${project.slug}`}
+      className="navlink label-mono mt-6 inline-flex gap-2 tracking-[0.16em]"
+      style={{ color: project.accent }}
+    >
+      Read the build <span aria-hidden="true">→</span>
+    </Link>
+  );
+
   const body = (
     <div>
       <div className="label-mono flex flex-wrap gap-x-4 gap-y-1 tracking-[0.08em] text-faint">
@@ -148,13 +159,7 @@ export function FeaturedProject({
         </p>
       </Reveal>
       <Reveal delay={0.18}>
-        <Link
-          href={`/work/${project.slug}`}
-          className="navlink label-mono mt-6 inline-flex gap-2 tracking-[0.16em]"
-          style={{ color: project.accent }}
-        >
-          Read the build <span aria-hidden="true">→</span>
-        </Link>
+        {isPrimary ? <MagneticLink>{cta}</MagneticLink> : cta}
       </Reveal>
     </div>
   );

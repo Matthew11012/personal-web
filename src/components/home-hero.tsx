@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CountUpFigure } from "@/components/count-up-figure";
+import { MagneticLink } from "@/components/magnetic-link";
 import { Reveal } from "@/components/reveal";
 import { AVAILABILITY } from "@/lib/me";
 
@@ -37,12 +38,14 @@ export function HomeHero({ headline, lede, proof }: HomeHeroProps) {
         </Reveal>
         <Reveal delay={0.26} className="mt-[clamp(24px,4vw,36px)]">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Link
-              href="/work"
-              className="navlink label-mono inline-flex gap-2 tracking-[0.16em] text-gardener"
-            >
-              See the work <span aria-hidden="true">→</span>
-            </Link>
+            <MagneticLink>
+              <Link
+                href="/work"
+                className="navlink label-mono inline-flex gap-2 tracking-[0.16em] text-gardener"
+              >
+                See the work <span aria-hidden="true">→</span>
+              </Link>
+            </MagneticLink>
             <span className="label-mono tracking-[0.14em] text-faint">
               {AVAILABILITY}
             </span>
