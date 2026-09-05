@@ -102,7 +102,7 @@ function PlotEntry({
     <div>
       <m.span
         aria-hidden="true"
-        className="mb-3 block h-[3px] w-10"
+        className="mb-3 block h-[3px] w-10 rounded-[var(--corner-sm)]"
         style={{ backgroundColor: item.accent, opacity: accentEmphasis }}
       />
       {/* Chapter framing. The four plots are a complete set of peers read in

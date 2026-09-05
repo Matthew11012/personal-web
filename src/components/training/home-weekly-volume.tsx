@@ -173,6 +173,13 @@ export function HomeWeeklyVolume({ buckets }: { buckets: WeeklyBucket[] }) {
                 // A 0-height rect renders nothing, which reads as a gap rather
                 // than a zero week — floor it to a hairline sliver.
                 height={Math.max(height, 0.6)}
+              // Square on purpose. These sit in a viewBox stretched with
+              // preserveAspectRatio="none" (100 x 40 user units across the
+              // full chart width), so x and y scale by very different
+              // factors - any rx/ry would render as visibly elliptical
+              // corners, and at the 0.6-unit floor below it would eat the
+              // bar. Chart marks are outside the --corner scale; the
+              // containers around them carry it.
                 fill="var(--acc)"
                 fillOpacity={activeIndex === i ? 1 : 0.7}
                 // Single-property transition (matches the rest of the site's

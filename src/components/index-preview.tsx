@@ -73,7 +73,7 @@ export function IndexPreview({
                 width={1600}
                 height={900}
                 sizes="40vw"
-                className="h-auto w-full border border-hair"
+                className="h-auto w-full rounded-[var(--corner)] border border-hair"
                 style={{ aspectRatio: active.cover.ratio }}
               />
             ) : (

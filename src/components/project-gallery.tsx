@@ -86,14 +86,14 @@ export function ProjectGallery({ plates }: { plates: GalleryPlate[] }) {
         {plates.map((plate) => (
           <figure
             key={plate.alt}
-            className="w-[min(720px,88vw)] flex-none border border-rule bg-panel p-3 [scroll-snap-align:start] sm:p-4"
+            className="w-[min(720px,88vw)] flex-none rounded-[var(--corner)] border border-rule bg-panel p-3 [scroll-snap-align:start] sm:p-4"
           >
             <Image
               src={plate.src}
               alt={plate.alt}
               placeholder="blur"
               sizes="(min-width: 768px) 720px, 88vw"
-              className="h-auto w-full border border-hair"
+              className="h-auto w-full rounded-[var(--corner-sm)] border border-hair"
             />
             {/* .margin-copy, not .label-mono: these captions are full
                 sentences, and .label-mono is 11px uppercase - a 20-word

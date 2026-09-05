@@ -27,7 +27,7 @@ export interface AssetSlotProps {
 export function AssetSlot({ ratio, label, dimensions, className = "" }: AssetSlotProps) {
   return (
     <div
-      className={`flex items-center justify-center border border-rule bg-panel ${className}`}
+      className={`flex items-center justify-center rounded-[var(--corner)] border border-rule bg-panel ${className}`}
       style={{ aspectRatio: ratio }}
     >
       <div className="flex flex-col items-center gap-1 px-4 text-center">

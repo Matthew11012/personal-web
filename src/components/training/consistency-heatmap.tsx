@@ -388,7 +388,7 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
                   <div
                     key={cell.date}
                     className={
-                      "aspect-square transition-[background-color] duration-300 ease-out" +
+                      "aspect-square rounded-[var(--corner-sm)] transition-[background-color] duration-300 ease-out" +
                       (heatmapBand(cell.total.seconds) === 0 ? " border border-rule" : "")
                     }
                     style={cellStyle(cell.total.seconds, activeIndex === i)}
@@ -413,7 +413,7 @@ export function ConsistencyHeatmap({ cells }: { cells: DailyCell[] }) {
           <div key={band.label} className="flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className={"h-2.5 w-2.5" + (i === 0 ? " border border-rule" : "")}
+              className={"h-2.5 w-2.5 rounded-[var(--corner-sm)]" + (i === 0 ? " border border-rule" : "")}
               style={i === 0 ? undefined : { backgroundColor: bandFill(i) }}
             />
             <span>{band.label}</span>
