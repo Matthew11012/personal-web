@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXContent } from "@content-collections/mdx/react";
 import { Reveal } from "@/components/reveal";
 import { ProjectRail } from "@/components/project-rail";
+import { ProjectGallery, getProjectGallery } from "@/components/project-gallery";
 import { ResultFigures } from "@/components/result-figures";
 import { createMdxComponents } from "@/components/mdx-components";
 import { getAllProjects, getProject } from "@/lib/content";
@@ -38,6 +39,7 @@ export default async function ProjectPage({
   if (!project) notFound();
 
   const mdxComponents = createMdxComponents(project.accent);
+  const gallery = getProjectGallery(project.slug);
 
   return (
     <div
@@ -68,6 +70,12 @@ export default async function ProjectPage({
       </div>
 
       <ResultFigures results={project.results} />
+
+      {gallery ? (
+        <div className="mt-[clamp(36px,5vw,52px)]">
+          <ProjectGallery plates={gallery} />
+        </div>
+      ) : null}
 
       <div
         className={

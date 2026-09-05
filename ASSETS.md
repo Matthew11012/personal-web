@@ -7,7 +7,7 @@ asset. Anything not listed here already exists and needs nothing.
 
 - `public/me/` - portrait-figure.png, hackathon.jpg, riding.jpg, ui-grad.jpg,
   uq-grad.jpg. Used by the intro band (`/about`).
-- `public/mandareen/` - 19 product screenshots (billing, conversations,
+- `public/mandareen/` - 18 product screenshots (billing, conversations,
   curriculum browse/unit/lesson viewer, dashboard, dictionary, flashcards,
   flashcards study, lesson quiz, lessons, lessons viewer dialogue/story,
   placement test, popup info + add to flashcard, profile, progress, usage).
