@@ -1,26 +1,35 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LineReveal } from "@/components/line-reveal";
 import { Reveal } from "@/components/reveal";
-import { StaggerGroup } from "@/components/stagger-group";
-import { ProjectIndexRow } from "@/components/project-index-row";
+import { IndexPreview } from "@/components/index-preview";
+import { FeaturedProject } from "@/components/featured-project";
+import { ProjectGallery, getProjectGallery } from "@/components/project-gallery";
+import { BleedType } from "@/components/bleed-type";
 import { GithubActivityBand } from "@/components/engineering/github-activity-band";
-import { getAllProjects } from "@/lib/content";
+import { getFeaturedWork } from "@/lib/content";
 
-// 24h ISR — the GitHub activity band fetches live data on each revalidation.
+// 24h ISR - the GitHub activity band fetches live data on each revalidation.
 export const revalidate = 86400;
 
 export function generateMetadata(): Metadata {
   return {
-    title: "The Workshop — Matthew Rizky Hartadi",
+    title: "The Workshop - Matthew Rizky Hartadi",
     description:
-      "Projects explained, not hosted — what got built, and what it took.",
+      "Projects explained, not hosted. What got built, and what it took.",
   };
 }
 
 export default function WorkPage() {
-  const projects = getAllProjects();
-  const featuredProjects = projects.filter((project) => project.featured);
-  const stubProjects = projects.filter((project) => !project.featured);
+  const { flagship, runnerUp, rest } = getFeaturedWork();
+  const flagshipGallery = flagship ? getProjectGallery(flagship.slug) : undefined;
+
+  // The runner-up (UQuizzle) plus everything else, as one project index: a
+  // column of typographic rows beside a single preview frame that follows
+  // whichever row the reader is on. The old second FeaturedProject block and
+  // the hairline "Also built" list are both long gone, and so now are the two
+  // bookend AssetSlots - one honest placeholder beats a grid of grey boxes.
+  const indexProjects = [...(runnerUp ? [runnerUp] : []), ...rest];
 
   return (
     <div className="px-[clamp(24px,6vw,120px)] pb-[clamp(70px,9vw,120px)] pt-[clamp(36px,5vw,64px)]">
@@ -38,59 +47,61 @@ export default function WorkPage() {
               Selected work
             </div>
           </Reveal>
-          <Reveal as="wipein">
-            <h1 className="display-lg text-pretty text-ink">The workshop</h1>
-          </Reveal>
+          <LineReveal
+            as="h1"
+            text="The workshop"
+            className="display-lg text-pretty text-ink"
+          />
         </div>
         <p className="tagline mb-1.5 max-w-[34ch] text-dim">
-          Projects explained, not hosted — what got built, and what it took.
+          Projects explained, not hosted. What got built, and what it took.
         </p>
       </div>
 
-      {/* h2, not a div: this is the section label the ProjectIndexRow h3s sit
-          under. Without it /work goes h1 -> h3. */}
-      <h2 className="label-mono mt-[22px] tracking-[0.14em] text-faint">
-        {featuredProjects.length} case{" "}
-        {featuredProjects.length === 1 ? "study" : "studies"}
-      </h2>
+      {flagship && <FeaturedProject project={flagship} />}
 
-      <StaggerGroup className="mt-3 flex flex-col">
-        {featuredProjects.map((project) => (
-          <ProjectIndexRow
-            key={project.slug}
-            project={{
+      {/* Full-bleed: the page's one band that escapes the px-[clamp(...)]
+          wrapper, negative-margined by exactly that clamp and re-padded
+          internally so the plates can run to the viewport edge while the
+          gallery's own scroll padding still lines the first plate up with
+          the rest of the page. This is the wide-media half of the page's
+          rhythm; FeaturedProject and the index grid below stay in the
+          narrow container. */}
+      {flagship && flagshipGallery && (
+        <div
+          className="relative -mx-[clamp(24px,6vw,120px)] mt-[clamp(32px,4vw,56px)] overflow-hidden px-[clamp(24px,6vw,120px)] py-[clamp(24px,3vw,44px)]"
+          style={{ ["--acc" as string]: flagship.accent }}
+        >
+          {/* The page's title again, at a scale that can only be read as
+              texture, running off the left edge with the plates scrolling
+              over it. The h1 above is untouched and is still the only copy of
+              this word that anything but an eye will find. */}
+          <BleedType className="-left-[0.09em] top-[-0.16em] text-[clamp(150px,23vw,400px)]">
+            Workshop
+          </BleedType>
+          <div className="relative">
+            <ProjectGallery plates={flagshipGallery} />
+          </div>
+        </div>
+      )}
+
+      {indexProjects.length > 0 && (
+        <div className="mt-[clamp(56px,7vw,96px)]">
+          {/* h2, not a div: this is the section label the ProjectIndexRow h3s
+              sit under. Without it /work goes h1 -> h3. */}
+          <h2 className="label-mono border-b border-hair pb-3.5 tracking-[0.18em] text-ink">
+            More from the workshop
+          </h2>
+          <IndexPreview
+            projects={indexProjects.map((project) => ({
               slug: project.slug,
               title: project.title,
               tagline: project.tagline,
               period: project.period,
               accent: project.accent,
-            }}
+              cover: project.cover,
+            }))}
           />
-        ))}
-      </StaggerGroup>
-
-      {stubProjects.length > 0 && (
-        <div className="mt-[clamp(36px,5vw,52px)]">
-          <h2 className="label-mono border-b border-hair pb-3.5 tracking-[0.18em] text-ink">
-            Also built
-          </h2>
-          <ul className="mt-3 divide-y divide-hair">
-            {stubProjects.map((project) => (
-              <li key={project.slug}>
-                <Link
-                  href={`/work/${project.slug}`}
-                  className="navlink flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-2.5 text-dim"
-                >
-                  <h3 className="font-body text-[15px] text-ink">
-                    {project.title}
-                  </h3>
-                  <span className="label-mono text-[11px] tracking-[0.1em] text-faint">
-                    {project.period}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
 

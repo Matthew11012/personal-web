@@ -3,29 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
-
-const NAV = [
-  { href: "/", label: "The garden", short: "Garden", match: (p: string) => p === "/" },
-  {
-    href: "/notes",
-    label: "The plots",
-    short: "Plots",
-    match: (p: string) => p.startsWith("/notes") || p.startsWith("/plots"),
-  },
-  {
-    href: "/work",
-    label: "The workshop",
-    short: "Workshop",
-    match: (p: string) => p.startsWith("/work"),
-  },
-  { href: "/about", label: "About", short: "About", match: (p: string) => p === "/about" },
-];
+import { NAV } from "@/lib/nav";
 
 export function SiteHeader() {
   const pathname = usePathname();
 
+  // lg:hidden, because from lg up the SideRail is the primary nav, and two
+  // navs pinned to the same corner is exactly the collision this replaced.
+  // Below lg there is no rail, so this is the only nav and it stays a full
+  // top bar rather than retreating behind a hamburger.
   return (
-    <header className="sticky top-0 z-20 border-b border-rule bg-bg">
+    <header className="sticky top-0 z-20 border-b border-rule bg-bg lg:hidden">
       {/* gap-y is 20px, not the 12px of gap-x: below ~400px the logo wraps onto
           its own row, and the -my-2 hit slop on both rows eats 16px of any
           vertical gap. At gap-3 the two activation boxes would overlap by 4px,
@@ -46,7 +34,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={`navlink label-mono -my-2 py-2 [--navlink-bottom:3px] tracking-[0.08em] sm:tracking-[0.14em] transition-colors duration-300 ${
-                  active ? "text-ink" : "text-faint hover:text-[#b0573f]"
+                  active ? "text-ink" : "text-faint hover:text-link-hover"
                 }`}
               >
                 {/* The article is a desktop flourish: "The" three times over is 12

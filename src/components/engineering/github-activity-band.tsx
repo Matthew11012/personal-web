@@ -22,7 +22,7 @@ export async function GithubActivityBand() {
 
   return (
     <div style={{ ["--acc" as string]: WORKSHOP_ACCENT }} className="mt-[clamp(44px,6vw,72px)]">
-      <MetaStrip border="top" items={["Shipping", "Contribution activity — via GitHub"]} />
+      <MetaStrip border="top" items={["Shipping", "Contribution activity, via GitHub"]} />
       <GithubContributionChart ranges={ranges} />
     </div>
   );

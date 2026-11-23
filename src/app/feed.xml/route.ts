@@ -1,7 +1,7 @@
 import { getAllNotes } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 
-const SITE_TITLE = "The Garden — Matthew Rizky Hartadi";
+const SITE_TITLE = "The Garden - Matthew Rizky Hartadi";
 const SITE_DESCRIPTION =
   "Field notes from a growing mind. Code, competition, and everything in the space between.";
 

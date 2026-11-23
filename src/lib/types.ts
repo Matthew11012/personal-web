@@ -79,6 +79,12 @@ export type ProjectLink = {
   href: string;
 };
 
+export type ProjectCover = {
+  src: string; // path under /public
+  alt: string;
+  ratio: string; // CSS aspect-ratio, e.g. "16/9"
+};
+
 export interface Project {
   slug: string;
   title: string;
@@ -91,6 +97,7 @@ export interface Project {
   excerpt: string;
   order: number;
   accent: string;
+  cover?: ProjectCover;
   draft: boolean;
   featured: boolean;
   mdx: string;

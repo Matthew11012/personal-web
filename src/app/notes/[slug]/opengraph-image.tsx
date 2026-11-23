@@ -18,7 +18,7 @@ export default async function Image({
 
   if (!note) {
     const fonts = await loadOgFonts(
-      "The Garden — Matthew Rizky Hartadi" +
+      "The Garden - Matthew Rizky Hartadi" +
         "Field notes from a growing mind. Code, competition, and everything in the space between.",
     );
     return siteOgImage(fonts);
@@ -44,7 +44,7 @@ export default async function Image({
         <div
           style={{
             display: "flex",
-            fontFamily: "Instrument Serif",
+            fontFamily: "Libre Caslon Display",
             fontSize: 88,
             color: "#221f1b",
             maxWidth: "980px",

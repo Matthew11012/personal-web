@@ -343,7 +343,7 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
                       cellRefs.current[i] = el;
                     }}
                     className={
-                      "aspect-square transition-[background-color] duration-300 ease-out" +
+                      "aspect-square rounded-[var(--corner-sm)] transition-[background-color] duration-300 ease-out" +
                       (day.level === 0 ? " border border-rule" : "")
                     }
                     style={cellStyle(day.level, activeIndex === i)}
@@ -365,7 +365,7 @@ export function GithubHeatmap({ days }: { days: ContributionDay[] }) {
           <span
             key={level}
             aria-hidden="true"
-            className={"h-2.5 w-2.5" + (level === 0 ? " border border-rule" : "")}
+            className={"h-2.5 w-2.5 rounded-[var(--corner-sm)]" + (level === 0 ? " border border-rule" : "")}
             style={level === 0 ? undefined : { backgroundColor: levelFill(level) }}
           />
         ))}

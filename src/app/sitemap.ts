@@ -4,7 +4,7 @@ import { PLOTS } from "@/lib/plots";
 import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["/", "/about", "/notes", "/work", "/plots"].map(
+  const staticRoutes = ["/", "/about", "/notes", "/work"].map(
     (path) => ({
       url: `${SITE_URL}${path}`,
     }),

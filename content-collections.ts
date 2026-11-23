@@ -222,6 +222,13 @@ const projects = defineCollection({
     excerpt: z.string(),
     order: z.number(),
     accent: z.string().optional(),
+    cover: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+        ratio: z.string(),
+      })
+      .optional(),
     draft: z.boolean().default(false),
     featured: z.boolean().default(false),
     content: z.string(),
@@ -273,6 +280,7 @@ const projects = defineCollection({
       excerpt: doc.excerpt,
       order: doc.order,
       accent: doc.accent ?? WORKSHOP_ACCENT,
+      cover: doc.cover,
       draft: doc.draft,
       featured: doc.featured,
       mdx,

@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { m } from "motion/react";
 import { togglePipVariants } from "@/lib/motion";
 
-export function ThemeToggle() {
+export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -26,7 +26,7 @@ export function ThemeToggle() {
          this needs horizontal slop as well as vertical -- py-2 alone would leave
          a 26x10 target. The negative margins keep the header's height and the
          nav's spacing exactly as they were. */
-      className="label-mono -mx-2 -my-2 flex cursor-pointer items-center gap-2 px-2 py-2 tracking-[0.08em] sm:tracking-[0.14em] text-faint transition-colors duration-300 hover:text-[#b0573f]"
+      className="label-mono -mx-2 -my-2 flex cursor-pointer items-center gap-2 px-2 py-2 tracking-[0.08em] sm:tracking-[0.14em] text-faint transition-colors duration-300 hover:text-link-hover"
       aria-label="Toggle dark mode"
     >
       <m.span
@@ -40,9 +40,15 @@ export function ThemeToggle() {
           aria-label, so dropping the word costs nothing to a screen reader —
           and a display:none span is not a flex item, so the gap-2 collapses
           with it. */}
-      <span className="hidden sm:inline">
-        {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
-      </span>
+      {/* compact is the rail, where the column is ~52px wide and the word
+          would not fit. The button's aria-label already names the control, so
+          dropping the word costs a screen reader nothing, and a display:none
+          span is not a flex item, so the gap-2 collapses with it. */}
+      {!compact && (
+        <span className="hidden sm:inline">
+          {mounted ? (isDark ? "Light" : "Dark") : "Dark"}
+        </span>
+      )}
     </button>
   );
 }

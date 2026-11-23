@@ -39,6 +39,25 @@ export const wipeIn: Variants = {
   },
 };
 
+/** LineReveal's per-word rise. The y is in em so it scales with the heading:
+ * a display-lg word has to travel further than a body-sized one to read as the
+ * same gesture, and a fixed pixel offset would under-move the first and
+ * over-move the second. */
+export const lineWordVariants: Variants = {
+  hidden: { y: "1.05em" },
+  show: { y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+/** The container for the above. The stagger is per word, so it is deliberately
+ * short - at the 0.08 used for section-level groups a six-word headline would
+ * take half a second just to start its last word. */
+export function lineWordsContainer(delayChildren = 0): Variants {
+  return {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.045, delayChildren } },
+  };
+}
+
 export function staggerContainer(
   staggerChildren = 0.08,
   delayChildren = 0.1,
@@ -52,36 +71,19 @@ export function staggerContainer(
 }
 
 /**
- * Home entry-card: entrance (hidden/show, inherited from the grid's
- * staggerChildren parent) merged with the hover lift, so the same element
- * can both fade up on mount and lift on hover without prop conflicts.
+ * /work project-index card: entrance (hidden/show, inherited from a
+ * StaggerGroup parent) merged with hover/tap into ONE variants object, the
+ * same fix noteRowVariants already models below. The old shape here was
+ * rest/hover only, and ProjectIndexRow set initial="rest" on it - which
+ * overrides variant inheritance from a parent, so the StaggerGroup wrapping
+ * it on /work was a silent no-op and the cards never staggered in. A card
+ * grid also reads better as a small lift on hover than the old indent, which
+ * was built for a dotted-leader row layout this component no longer uses.
  */
-export const entryCardVariants: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
-  hover: { y: -6, transition: { duration: 0.25, ease: EASE } },
-  tap: { scale: 0.97, transition: { duration: 0.12 } },
-};
-
-export const entryRuleVariants: Variants = {
-  rest: { scaleX: 0.32 },
-  hover: { scaleX: 1, transition: { duration: 0.25, ease: EASE } },
-};
-
-export const entryPipVariants: Variants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.4, transition: { duration: 0.25, ease: EASE } },
-};
-
-export const entryTitleVariants: Variants = {
-  rest: { color: "var(--ink)" },
-  hover: { color: "var(--acc)", transition: { duration: 0.35 } },
-};
-
-/** Home plot-index row hover choreography. */
 export const idxRowVariants: Variants = {
-  rest: { paddingLeft: 0 },
-  hover: { paddingLeft: 24, transition: { duration: 0.25, ease: EASE } },
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  hover: { y: -4, transition: { duration: 0.25, ease: EASE } },
   tap: { scale: 0.97, transition: { duration: 0.12 } },
 };
 

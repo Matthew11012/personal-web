@@ -221,7 +221,7 @@ below `sm` and switch to the flex row at `sm:`.
   `metadataBase` derives from it — anything needing an absolute URL (sitemap, robots, feed,
   OG images) imports from there, don't re-derive.
 - **`next/og`'s `ImageResponse` can't use `next/font` or CSS variables** — it needs raw font
-  ArrayBuffers. `src/lib/og-fonts.ts` fetches Instrument Serif + JetBrains Mono from the
+  ArrayBuffers. `src/lib/og-fonts.ts` fetches Libre Caslon Display + JetBrains Mono from the
   Google Fonts CSS2 API, scoped to the actual text being rendered (keeps the fetch small).
   It must never throw — wrap in try/catch and return `[]` on failure, so a Fonts API outage
   degrades to satori's default font instead of 500ing the OG route. Both `opengraph-image.tsx`
@@ -246,7 +246,7 @@ below `sm` and switch to the flex row at `sm:`.
   visible double-line on hover (two different vertical offsets, both visible). If a link
   needs a persistent underline, drop `navlink` entirely rather than stacking it.
 - **A `Link`/`a` with no explicit color class falls through to the base `a { color:
-  #b0573f }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
+  var(--link) }` rule in `globals.css`** (the sitewide default link color) — not to `text-faint`,
   not to a parent's `--acc`. Any link meant to carry a plot's accent needs its own
   `style={{ color: accent }}`, matching the convention already used by the "More from"
   link on note pages.
@@ -371,3 +371,275 @@ and run `next dev -p <port>` there. Still never `rm -rf .next` under a live serv
 **A brand-new arbitrary Tailwind v4 utility did NOT hit the Turbopack regeneration
 trap here** (`auto-cols-[14px]` computed to a real 14px on a fresh server). The trap
 is real but is not universal — check, don't assume either way.
+
+## P7 visual overhaul (2026-09-05) — the imagery layer
+
+**The display face is Libre Caslon Display**, via `--font-display-serif` in
+`layout.tsx`. Weight 400 / style normal only; there is no italic cut and none is
+needed (every italic on the site is Spectral). **Changing the display face is a
+5-file change, not 1**: `src/lib/og-fonts.ts` fetches the family *by its literal
+name* from the Google Fonts CSS2 API, and both `opengraph-image.tsx` files
+hardcode the same string as a `fontFamily`. A missed rename degrades every social
+card to satori's default **silently** — no build error, no runtime error. Verify a
+font rename by rendering an actual OG PNG, not by reading the diff.
+
+**Where the site's images live.** `public/mandareen/` (18 screenshots, dark UI,
+intrinsic 2551x1375) is the only real product imagery; `src/components/project-gallery.tsx`
+owns them as **static imports** in a `PROJECT_GALLERIES` map keyed by project slug,
+so `next/image` derives width/height/blurDataURL and the band has zero CLS. Add a
+project's plates there, not in MDX. `ASSETS.md` at the repo root is the standing
+list of what is still missing (path, dimensions, aspect, page, required subject) —
+update it when a slot is filled or added.
+
+**Dark screenshots on warm paper: frame, never bleed.** Plates sit on `--panel`
+with a `--rule` hairline and the caption below in `.margin-copy` (Spectral, not
+`.label-mono` — that class is 11px *uppercase* and destroys a full-sentence
+caption). Never run a dark screenshot full-bleed and never tint it toward the
+project accent: the first breaks the page's theme lock, the second misrepresents a
+real product. Plates are `min(720px,88vw)`; at 420px a 2551px-wide screenshot is
+illegible.
+
+**`AssetSlot` (`src/components/asset-slot.tsx`) is the honest placeholder** — a
+plain server component that reserves an exact `aspect-ratio` and names the intended
+subject and dimensions. It carries no motion on purpose; the caller supplies the
+reveal/parallax so composition is tuned before the real asset lands, and swapping
+in `next/image` is one line.
+
+**`aspect-ratio` derives height from *width*, so cap the width to control the
+height.** An uncapped `4/5` slot in the hero's right column measured 467x583 and
+pushed the primary CTA 24px below a 781px viewport. `max-w-[clamp(240px,26vw,400px)]`
+on the wrapper is load-bearing, not styling.
+
+## The homepage horizontal pan (`plot-spine.tsx`)
+
+Geometry is **solved from constants, never measured at runtime**: `PANEL_VW` ×
+`PANEL_COUNT` is the track width, and because a CSS percentage `translateX`
+resolves against the element's *own* width, the travel is
+`(trackVw - 100) / trackVw * 100` percent. Retuning `PANEL_VW` keeps everything
+correct with no hand-edited numbers.
+
+Two things are load-bearing:
+
+- **The section must be full-bleed** (`-mx-[clamp(24px,6vw,120px)]`, cancelling the
+  page wrapper's padding). The travel math assumes the track starts at `x=0`; inside
+  the padded wrapper it starts one padding-width in, and the last panel finished
+  ~106px past the right edge with its content clipped.
+- **Keyboard focus needs an explicit scroll handler.** All four panels are in the
+  DOM but three are translated outside an `overflow-hidden` sticky box, so no
+  ancestor can satisfy the browser's native scroll-into-view horizontally — tabbing
+  into panel 3 focuses something invisible. `revealPanel` converts a panel index to
+  the page offset that centres it, since the pan's x is a pure function of scroll y.
+
+The pan renders only when motion is not reduced (the whole tall wrapper is absent,
+not just hidden) and is `hidden md:block` on top of that, so mobile pays nothing.
+`CompactList` is the fallback for both cases. This section is **shorter** than the
+320vh vertical scrub it replaced.
+
+## Ambient layer and plot marks
+
+`src/components/ambient-layer.tsx` is mounted once as the first child of `<body>`:
+`fixed inset-0 pointer-events-none z-[60]`, an `feTurbulence` grain at 0.04 plus a
+radial warm wash at 0.025, no animation. **`z-[60]` is deliberate — it must sit
+*above* the sticky header**, which is opaque; below it, the grain stops at a hard
+line across the top of every page.
+
+`src/components/plot-mark.tsx` draws one abstract SVG mark per plot, sharing a
+corner-tick frame with a unique interior glyph. Reduced motion needs a **manual**
+branch returning plain `<path>` elements: `pathLength` is neither a transform nor
+opacity, so `MotionConfig reducedMotion="user"` does not cover it — and simply
+skipping the animation would leave `initial={{ pathLength: 0 }}` rendering the mark
+permanently blank.
+
+## `/work` and `FeaturedProject` shape (post-P7)
+
+`FeaturedProject` has **no size variants**. Exactly one project (the flagship) gets
+it, once per page, on both `/` and `/work`; the old `size="secondary"` block was
+deleted along with the hairline "Also built" list. `/work`'s rhythm now comes from
+alternating widths — narrow flagship, full-bleed `ProjectGallery` band, then a
+`grid-cols-12` index with 7/5/5/7 spans where only the wide cells carry media.
+Giving every cell an `AssetSlot` would read as four grey boxes.
+
+`/work` and `/work/[slug]` both have OG image routes now, cloning the
+`notes/[slug]` pattern. Remember Next 16's `params: Promise<...>` must be awaited.
+
+## P8 rail and composition patterns (2026-09-05)
+
+### The rail fits in padding that already exists — except in the pan
+
+`--rail-w: clamp(44px,4.5vw,72px)` against a page gutter of
+`px-[clamp(24px,6vw,120px)]` (61px at a 1024 viewport). Nothing is inset for
+the rail, which matters: insetting would put every pan panel on
+`calc(100vw - var(--rail-w))` and reopen the travel arithmetic.
+
+The pan is the exception, because it deliberately escapes that gutter — its
+panel content sat at 33px under a 47px rail. Panels carry
+`lg:pl-[calc(var(--rail-w)+clamp(20px,3.2vw,48px))]`; `box-sizing: border-box`
+means the panel stays 42vw and the arithmetic is untouched.
+
+The rail paints **no ground**. It did briefly, to stay legible over colour
+bands; the bands are gone and the page has exactly one ground, so there is
+nothing for it to disagree with.
+
+### Pan end-state overhang is the scrollbar
+
+At a 1442px client width the last panel finishes 15px past the right edge —
+exactly the scrollbar. `vw` units include the scrollbar; the element does not.
+Hidden inside the last panel's trailing padding. Do not "fix" it by changing
+`TRAVEL_PCT`.
+
+### `LineReveal` is per word, deliberately
+
+`src/components/line-reveal.tsx`. Line splitting needs DOM measurement, a
+resize listener and a hidden copy of the text to measure against, for an
+effect indistinguishable at display sizes. Two non-obvious constraints:
+
+- The word mask is **`inline-block`, never `inline-flex`**. An inline-flex mask
+  makes every word a flex container and `innerText` — what a copy of a
+  selection actually yields — inserts a line break between them, so the
+  headline pastes one word per line. `textContent` looks fine either way, so
+  check `innerText`.
+- The mask carries `pb-[0.14em] mb-[-0.14em]` so `overflow-hidden` does not
+  slice descenders.
+
+It animates `y` + opacity, which `MotionConfig reducedMotion="user"` covers
+(unlike `clip-path`), and fires on `whileInView` — unlike `Reveal`, which is
+mount-triggered.
+
+`viewport={{ once: true }}` does **not** strand a heading that was already
+scrolled past at mount. A review raised this; measured directly by reloading
+`/` at `scrollY 2200` (hero h1 above the viewport): the words sit translated
+122px inside their masks, and go to `transform: none` the moment the heading
+scrolls back into view. IntersectionObserver delivers an initial `false` and
+keeps watching; `once` only stops watching after the first *hit*.
+
+### `/work` index (post-P8)
+
+`IndexPreview` owns hover state because the hovered row and the reacting frame
+are siblings; `ProjectIndexRow` is typographic only now and takes `onActivate`
+(pointer *and* focus). The frame is **sticky in its own column**, not fixed —
+fixed would join the header and rail in the z-index conversation for nothing.
+The two bookend `AssetSlot`s are gone; the frame is where the four covers in
+`ASSETS.md` land, with no code change needed.
+
+### Known follow-up, not fixed
+
+`Reveal` (`src/components/reveal.tsx:27`) is **mount-triggered**
+(`initial="hidden" animate="show"`), not scroll-triggered, so on a 14-viewport
+homepage most reveals fire unseen. Fixing it changes timing across ~40 call
+sites.
+
+### Height budget
+
+Homepage at 390x844 is back to roughly the 3425px baseline now the bands and
+their vertical padding are gone. No horizontal document scroll at any width
+tested; the rail is `display:none` below `lg`.
+
+## P8b colour bands removed, one radius scale added (2026-09-05)
+
+### The bands were tried and reverted — do not re-propose them
+
+Alternating section grounds (`.invert-band`, `Band`, `useActiveBand`) shipped
+and came straight back out. Two reasons, and the second is the reusable one:
+
+1. The alternation read as rough rather than as punctuation, and the light
+   band on a dark page was uncomfortable to look at.
+2. **A full-height element cannot take its colour from a sample at the top of
+   the viewport.** The side rail is a viewport tall; its band was decided by an
+   IntersectionObserver watching a strip the height of the header. At every
+   boundary the rail sat as a light stripe down the left of a dark section.
+   That is wrong in kind, not in degree — no amount of `rootMargin` tuning
+   fixes it, because the rail spans two bands at once.
+
+If section separation comes up again, the site's existing vocabulary is
+hairline rules and spacing, and that is what it went back to.
+
+### The corner scale: `--corner` / `--corner-sm`
+
+`globals.css`, two steps, and two is the whole system. **10px** for anything
+that encloses content (asset slots, gallery plates, the `/work` preview
+frame); **6px** for small marks (heatmap cells, legend swatches, the plot
+accent bar, the inspector swatch). Call sites use
+`rounded-[var(--corner)]`.
+
+Named `--corner`, **not** `--radius`: Tailwind v4 owns the `--radius-*`
+namespace for its own `rounded-*` utilities, so declaring `--radius-sm` on
+`:root` silently retargets `rounded-sm` sitewide.
+
+Three standing exclusions:
+
+- **Circles and pips** keep `rounded-full` and are outside the scale.
+- **Hairline rules** — `border-t/b/l/r` alone — get nothing. They are lines,
+  not boxes.
+- **SVG chart bars stay square.** `weekly-volume.tsx` and
+  `home-weekly-volume.tsx` draw into a `viewBox="0 0 100 40"` with
+  `preserveAspectRatio="none"`, so x and y scale by wildly different factors
+  (~17.5 vs ~2.5 at desktop). Any `rx`/`ry` renders as visibly elliptical
+  corners, and would swallow the 0.6-unit floor a zero week draws.
+
+An **inner** frame takes the smaller step even when it is a container: the
+screenshot inside a gallery plate is 6px inside the plate's 10px, because an
+inner radius equal to its frame's reads as thicker at the corners.
+
+### Checking the scale held
+
+Rather than grepping for `rounded-`, walk the rendered DOM for boxes that are
+bordered on all four sides or filled and report any left at `0px`:
+
+```js
+[...document.querySelectorAll('main *')].filter(el => {
+  const cs = getComputedStyle(el);
+  const bordered = ['Top','Right','Bottom','Left'].every(s => parseFloat(cs['border'+s+'Width']) > 0);
+  return (bordered || cs.backgroundColor !== 'rgba(0, 0, 0, 0)')
+    && cs.borderTopLeftRadius === '0px';
+});
+```
+
+The only legitimate hits are the GitHub heatmap's `bg-bg` sticky label masks —
+page-coloured scroll backdrops, not containers.
+
+## P9 the rail is the nav from lg up (2026-09-05)
+
+`SideRail` (`src/components/side-rail.tsx`) is the **primary navigation** at
+`lg` and above, not decoration. `SiteHeader` is `lg:hidden` and exists only
+below `lg`, where there is no rail. Exactly one of the two is in the
+accessibility tree at any width - verify with a snapshot, not by reading
+classes.
+
+They used to both render: the rail fixed at `y0 h100vh z-30`, the header
+sticky at `y0 h49 z-20`, so the rail's label sat on the wordmark. Two pieces
+of chrome claiming one corner is not a z-index problem; stacking only picks
+which one loses.
+
+**The rail's width is coupled to the page gutter.** `--rail-w` is
+`clamp(52px, 5vw, 76px)` against the page wrapper's
+`px-[clamp(24px,6vw,120px)]`. The two clamps are paired on purpose so the rail
+is strictly narrower than the gutter at every width it is shown at. The margin
+is tightest at exactly 1024: **61px gutter less 51px rail is 10px.** Anything
+that bleeds left out of the leftmost content column has to fit in that 10px or
+it slides under the rail and its left corners render as a square cut. A
+viewport-scaled clamp will not fit; use a fixed value of 8px or less. This is
+why `ProjectIndexRow`'s hover plate uses `-mx-2 px-2` and not a clamp.
+
+Nothing is inset for the rail. `PlotSpine`'s panels pad themselves past it
+with `lg:pl-[calc(var(--rail-w)+...)]`; the pan still resolves `PANEL_VW`
+against `100vw` and its travel arithmetic is untouched. Do not "fix" this by
+insetting the page.
+
+Rail labels are `[writing-mode:vertical-rl]` with **no rotation**, so the
+column reads in the same direction as the DOM order and the page.
+
+## P9b where a container is allowed (2026-09-05)
+
+The homepage has exactly one card: `IdentityBand`, `--panel` ground, `border
+border-hair`, `rounded-[var(--corner)]`. It earns it by changing subject - the
+rest of the page is work, that block is the person. `HomeTrainingBand`
+directly below it deliberately keeps a plain hairline; two identical plates
+stacked is a card kit, not a hierarchy.
+
+`--panel` is the site's one raised surface (`#f4efe6` on `#e8e2d5` light,
+`#221d17` on `#191510` dark) and `--dim`/`--faint` are already pinned against
+it, so text on a new panel needs no fresh contrast work.
+
+Sweep for missed containers by walking the rendered DOM for boxes over 40x24
+that are filled or fully bordered and still at `borderTopLeftRadius: 0px` -
+grepping for `rounded-` misses anything styled indirectly.

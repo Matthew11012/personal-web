@@ -20,15 +20,15 @@ async function loadGoogleFont(family: string, weight: number, text: string) {
  * satori's default font, not 500 the route. */
 export async function loadOgFonts(text: string) {
   try {
-    const [instrumentSerif, jetbrainsMono] = await Promise.all([
-      loadGoogleFont("Instrument Serif", 400, text),
+    const [displaySerif, jetbrainsMono] = await Promise.all([
+      loadGoogleFont("Libre Caslon Display", 400, text),
       loadGoogleFont("JetBrains Mono", 400, text),
     ]);
 
     return [
       {
-        name: "Instrument Serif",
-        data: instrumentSerif,
+        name: "Libre Caslon Display",
+        data: displaySerif,
         weight: 400 as const,
         style: "normal" as const,
       },

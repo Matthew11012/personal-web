@@ -90,7 +90,7 @@ export function ChartInspector({
                     highlighted above it rather than floating unattached. */}
                 <span
                   aria-hidden="true"
-                  className="h-2 w-2 shrink-0"
+                  className="h-2 w-2 shrink-0 rounded-[var(--corner-sm)]"
                   style={{ backgroundColor: "var(--acc)", opacity: row.tint ?? 1 }}
                 />
                 <span className="text-faint">{row.label}</span>

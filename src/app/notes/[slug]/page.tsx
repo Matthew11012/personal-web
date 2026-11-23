@@ -23,7 +23,7 @@ export async function generateMetadata({
   if (!note) return {};
 
   return {
-    title: `${note.title} — Matthew Rizky Hartadi`,
+    title: `${note.title} - Matthew Rizky Hartadi`,
     description: note.excerpt,
   };
 }
